@@ -15,8 +15,8 @@ const palavrasDificeis = [
 ];
 
 const estado = {
-  conhecidas:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas", lista:"listaConhecidas"},
-  dificeis:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barDificeis", label:"tempoDificeis", botao:"pauseDificeis", lista:"listaDificeis"}
+  conhecidas:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barConhecidas", spark:"sparkConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas", lista:"listaConhecidas"},
+  dificeis:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barDificeis", spark:"sparkDificeis", label:"tempoDificeis", botao:"pauseDificeis", lista:"listaDificeis"}
 };
 
 let acertosCompreensao = 0;
@@ -83,8 +83,13 @@ function atualizarTimerVisual(tipo){
   const item = estado[tipo];
   const tempo = Math.max(0, item.tempo);
   const barra = document.getElementById(item.bar);
+  const faisca = document.getElementById(item.spark);
   document.getElementById(item.label).textContent = tempo;
   barra.style.strokeDasharray = `${(tempo / 60) * circunferencia} ${circunferencia}`;
+  if(faisca){
+    const angulo = -90 + ((60 - tempo) / 60) * 360;
+    faisca.style.setProperty("--fuse-angle", `${angulo}deg`);
+  }
   barra.classList.remove("green","yellow","red");
   if(tempo <= 15){
     barra.classList.add("red");
