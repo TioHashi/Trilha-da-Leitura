@@ -6,7 +6,6 @@
 <title>Trilha da Leitura</title>
 
 <style>
-
 :root{
 --blue:#2563eb;
 --green:#22c55e;
@@ -23,11 +22,10 @@ font-family:Arial,sans-serif;
 
 body{
 background:linear-gradient(#eef4ff,#dbeafe);
-padding:18px 18px 70px;
-min-height:100vh;
+padding:15px 15px 80px;
 }
 
-/* rodapé */
+/* RODAPÉ DESTACADO */
 footer{
 position:fixed;
 bottom:10px;
@@ -35,39 +33,46 @@ left:0;
 width:100%;
 text-align:center;
 font-size:14px;
-opacity:.65;
-font-weight:600;
+font-weight:800;
+color:#1e3a8a;
 }
 
+/* layout */
 .page{
 display:none;
-max-width:1100px;
+max-width:1200px;
 margin:auto;
-background:#fff;
-padding:30px;
-border-radius:28px;
-box-shadow:0 10px 40px rgba(0,0,0,.08);
+background:white;
+padding:20px;
+border-radius:24px;
+box-shadow:0 8px 30px rgba(0,0,0,.08);
 }
 
-.active{
-display:block;
-}
+.active{display:block;}
 
 h1{
 text-align:center;
-color:var(--blue);
+color:#2563eb;
 margin-bottom:15px;
 }
 
-.sub{
-text-align:center;
-opacity:.75;
-margin-bottom:25px;
+.startBtn{
+display:block;
+margin:30px auto;
+width:300px;
+max-width:100%;
+padding:18px;
+border:none;
+border-radius:18px;
+background:#2563eb;
+color:white;
+font-size:20px;
+font-weight:bold;
 }
 
 label{
 display:block;
-margin-top:18px;
+margin-top:15px;
 font-weight:bold;
 }
 
@@ -76,33 +81,20 @@ width:100%;
 padding:14px;
 margin-top:8px;
 border-radius:12px;
-border:1px solid #cbd5e1;
+border:1px solid #ccc;
 }
 
-.startBtn{
-display:block;
-margin:30px auto 0;
-width:300px;
-padding:18px;
-border:none;
-border-radius:18px;
-background:var(--blue);
-color:white;
-font-size:20px;
-font-weight:bold;
-}
-
-/* TIMER */
+/* timer */
 .timer-wrap{
 display:flex;
 justify-content:center;
-margin:30px 0;
+margin:25px 0;
 }
 
 .base-timer{
 position:relative;
-width:220px;
-height:220px;
+width:180px;
+height:180px;
 }
 
 .base-timer svg{
@@ -110,141 +102,101 @@ transform:scaleX(-1);
 }
 
 .base-timer_path-elapsed{
-stroke:#e5e7eb;
-stroke-width:8px;
+stroke:#ddd;
+stroke-width:8;
 fill:none;
 }
 
 .base-timer_path-remaining{
-stroke-width:8px;
-stroke-linecap:round;
+stroke-width:8;
 fill:none;
 stroke:currentColor;
-transition:1s linear all;
+stroke-linecap:round;
 }
 
-.green{color:var(--green);}
-.yellow{color:var(--yellow);}
-.red{color:var(--red);}
+.green{color:#22c55e;}
+.yellow{color:#f59e0b;}
+.red{color:#ef4444;}
 
 .base-timer_label{
 position:absolute;
-top:0;
-width:220px;
-height:220px;
+inset:0;
 display:flex;
+flex-direction:column;
 justify-content:center;
 align-items:center;
-flex-direction:column;
 font-weight:800;
 }
 
 .base-timer_label span{
-font-size:70px;
+font-size:60px;
 }
-
-.base-timer_label small{
-font-size:22px;
-}
-
 
 /* palavras */
 .grid{
 display:grid;
-grid-template-columns:repeat(5,minmax(150px,1fr));
-gap:12px;
-margin-top:25px;
+grid-template-columns:repeat(auto-fit,minmax(95px,1fr));
+gap:8px;
+margin-top:15px;
 }
 
 .word{
-background:#f1f5f9;
-padding:15px;
-border-radius:14px;
-min-height:70px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
-font-weight:bold;
+background:#eff6ff;
+padding:10px 5px;
+border-radius:10px;
 text-align:center;
+font-size:18px;
+font-weight:700;
 word-break:break-word;
-overflow-wrap:anywhere;
 }
 
 .controls{
 display:flex;
-gap:12px;
 flex-wrap:wrap;
-margin-top:25px;
-}
-
-.controls button{
-flex:1;
-padding:15px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-color:white;
-}
-
-.pause{
-background:var(--red);
-}
-
-.continuar{
-background:var(--green);
-}
-
-.new{
-background:#0ea5e9;
-}
-
-.next{
-background:#10b981;
-}
-
-.compBtn{
-background:var(--yellow);
-}
-
-.calc{
+gap:10px;
 margin-top:20px;
-width:100%;
-padding:16px;
-border:none;
-border-radius:14px;
-background:#10b981;
-color:white;
-font-weight:bold;
 }
 
-.restart{
-background:var(--blue);
+button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:12px;
+font-weight:bold;
+color:white;
 }
+
+.pause{background:#ef4444;}
+.continuar{background:#22c55e;}
+.next{background:#10b981;}
+.compBtn{background:#f59e0b;}
 
 .story{
+margin-top:20px;
 background:#fffef5;
-padding:24px;
-border-left:6px solid #eab308;
-border-radius:14px;
-line-height:1.9;
-margin:20px 0;
+padding:20px;
+border-left:5px solid #f59e0b;
+border-radius:12px;
+line-height:1.8;
 }
 
 .result{
 display:none;
-margin-top:25px;
+margin-top:20px;
 background:#dbeafe;
-padding:30px;
-border-radius:18px;
+padding:25px;
+border-radius:16px;
 font-size:22px;
 font-weight:bold;
 line-height:1.8;
 }
 
-@media(max-width:800px){
+@media(max-width:600px){
 .grid{
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(3,1fr);
+}
+.word{
+font-size:15px;
 }
 }
 
@@ -253,22 +205,15 @@ grid-template-columns:repeat(2,1fr);
 <body>
 
 
-
 <!-- INICIO -->
 <div id="page1" class="page active">
 
 <h1>Trilha da Leitura</h1>
 
-<div class="sub">
-Avaliação Diagnóstica de Fluência
-</div>
-
 <label>Nome do estudante</label>
-<input id="aluno">
+<input id="aluno" placeholder="Digite o nome do aluno">
 
-<button
-class="startBtn"
-onclick="iniciar()">
+<button class="startBtn" onclick="iniciar()">
 Iniciar Trilha
 </button>
 
@@ -276,121 +221,69 @@ Iniciar Trilha
 
 
 
-<!-- CONHECIDAS -->
+<!-- PALAVRAS CONHECIDAS -->
 <div id="page2" class="page">
 
-<h1>Palavras Conhecidas</h1>
+<h1>60 Palavras Conhecidas</h1>
 
 <div class="timer-wrap">
 <div class="base-timer">
-
 <svg viewBox="0 0 100 100">
 <circle class="base-timer_path-elapsed" cx="50" cy="50" r="45"/>
 <path id="timer1"
 stroke-dasharray="283"
 class="base-timer_path-remaining green"
-d="
-M50,50
-m-45,0
-a45,45 0 1,0 90,0
-a45,45 0 1,0 -90,0"/>
+d="M50,50 m-45,0 a45,45 0 1,0 90,0 a45,45 0 1,0 -90,0"/>
 </svg>
 
 <div class="base-timer_label">
 <span id="tempo1">60</span>
 <small>segundos</small>
 </div>
-
 </div>
 </div>
 
-<div id="palavras"
-class="grid"></div>
+<div id="palavras" class="grid"></div>
 
 <div class="controls">
-
-<button
-id="pauseBtn1"
-class="pause"
-onclick="togglePause1()">
-Pausar
-</button>
-
-<button
-class="new"
-onclick="sortearConhecidas()">
-Novas Palavras
-</button>
-
-<button
-class="next"
-onclick="irDificeis()">
-Palavras Difíceis
-</button>
-
+<button id="pauseBtn1" class="pause" onclick="togglePause1()">Pausar</button>
+<button class="next" onclick="irDificeis()">Palavras Desconhecidas</button>
 </div>
 
 </div>
 
 
 
-
-<!-- DIFICIEIS -->
+<!-- PALAVRAS DIFICEIS -->
 <div id="page3" class="page">
 
-<h1>Palavras Difíceis</h1>
+<h1>40 Palavras Possivelmente Desconhecidas</h1>
 
 <div class="timer-wrap">
 <div class="base-timer">
-
 <svg viewBox="0 0 100 100">
 <circle class="base-timer_path-elapsed" cx="50" cy="50" r="45"/>
 <path id="timer2"
 stroke-dasharray="283"
 class="base-timer_path-remaining green"
-d="
-M50,50
-m-45,0
-a45,45 0 1,0 90,0
-a45,45 0 1,0 -90,0"/>
+d="M50,50 m-45,0 a45,45 0 1,0 90,0 a45,45 0 1,0 -90,0"/>
 </svg>
 
 <div class="base-timer_label">
 <span id="tempo2">60</span>
 <small>segundos</small>
 </div>
-
 </div>
 </div>
 
-<div id="dificeis"
-class="grid"></div>
+<div id="dificeis" class="grid"></div>
 
 <div class="controls">
-
-<button
-id="pauseBtn2"
-class="pause"
-onclick="togglePause2()">
-Pausar
-</button>
-
-<button
-class="new"
-onclick="sortearDificeis()">
-Novas Palavras
-</button>
-
-<button
-class="next"
-onclick="irTexto()">
-Texto e Compreensão
-</button>
-
+<button id="pauseBtn2" class="pause" onclick="togglePause2()">Pausar</button>
+<button class="next" onclick="irTexto()">Texto e Compreensão</button>
 </div>
 
 </div>
-
 
 
 
@@ -399,58 +292,47 @@ Texto e Compreensão
 
 <h1>Texto e Compreensão</h1>
 
-<div id="textoArea"
-class="story"></div>
+<div class="story">
+Um menino plantou uma semente no quintal e regou todos os dias.
+</div>
 
-<label id="q1label"></label>
-<select id="q1"></select>
+<label>O menino plantou:</label>
+<select id="q1">
+<option>Uma semente</option>
+<option>Uma pedra</option>
+</select>
 
-<label id="q2label"></label>
-<select id="q2"></select>
+<label>Ele cuidou:</label>
+<select id="q2">
+<option>Regando</option>
+<option>Esquecendo</option>
+</select>
 
 <div class="controls">
-<button
-class="compBtn"
-onclick="goPage(5)">
-Resultado
-</button>
+<button class="compBtn" onclick="goPage(5)">Resultado</button>
 </div>
 
 </div>
-
 
 
 
 <!-- RESULTADO -->
 <div id="page5" class="page">
 
-<h1>Classificação do Leitor</h1>
+<h1>Classificação</h1>
 
 <label>Palavras corretas</label>
-<input id="corretas" type="number">
+<input id="corretas">
 
-<label>Palavras difíceis corretas</label>
-<input id="desconhecidas" type="number">
+<label>Palavras desconhecidas corretas</label>
+<input id="desconhecidas">
 
-<label>Precisão (%)</label>
-<input id="precisao" type="number">
+<label>Precisão</label>
+<input id="precisao">
 
-<button
-class="calc"
-onclick="classificar()">
-Gerar Resultado
-</button>
+<button class="next" onclick="classificar()">Gerar Resultado</button>
 
-<div id="resultado"
-class="result"></div>
-
-<div class="controls">
-<button
-class="restart"
-onclick="reiniciar()">
-Nova Trilha da Leitura
-</button>
-</div>
+<div id="resultado" class="result"></div>
 
 </div>
 
@@ -465,302 +347,77 @@ Nova Trilha da Leitura
 <script>
 
 function goPage(n){
-document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
-document.getElementById("page"+n).classList.add("active");
+document.querySelectorAll('.page')
+.forEach(p=>p.classList.remove('active'));
+document.getElementById('page'+n)
+.classList.add('active');
 }
 
-const conhecidas=[
-"casa","bola","gato","mesa","lua","rio","sol","pipa","cama","rato",
-"vaca","rosa","anel","dedo","fogo","garfo","ilha","janela","leite","muro"
-];
+/* LISTAS */
+const conhecidas=["casa","bola","gato","mesa","lua","rio","sol","pipa","cama","rato","vaca","rosa","anel","dedo","fogo","garfo","ilha","janela","leite","muro","navio","pedra","quadro","roupa","sapato","terra","uva","vento","zebra","abelha","barco","chuva","doce","estrela","folha","grama","hotel","igreja","jardim","lápis","manga","ninho","olho","porta","queijo","sino","tomate","vaso","areia","beijo","cano","drama","eco","fita","galo","harpa","jarra","lenha","macaco","noite"];
 
-const dificeis=[
-"abóbada","abutre","acólito","adágio","agreste","alicerce","ampulheta","anáfora",
-"apogeu","arcabouço","ardósia","aríete","arquipélago","arrebol","artífice",
-"asceta","asteroide","atavismo","azulejo","bálsamo"
-];
+const dificeis=["abóbada","acólito","anáfora","apogeu","arcabouço","arquipélago","artífice","azulejo","bálsamo","bússola","cadência","calabouço","caramujo","catacumba","catedral","claraboia","cordilheira","crisálida","crosta","cupinzeiro","desfiladeiro","diligência","dossel","estalagem","estuário","fanal","fornalha","gazela","geleira","hortênsia","labirinto","lamparina","manancial","mirante","obelisco","penhasco","pináculo","santuário","vertente","miríade"];
 
-function sortear(lista,id){
-let html="";
-for(let i=0;i<20;i++){
-html+=`<div class='word'>
-${lista[Math.floor(Math.random()*lista.length)]}
-</div>`;
-}
-document.getElementById(id).innerHTML=html;
+function mostrarLista(lista,id){
+document.getElementById(id).innerHTML=
+lista.map(p=>`<div class="word">${p}</div>`).join('');
 }
 
-function sortearConhecidas(){
-sortear(conhecidas,"palavras");
-}
-
-function sortearDificeis(){
-sortear(dificeis,"dificeis");
-}
-
-
-
-const textos=[
-{
-texto:"O menino plantou uma semente no quintal e regou todos os dias.",
-q1:"O menino plantou:",
-a1:["Uma semente","Uma pedra"],
-c1:"Uma semente",
-q2:"Ele cuidou da planta:",
-a2:["Regando","Esquecendo"],
-c2:"Regando"
-},
-{
-texto:"Uma coruja saiu à noite e observou a lua no céu.",
-q1:"Quem saiu à noite?",
-a1:["A coruja","Um cachorro"],
-c1:"A coruja",
-q2:"Ela olhava:",
-a2:["O céu","O rio"],
-c2:"O céu"
-}
-];
-
-let textoAtual;
-
-function carregarTexto(){
-
-textoAtual=
-textos[
-Math.floor(Math.random()*textos.length)
-];
-
-textoArea.innerHTML=
-"<b>Texto</b><br><br>"+
-textoAtual.texto;
-
-q1label.innerHTML=textoAtual.q1;
-q2label.innerHTML=textoAtual.q2;
-
-q1.innerHTML=
-`
-<option>Selecionar</option>
-<option>${textoAtual.a1[0]}</option>
-<option>${textoAtual.a1[1]}</option>
-`;
-
-q2.innerHTML=
-`
-<option>Selecionar</option>
-<option>${textoAtual.a2[0]}</option>
-<option>${textoAtual.a2[1]}</option>
-`;
-
-}
-
-
-
-/* timer1 */
-let t1=60;
-let paused1=false;
-let timer1;
+/* TIMER */
+let t1=60,p1=false,timer1;
+let t2=60,p2=false,timer2;
 
 function iniciar(){
-
 goPage(2);
-
-sortearConhecidas();
-
+mostrarLista(conhecidas,"palavras");
 timer1=setInterval(()=>{
-
-if(!paused1){
-
-t1--;
-
-tempo1.innerHTML=Math.max(t1,0);
-
-updateCircle("timer1",t1);
-
-if(t1<0){
-clearInterval(timer1);
-alert("PARE");
-}
-
-}
-
+if(!p1){t1--;tempo1.innerHTML=t1;}
 },1000);
-
 }
 
 function togglePause1(){
-
-paused1=!paused1;
-
-if(paused1){
-pauseBtn1.innerText="Continuar";
-pauseBtn1.className="continuar";
-}else{
-pauseBtn1.innerText="Pausar";
-pauseBtn1.className="pause";
+p1=!p1;
+pauseBtn1.innerText=p1?"Continuar":"Pausar";
+pauseBtn1.className=p1?"continuar":"pause";
 }
-
-}
-
 
 function irDificeis(){
-
 clearInterval(timer1);
-
 goPage(3);
-
-sortearDificeis();
-
+mostrarLista(dificeis,"dificeis");
 timer2=setInterval(()=>{
-
-if(!paused2){
-
-t2--;
-
-tempo2.innerHTML=Math.max(t2,0);
-
-updateCircle("timer2",t2);
-
-if(t2<0){
-clearInterval(timer2);
-alert("PARE");
-}
-
-}
-
+if(!p2){t2--;tempo2.innerHTML=t2;}
 },1000);
-
 }
-
-
-
-/* timer2 */
-
-let t2=60;
-let paused2=false;
-let timer2;
 
 function togglePause2(){
-
-paused2=!paused2;
-
-if(paused2){
-pauseBtn2.innerText="Continuar";
-pauseBtn2.className="continuar";
-}else{
-pauseBtn2.innerText="Pausar";
-pauseBtn2.className="pause";
-}
-
+p2=!p2;
+pauseBtn2.innerText=p2?"Continuar":"Pausar";
+pauseBtn2.className=p2?"continuar":"pause";
 }
 
 function irTexto(){
 clearInterval(timer2);
 goPage(4);
-carregarTexto();
 }
-
-
-
-function updateCircle(id,time){
-
-let c=document.getElementById(id);
-
-let raw=
-Math.max(time,0)/60*283;
-
-c.setAttribute(
-"stroke-dasharray",
-`${raw} 283`
-);
-
-c.classList.remove(
-"green","yellow","red"
-);
-
-if(time<=15)
-c.classList.add("red");
-else if(time<=30)
-c.classList.add("yellow");
-else
-c.classList.add("green");
-
-}
-
-
 
 function classificar(){
-
 let p=parseInt(corretas.value)||0;
 let d=parseInt(desconhecidas.value)||0;
-let prec=parseInt(precisao.value)||0;
-
-let comp=0;
-
-if(q1.value===textoAtual.c1) comp++;
-if(q2.value===textoAtual.c2) comp++;
+let pr=parseInt(precisao.value)||0;
 
 let perfil="";
 
-if(p===0) perfil="Pré-leitor N1";
-else if(p<=2) perfil="Pré-leitor N2";
-else if(p<=5) perfil="Pré-leitor N3";
-else if(p<=10) perfil="Pré-leitor N4";
-else if(p>=11&&d>=6&&p<=65)
-perfil="Leitor Iniciante";
-else if(p>65&&prec>=90)
-perfil="Leitor Fluente";
-else
-perfil="Em desenvolvimento";
-
+if(p<=10) perfil="Pré-leitor";
+else if(p<=65) perfil="Leitor Iniciante";
+else if(pr>=90) perfil="Leitor Fluente";
 
 resultado.style.display="block";
-
 resultado.innerHTML=
-`
-Perfil: ${perfil}
-<br>
-Palavras corretas: ${p}
-<br>
-Palavras difíceis: ${d}
-<br>
-Precisão: ${prec}%
-<br>
-Compreensão: ${comp}/2 acertos
-`;
-
-}
-
-
-
-function reiniciar(){
-
-clearInterval(timer1);
-clearInterval(timer2);
-
-t1=60;
-t2=60;
-
-tempo1.innerHTML=60;
-tempo2.innerHTML=60;
-
-paused1=false;
-paused2=false;
-
-pauseBtn1.innerText="Pausar";
-pauseBtn2.innerText="Pausar";
-
-pauseBtn1.className="pause";
-pauseBtn2.className="pause";
-
-resultado.style.display="none";
-
-corretas.value="";
-desconhecidas.value="";
-precisao.value="";
-
-goPage(1);
-
+`Perfil: ${perfil}<br>
+Conhecidas: ${p}<br>
+Desconhecidas: ${d}<br>
+Precisão: ${pr}%`;
 }
 
 </script>
