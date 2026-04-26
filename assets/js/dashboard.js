@@ -1,5 +1,17 @@
 let todosResultados = [];
 let resultadosFiltrados = [];
+const escolasPadrao = [
+  "E.M.E.F. CILIRA VIEIRA DE SOUZA",
+  "E.M.E.F. XV DE NOVEMBRO",
+  "E.M.E.F. BREJO GRANDE DO ARAGUAIA",
+  "E.M.E.I.F. SILVANA MOURA",
+  "E.M.E.I.F. PADRE CICERO",
+  "E.M.E.I.F. SÃO JOSÉ",
+  "E.M.E.I.F. INDÍGENA SAWARAPI SURUI",
+  "E.M.E.I.F. NOSSA SENHORA DA PENHA",
+  "E.M.E.I.F. JOVENTINA"
+];
+const turmasPadrao = ["2 ANO A", "2 ANO B"];
 
 async function obterFirestoreDashboard(){
   if(!window.firebase || !window.firebaseConfig){
@@ -32,7 +44,7 @@ async function carregarResultados(){
 function preencherEscolas(){
   const select = document.getElementById("filtroEscola");
   const atual = select.value;
-  const escolas = [...new Set(todosResultados.map(item => item.escola).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+  const escolas = [...new Set([...escolasPadrao, ...todosResultados.map(item => escolaMaiuscula(item.escola)).filter(Boolean)])].sort((a,b) => a.localeCompare(b));
   select.innerHTML = `<option value="">Todas</option>` + escolas.map(escola => `<option value="${escapeHtml(escola)}">${escapeHtml(escola)}</option>`).join("");
   select.value = escolas.includes(atual) ? atual : "";
 }
@@ -40,7 +52,7 @@ function preencherEscolas(){
 function preencherTurmas(){
   const select = document.getElementById("filtroTurma");
   const atual = select.value;
-  const turmas = [...new Set(todosResultados.map(item => item.turma).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+  const turmas = [...new Set([...turmasPadrao, ...todosResultados.map(item => item.turma).filter(Boolean)])].sort((a,b) => a.localeCompare(b));
   select.innerHTML = `<option value="">Todas</option>` + turmas.map(turma => `<option value="${escapeHtml(turma)}">${escapeHtml(turma)}</option>`).join("");
   select.value = turmas.includes(atual) ? atual : "";
 }
@@ -52,7 +64,7 @@ function aplicarFiltros(){
   const busca = normalizar(document.getElementById("filtroBusca").value);
 
   resultadosFiltrados = todosResultados.filter(item => {
-    const escolaOk = !escola || item.escola === escola;
+    const escolaOk = !escola || escolaMaiuscula(item.escola) === escola;
     const turmaOk = !turma || item.turma === turma;
     const perfilOk = !perfil || String(item.perfil || "").includes(perfil);
     const buscaOk = !busca || normalizar(item.nome || "").includes(busca);
@@ -138,7 +150,7 @@ function renderizarTabela(){
     <tr>
       <td>${escapeHtml(item.data || "")}</td>
       <td>${escapeHtml(item.nome || "")}</td>
-      <td>${escapeHtml(item.escola || "")}</td>
+      <td>${escapeHtml(escolaMaiuscula(item.escola))}</td>
       <td>${escapeHtml(item.turma || "")}</td>
       <td>${numero(item.palavrasCorretas)}</td>
       <td>${numero(item.dificeisCorretas)}</td>
@@ -157,7 +169,7 @@ function exportarTabela(){
   const linhas = resultadosFiltrados.map(item => [
     item.data || "",
     item.nome || "",
-    item.escola || "",
+    escolaMaiuscula(item.escola),
     item.turma || "",
     numero(item.palavrasCorretas),
     numero(item.dificeisCorretas),
@@ -189,6 +201,10 @@ function numero(valor){
 
 function normalizar(valor){
   return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+function escolaMaiuscula(valor){
+  return String(valor || "").toLocaleUpperCase("pt-BR");
 }
 
 function escapeHtml(valor){

@@ -40,7 +40,7 @@ function montarLista(lista, alvo, classeExtra){
 
 function iniciarTrilha(){
   const nome = document.getElementById("nomeAluno").value.trim();
-  const escola = document.getElementById("escolaAluno").value.trim();
+  const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
   const turma = document.getElementById("turmaAluno").value.trim();
   if(!escola || !turma || !nome){
     const campo = !escola ? "escola do aluno" : (!turma ? "turma do aluno" : "nome do aluno");
@@ -202,7 +202,7 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
 async function salvarResultado(silencioso){
   try{
     const nome = document.getElementById("nomeAluno").value.trim();
-    const escola = document.getElementById("escolaAluno").value.trim();
+    const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
     const turma = document.getElementById("turmaAluno").value.trim();
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!escola || !turma || !nome){
@@ -347,6 +347,10 @@ function formatarTempo(segundos){
 
 function criarIdRegistro(){
   return `avaliacao-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+function escolaMaiuscula(valor){
+  return String(valor || "").toLocaleUpperCase("pt-BR");
 }
 
 function ajustarGrades(){
