@@ -188,7 +188,7 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
   return {perfil:niveis[chaveNivel][0], criterio:niveis[chaveNivel][1]};
 }
 
-function salvarResultado(silencioso){
+async function salvarResultado(silencioso){
   const nome = document.getElementById("nomeAluno").value.trim();
   const turma = document.getElementById("turmaAluno").value.trim();
   if(!nome || !turma){
@@ -198,7 +198,7 @@ function salvarResultado(silencioso){
 
   const resultado = atualizarResultado();
   if(!registroAtualId) registroAtualId = criarIdRegistro();
-  TrilhaDB.salvar({
+  const salvamento = await TrilhaDB.salvar({
     id:registroAtualId,
     salvoEm:new Date().toISOString(),
     data:new Date().toLocaleString("pt-BR"),
@@ -218,11 +218,16 @@ function salvarResultado(silencioso){
     perfil:resultado.perfil,
     criterio:resultado.criterio
   });
-  if(!silencioso) mostrarModal("Salvo", "Resultado salvo automaticamente no banco de dados do projeto neste navegador.");
+  if(!silencioso){
+    const mensagem = salvamento.destino === "firebase"
+      ? "Resultado salvo no Firebase."
+      : "Resultado salvo neste dispositivo. Configure o Firebase ou reconecte a internet para sincronizar.";
+    mostrarModal("Salvo", mensagem);
+  }
 }
 
-function novoAluno(){
-  salvarResultado(true);
+async function novoAluno(){
+  await salvarResultado(true);
   registroAtualId = null;
   document.getElementById("nomeAluno").value = "";
   document.getElementById("turmaAluno").value = "";
