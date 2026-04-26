@@ -204,6 +204,11 @@ async function salvarResultado(silencioso){
     const nome = document.getElementById("nomeAluno").value.trim();
     const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
     const turma = document.getElementById("turmaAluno").value.trim();
+    const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
+    const dificeisValor = document.getElementById("dificeisCorretas").value.trim();
+    const precisaoValor = document.getElementById("precisao").value.trim();
+    const q1Respondida = Boolean(document.querySelector('input[name="q1"]:checked'));
+    const q2Respondida = Boolean(document.querySelector('input[name="q2"]:checked'));
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!escola || !turma || !nome){
       if(!silencioso) mostrarModal("Atenção", "Escola, turma e nome são obrigatórios para salvar o resultado.");
@@ -211,6 +216,14 @@ async function salvarResultado(silencioso){
     }
     if(!estaNoResultado){
       if(!silencioso) mostrarModal("Atenção", "Conclua a trilha até a página de resultado antes de salvar.");
+      return false;
+    }
+    if(!q1Respondida || !q2Respondida){
+      if(!silencioso) mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de salvar.");
+      return false;
+    }
+    if(palavrasValor === "" || dificeisValor === "" || precisaoValor === ""){
+      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras corretas, Palavras difíceis corretas e Precisão (%) antes de salvar.");
       return false;
     }
 
