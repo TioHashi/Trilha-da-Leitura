@@ -25,9 +25,9 @@ body{
 }
 
 .dashboard-shell{
-  width:min(1220px,100%);
+  width:min(1600px,100%);
   margin:0 auto;
-  padding:18px;
+  padding:clamp(10px,2vw,18px);
 }
 
 .dashboard-hero{
@@ -59,6 +59,17 @@ h1{
   margin:8px 0 0;
   color:#dbeafe;
   font-weight:700;
+}
+
+.dashboard-status{
+  display:inline-flex;
+  margin:14px 0 0;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.16);
+  color:#fff;
+  font-size:.9rem;
+  font-weight:900;
 }
 
 button{
@@ -238,20 +249,25 @@ input{
 .table-wrap{
   width:100%;
   overflow-x:auto;
+  border-radius:14px;
 }
 
 table{
-  width:100%;
-  min-width:1120px;
+  width:max-content;
+  min-width:100%;
   border-collapse:collapse;
+  table-layout:auto;
 }
 
 th,
 td{
-  padding:11px 10px;
+  max-width:260px;
+  padding:10px 9px;
   border-bottom:1px solid #e5e7eb;
   text-align:center;
-  white-space:nowrap;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  vertical-align:middle;
 }
 
 th:nth-child(2),
@@ -259,10 +275,21 @@ td:nth-child(2){
   text-align:left;
 }
 
+th:nth-child(3),
+td:nth-child(3){
+  min-width:240px;
+}
+
+th:nth-child(10),
+td:nth-child(10){
+  min-width:150px;
+}
+
 th{
   color:var(--blue-dark);
   background:#eff6ff;
   font-size:.9rem;
+  white-space:nowrap;
 }
 
 td{

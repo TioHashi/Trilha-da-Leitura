@@ -1,5 +1,6 @@
 let todosResultados = [];
 let resultadosFiltrados = [];
+let unsubscribeResultados = null;
 const escolasPadrao = [
   "E.M.E.F. CILIRA VIEIRA DE SOUZA",
   "E.M.E.F. XV DE NOVEMBRO",
@@ -26,17 +27,29 @@ async function obterFirestoreDashboard(){
 async function carregarResultados(){
   const tabela = document.getElementById("tabelaResultados");
   tabela.innerHTML = `<tr><td colspan="11">Carregando resultados...</td></tr>`;
+  preencherEscolas();
+  preencherTurmas();
+  atualizarStatus("Conectando ao Firebase...");
 
   try{
     const db = await obterFirestoreDashboard();
     const colecao = window.trilhaFirestoreCollection || "resultadosAlunos";
-    const snapshot = await db.collection(colecao).get();
-    todosResultados = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
-    todosResultados.sort((a,b) => new Date(b.salvoEm || b.data || 0) - new Date(a.salvoEm || a.data || 0));
+    if(unsubscribeResultados) unsubscribeResultados();
+    unsubscribeResultados = db.collection(colecao).onSnapshot(snapshot => {
+      todosResultados = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
+      todosResultados.sort((a,b) => new Date(b.salvoEm || b.data || 0) - new Date(a.salvoEm || a.data || 0));
+      preencherEscolas();
+      preencherTurmas();
+      aplicarFiltros();
+      atualizarStatus(`${todosResultados.length} resultado(s) carregado(s) do Firebase.`);
+    }, error => {
+      atualizarStatus(`Erro ao ler Firebase: ${error.message || "verifique regras do Firestore."}`);
+      tabela.innerHTML = `<tr><td colspan="11">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
+    });
+  }catch(error){
     preencherEscolas();
     preencherTurmas();
-    aplicarFiltros();
-  }catch(error){
+    atualizarStatus(`Erro ao conectar: ${error.message || "Firebase não carregado."}`);
     tabela.innerHTML = `<tr><td colspan="11">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
   }
 }
@@ -217,4 +230,10 @@ function escapeHtml(valor){
   })[caractere]);
 }
 
+function atualizarStatus(mensagem){
+  document.getElementById("statusDashboard").textContent = mensagem;
+}
+
+preencherEscolas();
+preencherTurmas();
 carregarResultados();
