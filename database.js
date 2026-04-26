@@ -17,9 +17,13 @@ const TrilhaDB = (() => {
 
   async function salvar(registro){
     salvarLocal(registro);
-    const salvoFirebase = await salvarFirebase(registro);
-    if(!salvoFirebase) enfileirar(registro);
-    return {...registro, destino:salvoFirebase ? "firebase" : "local"};
+    const firebaseResultado = await salvarFirebase(registro);
+    if(!firebaseResultado.ok) enfileirar(registro);
+    return {
+      ...registro,
+      destino:firebaseResultado.ok ? "firebase" : "local",
+      erro:firebaseResultado.erro || ""
+    };
   }
 
   function salvarLocal(registro){
@@ -59,7 +63,8 @@ const TrilhaDB = (() => {
           firebase.initializeApp(window.firebaseConfig);
         }
         resolve(firebase.firestore());
-      }catch{
+      }catch(error){
+        console.error("Erro ao inicializar Firebase:", error);
         resolve(null);
       }
     });
@@ -69,7 +74,9 @@ const TrilhaDB = (() => {
 
   async function salvarFirebase(registro){
     const db = await obterFirestore();
-    if(!db) return false;
+    if(!db){
+      return {ok:false, erro:"Firebase não inicializado. Verifique firebase-config.js e a conexão com a internet."};
+    }
 
     try{
       const colecao = window.trilhaFirestoreCollection || "resultadosAlunos";
@@ -77,9 +84,10 @@ const TrilhaDB = (() => {
         ...registro,
         atualizadoEmFirebase: firebase.firestore.FieldValue.serverTimestamp()
       }, {merge:true});
-      return true;
-    }catch{
-      return false;
+      return {ok:true};
+    }catch(error){
+      console.error("Erro ao salvar no Firestore:", error);
+      return {ok:false, erro:error && error.message ? error.message : "Erro desconhecido ao salvar no Firestore."};
     }
   }
 
@@ -113,7 +121,7 @@ const TrilhaDB = (() => {
     const pendentes = [];
     for(const registro of fila){
       const salvo = await salvarFirebase(registro);
-      if(!salvo) pendentes.push(registro);
+      if(!salvo.ok) pendentes.push(registro);
     }
     salvarFila(pendentes);
   }

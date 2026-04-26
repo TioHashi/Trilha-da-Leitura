@@ -189,40 +189,49 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
 }
 
 async function salvarResultado(silencioso){
-  const nome = document.getElementById("nomeAluno").value.trim();
-  const turma = document.getElementById("turmaAluno").value.trim();
-  if(!nome || !turma){
-    if(!silencioso) mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
-    return;
-  }
+  try{
+    const nome = document.getElementById("nomeAluno").value.trim();
+    const turma = document.getElementById("turmaAluno").value.trim();
+    if(!nome || !turma){
+      if(!silencioso) mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
+      return false;
+    }
 
-  const resultado = atualizarResultado();
-  if(!registroAtualId) registroAtualId = criarIdRegistro();
-  const salvamento = await TrilhaDB.salvar({
-    id:registroAtualId,
-    salvoEm:new Date().toISOString(),
-    data:new Date().toLocaleString("pt-BR"),
-    nome,
-    turma,
-    palavrasCorretas:resultado.corretas,
-    dificeisCorretas:resultado.dificeis,
-    total:resultado.total,
-    precisao:resultado.precisao,
-    compreensao:acertosCompreensao,
-    tempoConhecidasSegundos:estado.conhecidas.gasto,
-    tempoDificeisSegundos:estado.dificeis.gasto,
-    tempoTotalSegundos:estado.conhecidas.gasto + estado.dificeis.gasto,
-    tempoConhecidas:formatarTempo(estado.conhecidas.gasto),
-    tempoDificeis:formatarTempo(estado.dificeis.gasto),
-    tempoTotal:formatarTempo(estado.conhecidas.gasto + estado.dificeis.gasto),
-    perfil:resultado.perfil,
-    criterio:resultado.criterio
-  });
-  if(!silencioso){
-    const mensagem = salvamento.destino === "firebase"
-      ? "Resultado salvo no Firebase."
-      : "Resultado salvo neste dispositivo. Configure o Firebase ou reconecte a internet para sincronizar.";
-    mostrarModal("Salvo", mensagem);
+    const resultado = atualizarResultado();
+    if(!registroAtualId) registroAtualId = criarIdRegistro();
+    const salvamento = await TrilhaDB.salvar({
+      id:registroAtualId,
+      salvoEm:new Date().toISOString(),
+      data:new Date().toLocaleString("pt-BR"),
+      nome,
+      turma,
+      palavrasCorretas:resultado.corretas,
+      dificeisCorretas:resultado.dificeis,
+      total:resultado.total,
+      precisao:resultado.precisao,
+      compreensao:acertosCompreensao,
+      tempoConhecidasSegundos:estado.conhecidas.gasto,
+      tempoDificeisSegundos:estado.dificeis.gasto,
+      tempoTotalSegundos:estado.conhecidas.gasto + estado.dificeis.gasto,
+      tempoConhecidas:formatarTempo(estado.conhecidas.gasto),
+      tempoDificeis:formatarTempo(estado.dificeis.gasto),
+      tempoTotal:formatarTempo(estado.conhecidas.gasto + estado.dificeis.gasto),
+      perfil:resultado.perfil,
+      criterio:resultado.criterio
+    });
+    if(!silencioso){
+      const mensagem = salvamento.destino === "firebase"
+        ? "Resultado salvo no Firebase."
+        : `Resultado salvo neste dispositivo, mas ainda não foi para o Firebase. Motivo: ${salvamento.erro || "verifique internet, Firestore e regras de segurança."}`;
+      mostrarModal("Salvo", mensagem);
+    }
+    return true;
+  }catch(error){
+    console.error("Erro ao salvar resultado:", error);
+    if(!silencioso){
+      mostrarModal("Erro", `Não foi possível salvar o resultado. ${error && error.message ? error.message : ""}`);
+    }
+    return false;
   }
 }
 
