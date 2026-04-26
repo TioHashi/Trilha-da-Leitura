@@ -1,10 +1,11 @@
 window.firebaseConfig = {
-  apiKey: "COLE_AQUI_O_API_KEY_DO_APP_WEB",
+  apiKey: "AIzaSyAhQY16QxpAzA8NXV-vnq5Pzfu8Cgdg3Q8",
   authDomain: "trilha-leitura.firebaseapp.com",
   projectId: "trilha-leitura",
   storageBucket: "trilha-leitura.firebasestorage.app",
-  messagingSenderId: "COLE_AQUI_O_MESSAGING_SENDER_ID",
-  appId: "COLE_AQUI_O_APP_ID"
+  messagingSenderId: "280983130476",
+  appId: "1:280983130476:web:4cc902ea5a3fb1be5b6349",
+  measurementId: "G-TK486NVNX1"
 };
 
 window.trilhaFirestoreCollection = "resultadosAlunos";
