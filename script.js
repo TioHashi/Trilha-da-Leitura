@@ -15,19 +15,20 @@ const palavrasDificeis = [
 ];
 
 const estado = {
-  conhecidas:{tempo:60, intervalo:null, pausado:false, bar:"barConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas"},
-  dificeis:{tempo:60, intervalo:null, pausado:false, bar:"barDificeis", label:"tempoDificeis", botao:"pauseDificeis"}
+  conhecidas:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas", lista:"listaConhecidas"},
+  dificeis:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barDificeis", label:"tempoDificeis", botao:"pauseDificeis", lista:"listaDificeis"}
 };
 
 let acertosCompreensao = 0;
 let acaoConfirmada = null;
+let registroAtualId = null;
 const circunferencia = 283;
-const chaveBanco = "trilhaLeituraResultados";
 
 function pagina(id){
   document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo({top:0, behavior:"smooth"});
+  ajustarGrades();
 }
 
 function montarLista(lista, alvo, classeExtra){
@@ -45,6 +46,9 @@ function iniciarTrilha(){
     document.getElementById(!nome ? "nomeAluno" : "turmaAluno").focus();
     return;
   }
+  registroAtualId = criarIdRegistro();
+  estado.conhecidas.gasto = 0;
+  estado.dificeis.gasto = 0;
   montarLista(palavrasConhecidas, "listaConhecidas", "");
   pagina("conhecidas");
   iniciarTimer("conhecidas");
@@ -54,16 +58,19 @@ function iniciarTimer(tipo){
   const item = estado[tipo];
   clearInterval(item.intervalo);
   item.tempo = 60;
+  item.gasto = 0;
   item.pausado = false;
   atualizarBotaoPausa(tipo);
   atualizarTimerVisual(tipo);
   item.intervalo = setInterval(() => {
     if(item.pausado) return;
     item.tempo = Math.max(0, item.tempo - 1);
+    item.gasto = 60 - item.tempo;
     atualizarTimerVisual(tipo);
     if(item.tempo === 0){
       clearInterval(item.intervalo);
       item.intervalo = null;
+      item.gasto = 60;
       mostrarModal("PARE", "");
     }
   }, 1000);
@@ -100,14 +107,14 @@ function atualizarBotaoPausa(tipo){
 }
 
 function abrirDificeis(){
-  clearInterval(estado.conhecidas.intervalo);
+  finalizarTempo("conhecidas");
   montarLista(palavrasDificeis, "listaDificeis", "dificil");
   pagina("dificeis");
   iniciarTimer("dificeis");
 }
 
 function abrirTexto(){
-  clearInterval(estado.dificeis.intervalo);
+  finalizarTempo("dificeis");
   pagina("texto");
 }
 
@@ -141,6 +148,8 @@ function atualizarResultado(){
     <div class="resultado-linha"><span>Total de palavras</span><strong>${total}</strong></div>
     <div class="resultado-linha"><span>Precisão</span><strong>${precisao}%</strong></div>
     <div class="resultado-linha"><span>Compreensão</span><strong>${acertosCompreensao}/2</strong></div>
+    <div class="resultado-linha"><span>Tempo nas palavras conhecidas</span><strong>${formatarTempo(estado.conhecidas.gasto)}</strong></div>
+    <div class="resultado-linha"><span>Tempo nas palavras difíceis</span><strong>${formatarTempo(estado.dificeis.gasto)}</strong></div>
   `;
   return {corretas, dificeis, precisao, total, perfil:classificacao.perfil, criterio:classificacao.criterio};
 }
@@ -179,29 +188,19 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
   return {perfil:niveis[chaveNivel][0], criterio:niveis[chaveNivel][1]};
 }
 
-function obterBanco(){
-  try{
-    return JSON.parse(localStorage.getItem(chaveBanco)) || [];
-  }catch{
-    return [];
-  }
-}
-
-function salvarBanco(registros){
-  localStorage.setItem(chaveBanco, JSON.stringify(registros));
-}
-
-function salvarResultado(){
+function salvarResultado(silencioso){
   const nome = document.getElementById("nomeAluno").value.trim();
   const turma = document.getElementById("turmaAluno").value.trim();
   if(!nome || !turma){
-    mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
+    if(!silencioso) mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
     return;
   }
 
   const resultado = atualizarResultado();
-  const registros = obterBanco();
-  registros.push({
+  if(!registroAtualId) registroAtualId = criarIdRegistro();
+  TrilhaDB.salvar({
+    id:registroAtualId,
+    salvoEm:new Date().toISOString(),
     data:new Date().toLocaleString("pt-BR"),
     nome,
     turma,
@@ -210,73 +209,21 @@ function salvarResultado(){
     total:resultado.total,
     precisao:resultado.precisao,
     compreensao:acertosCompreensao,
+    tempoConhecidasSegundos:estado.conhecidas.gasto,
+    tempoDificeisSegundos:estado.dificeis.gasto,
+    tempoTotalSegundos:estado.conhecidas.gasto + estado.dificeis.gasto,
+    tempoConhecidas:formatarTempo(estado.conhecidas.gasto),
+    tempoDificeis:formatarTempo(estado.dificeis.gasto),
+    tempoTotal:formatarTempo(estado.conhecidas.gasto + estado.dificeis.gasto),
     perfil:resultado.perfil,
     criterio:resultado.criterio
   });
-  salvarBanco(registros);
-  renderizarBanco();
-  mostrarModal("Salvo", "Resultado salvo no banco local deste navegador.");
-}
-
-function renderizarBanco(){
-  const corpo = document.getElementById("tabelaResultados");
-  const registros = obterBanco();
-  if(!registros.length){
-    corpo.innerHTML = `<tr><td colspan="9">Nenhum resultado salvo ainda.</td></tr>`;
-    return;
-  }
-  corpo.innerHTML = registros.slice().reverse().map(registro => `
-    <tr>
-      <td>${registro.data}</td>
-      <td>${registro.nome}</td>
-      <td>${registro.turma}</td>
-      <td>${registro.palavrasCorretas}</td>
-      <td>${registro.dificeisCorretas}</td>
-      <td>${registro.total}</td>
-      <td>${registro.precisao}%</td>
-      <td>${registro.compreensao}/2</td>
-      <td>${registro.perfil}</td>
-    </tr>
-  `).join("");
-}
-
-function exportarCSV(){
-  const registros = obterBanco();
-  if(!registros.length){
-    mostrarModal("Atenção", "Não há resultados salvos para exportar.");
-    return;
-  }
-  const cabecalho = ["Data","Aluno","Turma","Conhecidas","Difíceis","Total","Precisão","Compreensão","Perfil","Critério"];
-  const linhas = registros.map(registro => [
-    registro.data,
-    registro.nome,
-    registro.turma,
-    registro.palavrasCorretas,
-    registro.dificeisCorretas,
-    registro.total,
-    `${registro.precisao}%`,
-    `${registro.compreensao}/2`,
-    registro.perfil,
-    registro.criterio
-  ]);
-  const csv = [cabecalho, ...linhas].map(linha => linha.map(valor => `"${String(valor).replace(/"/g,'""')}"`).join(";")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "resultados-trilha-da-leitura.csv";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function limparBanco(){
-  mostrarConfirmacao("Atenção", "Apagar todos os resultados salvos neste navegador?", () => {
-    localStorage.removeItem(chaveBanco);
-    renderizarBanco();
-  });
+  if(!silencioso) mostrarModal("Salvo", "Resultado salvo automaticamente no banco de dados do projeto neste navegador.");
 }
 
 function novoAluno(){
+  salvarResultado(true);
+  registroAtualId = null;
   document.getElementById("nomeAluno").value = "";
   document.getElementById("turmaAluno").value = "";
   document.getElementById("palavrasCorretas").value = "";
@@ -285,6 +232,10 @@ function novoAluno(){
   document.getElementById("observacaoPreLeitor").value = "auto";
   document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
   acertosCompreensao = 0;
+  estado.conhecidas.gasto = 0;
+  estado.dificeis.gasto = 0;
+  clearInterval(estado.conhecidas.intervalo);
+  clearInterval(estado.dificeis.intervalo);
   atualizarResultado();
   pagina("inicio");
 }
@@ -318,7 +269,63 @@ function fecharModal(){
   document.getElementById("alertaModal").classList.remove("show");
 }
 
+function finalizarTempo(tipo){
+  const item = estado[tipo];
+  clearInterval(item.intervalo);
+  item.intervalo = null;
+  item.gasto = item.tempo <= 0 ? 60 : Math.min(60, Math.max(0, 60 - item.tempo));
+}
+
+function formatarTempo(segundos){
+  const total = Math.min(120, Math.max(0, Math.round(segundos || 0)));
+  const minutos = Math.floor(total / 60);
+  const resto = total % 60;
+  if(minutos === 0) return `${resto}s`;
+  return `${minutos}min ${String(resto).padStart(2,"0")}s`;
+}
+
+function criarIdRegistro(){
+  return `avaliacao-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+function ajustarGrades(){
+  ajustarGrade("listaConhecidas");
+  ajustarGrade("listaDificeis");
+}
+
+function ajustarGrade(id){
+  const grade = document.getElementById(id);
+  if(!grade || !grade.children.length || !grade.closest(".page.active")) return;
+
+  const quantidade = grade.children.length;
+  const largura = Math.max(grade.clientWidth, 1);
+  const altura = Math.max(grade.clientHeight, 1);
+  const palavras = Array.from(grade.children).map(item => item.textContent.trim());
+  const maiorPalavra = Math.max(...palavras.map(palavra => palavra.length));
+  const larguraMediaLetra = 0.58;
+  let melhor = {colunas:1, fonte:7, gap:4};
+  const maxColunas = Math.min(12, quantidade);
+
+  for(let colunas = 2; colunas <= maxColunas; colunas += 1){
+    const linhas = Math.ceil(quantidade / colunas);
+    const gap = largura < 480 ? 4 : 6;
+    const celulaLargura = (largura - gap * (colunas - 1)) / colunas;
+    const celulaAltura = (altura - gap * (linhas - 1)) / linhas;
+    const fontePorAltura = celulaAltura * 0.42;
+    const fontePorLargura = (celulaLargura - 8) / (maiorPalavra * larguraMediaLetra);
+    const fonte = Math.min(18, fontePorAltura, fontePorLargura);
+    if(fonte > melhor.fonte){
+      melhor = {colunas, fonte, gap};
+    }
+  }
+
+  grade.style.setProperty("--word-cols", melhor.colunas);
+  grade.style.setProperty("--word-font", `${Math.max(6.5, melhor.fonte).toFixed(2)}px`);
+  grade.style.setProperty("--word-gap", `${melhor.gap}px`);
+}
+
 montarLista(palavrasConhecidas, "listaConhecidas", "");
 montarLista(palavrasDificeis, "listaDificeis", "dificil");
 atualizarResultado();
-renderizarBanco();
+window.addEventListener("resize", ajustarGrades);
+window.addEventListener("orientationchange", () => setTimeout(ajustarGrades, 250));

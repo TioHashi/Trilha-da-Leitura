@@ -25,7 +25,7 @@
       </div>
     </section>
 
-    <section id="conhecidas" class="page">
+    <section id="conhecidas" class="page word-page">
       <h2>Página 1 - Palavras Conhecidas</h2>
 
       <div class="timer-area">
@@ -49,7 +49,7 @@
       </div>
     </section>
 
-    <section id="dificeis" class="page">
+    <section id="dificeis" class="page word-page">
       <h2>Página 2 - Palavras Possivelmente Desconhecidas</h2>
 
       <div class="timer-area">
@@ -136,34 +136,6 @@
         <button class="btn-primary" type="button" onclick="salvarResultado()">Salvar resultado</button>
         <button class="btn-next" type="button" onclick="novoAluno()">Novo aluno</button>
       </div>
-
-      <section class="database-panel">
-        <div class="database-header">
-          <h3>Banco local de resultados</h3>
-          <div class="database-actions">
-            <button class="btn-next" type="button" onclick="exportarCSV()">Exportar CSV</button>
-            <button class="btn-pause" type="button" onclick="limparBanco()">Limpar banco</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Aluno</th>
-                <th>Turma</th>
-                <th>Conhecidas</th>
-                <th>Difíceis</th>
-                <th>Total</th>
-                <th>Precisão</th>
-                <th>Compreensão</th>
-                <th>Perfil</th>
-              </tr>
-            </thead>
-            <tbody id="tabelaResultados"></tbody>
-          </table>
-        </div>
-      </section>
     </section>
   </main>
 
@@ -180,6 +152,7 @@
 
   <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
 
+  <script src="database.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
