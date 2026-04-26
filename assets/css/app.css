@@ -99,25 +99,6 @@ body{
 .dot-b{left:55%;bottom:42px;background:#22c55e;box-shadow:0 0 0 6px rgba(34,197,94,.14)}
 .dot-c{right:18%;bottom:30px;background:#fff;box-shadow:0 0 0 6px rgba(255,255,255,.14)}
 
-.reading-badge{
-  position:absolute;
-  right:clamp(16px,4vw,44px);
-  top:clamp(14px,3vw,28px);
-  z-index:2;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:clamp(56px,9vw,86px);
-  aspect-ratio:1;
-  border-radius:22px;
-  color:#0b3a9e;
-  background:#fff;
-  font-weight:900;
-  font-size:clamp(1rem,2.3vw,1.55rem);
-  transform:rotate(6deg);
-  box-shadow:0 12px 24px rgba(0,0,0,.16);
-}
-
 .book-mark{
   position:relative;
   z-index:2;
@@ -598,7 +579,6 @@ footer{
   .book-mark{width:clamp(72px,24vw,96px)}
   .brand-text strong{font-size:clamp(1.55rem,9.5vw,2.75rem)}
   .brand-text span{font-size:clamp(.82rem,4.5vw,1.15rem);padding:6px 10px}
-  .reading-badge{display:none}
   .word-page.active{height:calc(100dvh - var(--footer-altura) - 16px);padding:9px}
   .word-page .timer-area{margin:4px 0 7px}
   .word-page .timer{width:clamp(76px,18vh,112px)}
