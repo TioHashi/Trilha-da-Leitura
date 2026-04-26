@@ -142,11 +142,17 @@ function abrirTexto(){
   pagina("texto");
 }
 
-function abrirResultado(){
+function validarEAbrirResultado(){
   if(!respostasCompreensaoPreenchidas()){
     mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de ver o resultado.");
+    const primeiraPergunta = document.querySelector("#perguntasTexto .question");
+    if(primeiraPergunta) primeiraPergunta.scrollIntoView({behavior:"smooth", block:"center"});
     return;
   }
+  abrirResultado();
+}
+
+function abrirResultado(){
   acertosCompreensao = calcularCompreensao();
   resultadoSalvo = false;
   pagina("resultado");
