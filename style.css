@@ -173,6 +173,9 @@ input:focus{
   font-size:clamp(.72rem,2.7vw,.98rem);
   line-height:1.15;
   white-space:nowrap;
+  word-break:normal;
+  overflow-wrap:normal;
+  hyphens:none;
 }
 
 .word.dificil{
