@@ -202,12 +202,21 @@ async function salvarResultado(silencioso){
   try{
     const nome = document.getElementById("nomeAluno").value.trim();
     const turma = document.getElementById("turmaAluno").value.trim();
+    const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!nome || !turma){
       if(!silencioso) mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
       return false;
     }
+    if(!estaNoResultado){
+      if(!silencioso) mostrarModal("Atenção", "Conclua a trilha até a página de resultado antes de salvar.");
+      return false;
+    }
 
     const resultado = atualizarResultado();
+    if(resultado.total === 0 && resultado.precisao === 0 && acertosCompreensao === 0){
+      if(!silencioso) mostrarModal("Atenção", "Preencha o resultado do aluno antes de salvar.");
+      return false;
+    }
     if(!registroAtualId) registroAtualId = criarIdRegistro();
     await TrilhaDB.salvar({
       id:registroAtualId,
@@ -242,6 +251,17 @@ async function salvarResultado(silencioso){
 }
 
 async function novoAluno(){
+  const estaNoResultado = document.getElementById("resultado").classList.contains("active");
+  if(!estaNoResultado){
+    mostrarConfirmacao(
+      "Novo aluno",
+      "A trilha atual não foi concluída. Deseja descartar esses dados e iniciar um novo aluno?",
+      limparParaNovoAluno,
+      "Descartar"
+    );
+    return;
+  }
+
   if(resultadoSalvo){
     mostrarConfirmacao(
       "Novo aluno",
