@@ -40,11 +40,12 @@ function montarLista(lista, alvo, classeExtra){
 
 function iniciarTrilha(){
   const nome = document.getElementById("nomeAluno").value.trim();
+  const escola = document.getElementById("escolaAluno").value.trim();
   const turma = document.getElementById("turmaAluno").value.trim();
-  if(!nome || !turma){
-    const campo = !nome ? "nome do aluno" : "turma do aluno";
+  if(!escola || !turma || !nome){
+    const campo = !escola ? "escola do aluno" : (!turma ? "turma do aluno" : "nome do aluno");
     mostrarModal("Atenção", `Preencha o ${campo} para iniciar.`);
-    document.getElementById(!nome ? "nomeAluno" : "turmaAluno").focus();
+    document.getElementById(!escola ? "escolaAluno" : (!turma ? "turmaAluno" : "nomeAluno")).focus();
     return;
   }
   registroAtualId = criarIdRegistro();
@@ -201,10 +202,11 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
 async function salvarResultado(silencioso){
   try{
     const nome = document.getElementById("nomeAluno").value.trim();
+    const escola = document.getElementById("escolaAluno").value.trim();
     const turma = document.getElementById("turmaAluno").value.trim();
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
-    if(!nome || !turma){
-      if(!silencioso) mostrarModal("Atenção", "Nome e turma são obrigatórios para salvar o resultado.");
+    if(!escola || !turma || !nome){
+      if(!silencioso) mostrarModal("Atenção", "Escola, turma e nome são obrigatórios para salvar o resultado.");
       return false;
     }
     if(!estaNoResultado){
@@ -223,6 +225,7 @@ async function salvarResultado(silencioso){
       salvoEm:new Date().toISOString(),
       data:new Date().toLocaleString("pt-BR"),
       nome,
+      escola,
       turma,
       palavrasCorretas:resultado.corretas,
       dificeisCorretas:resultado.dificeis,
@@ -263,12 +266,7 @@ async function novoAluno(){
   }
 
   if(resultadoSalvo){
-    mostrarConfirmacao(
-      "Novo aluno",
-      "Os dados deste aluno já foram salvos. Deseja iniciar um novo aluno?",
-      limparParaNovoAluno,
-      "Continuar"
-    );
+    limparParaNovoAluno();
     return;
   }
 
@@ -286,6 +284,7 @@ async function novoAluno(){
 function limparParaNovoAluno(){
   registroAtualId = null;
   resultadoSalvo = false;
+  document.getElementById("escolaAluno").value = "";
   document.getElementById("nomeAluno").value = "";
   document.getElementById("turmaAluno").value = "";
   document.getElementById("palavrasCorretas").value = "";

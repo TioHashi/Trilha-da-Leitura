@@ -32,11 +32,29 @@
       </div>
 
       <div class="inicio-card">
-        <label for="nomeAluno">Nome do aluno</label>
-        <input id="nomeAluno" type="text" autocomplete="name" required>
+        <label for="escolaAluno">Escola</label>
+        <select id="escolaAluno" required>
+          <option value="">Selecione a escola</option>
+          <option value="E.M.E.F. CILIRA VIEIRA DE SOUZA">E.M.E.F. CILIRA VIEIRA DE SOUZA</option>
+          <option value="E.M.E.F. XV de Novembro">E.M.E.F. XV de Novembro</option>
+          <option value="E.M.E.F. BREJO GRANDE DO ARAGUAIA">E.M.E.F. BREJO GRANDE DO ARAGUAIA</option>
+          <option value="E.M.E.I.F. Silvana Moura">E.M.E.I.F. Silvana Moura</option>
+          <option value="E.M.E.I.F. Padre Cicero">E.M.E.I.F. Padre Cicero</option>
+          <option value="E.M.E.I.F. São José">E.M.E.I.F. São José</option>
+          <option value="E.M.E.I.F. Indígena Sawarapi Surui">E.M.E.I.F. Indígena Sawarapi Surui</option>
+          <option value="E.M.E.I.F. Nossa Senhora da Penha">E.M.E.I.F. Nossa Senhora da Penha</option>
+          <option value="E.M.E.I.F. JOVENTINA">E.M.E.I.F. JOVENTINA</option>
+        </select>
 
         <label for="turmaAluno">Turma</label>
-        <input id="turmaAluno" type="text" autocomplete="off" required>
+        <select id="turmaAluno" required>
+          <option value="">Selecione a turma</option>
+          <option value="2 ANO A">2 ANO A</option>
+          <option value="2 ANO B">2 ANO B</option>
+        </select>
+
+        <label for="nomeAluno">Aluno</label>
+        <input id="nomeAluno" type="text" autocomplete="name" required>
 
         <button class="btn-primary start-button" type="button" onclick="iniciarTrilha()">Iniciar Trilha</button>
       </div>

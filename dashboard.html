@@ -19,6 +19,12 @@
 
     <section class="filters" aria-label="Filtros do dashboard">
       <label>
+        Escola
+        <select id="filtroEscola" onchange="aplicarFiltros()">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>
         Turma
         <select id="filtroTurma" onchange="aplicarFiltros()">
           <option value="">Todas</option>
@@ -32,14 +38,6 @@
           <option value="Leitor Iniciante">Leitor Iniciante</option>
           <option value="Leitor Fluente">Leitor Fluente</option>
         </select>
-      </label>
-      <label>
-        De
-        <input id="filtroInicio" type="date" onchange="aplicarFiltros()">
-      </label>
-      <label>
-        Até
-        <input id="filtroFim" type="date" onchange="aplicarFiltros()">
       </label>
       <label class="search-filter">
         Buscar aluno
@@ -98,6 +96,7 @@
             <tr>
               <th>Data</th>
               <th>Aluno</th>
+              <th>Escola</th>
               <th>Turma</th>
               <th>Conhecidas</th>
               <th>Difíceis</th>
@@ -109,7 +108,7 @@
             </tr>
           </thead>
           <tbody id="tabelaResultados">
-            <tr><td colspan="10">Carregando resultados...</td></tr>
+            <tr><td colspan="11">Carregando resultados...</td></tr>
           </tbody>
         </table>
       </div>

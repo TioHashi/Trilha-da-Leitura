@@ -78,7 +78,7 @@ button{
 
 .filters{
   display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-columns:1.5fr 1fr 1fr 1.4fr;
   gap:12px;
   margin:18px 0;
   padding:16px;
@@ -242,7 +242,7 @@ input{
 
 table{
   width:100%;
-  min-width:980px;
+  min-width:1120px;
   border-collapse:collapse;
 }
 
@@ -250,8 +250,13 @@ th,
 td{
   padding:11px 10px;
   border-bottom:1px solid #e5e7eb;
-  text-align:left;
+  text-align:center;
   white-space:nowrap;
+}
+
+th:nth-child(2),
+td:nth-child(2){
+  text-align:left;
 }
 
 th{

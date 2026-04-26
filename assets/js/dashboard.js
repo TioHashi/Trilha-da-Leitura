@@ -13,7 +13,7 @@ async function obterFirestoreDashboard(){
 
 async function carregarResultados(){
   const tabela = document.getElementById("tabelaResultados");
-  tabela.innerHTML = `<tr><td colspan="10">Carregando resultados...</td></tr>`;
+  tabela.innerHTML = `<tr><td colspan="11">Carregando resultados...</td></tr>`;
 
   try{
     const db = await obterFirestoreDashboard();
@@ -21,11 +21,20 @@ async function carregarResultados(){
     const snapshot = await db.collection(colecao).get();
     todosResultados = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
     todosResultados.sort((a,b) => new Date(b.salvoEm || b.data || 0) - new Date(a.salvoEm || a.data || 0));
+    preencherEscolas();
     preencherTurmas();
     aplicarFiltros();
   }catch(error){
-    tabela.innerHTML = `<tr><td colspan="10">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
+    tabela.innerHTML = `<tr><td colspan="11">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
   }
+}
+
+function preencherEscolas(){
+  const select = document.getElementById("filtroEscola");
+  const atual = select.value;
+  const escolas = [...new Set(todosResultados.map(item => item.escola).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+  select.innerHTML = `<option value="">Todas</option>` + escolas.map(escola => `<option value="${escapeHtml(escola)}">${escapeHtml(escola)}</option>`).join("");
+  select.value = escolas.includes(atual) ? atual : "";
 }
 
 function preencherTurmas(){
@@ -37,19 +46,17 @@ function preencherTurmas(){
 }
 
 function aplicarFiltros(){
+  const escola = document.getElementById("filtroEscola").value;
   const turma = document.getElementById("filtroTurma").value;
   const perfil = document.getElementById("filtroPerfil").value;
-  const inicio = document.getElementById("filtroInicio").value;
-  const fim = document.getElementById("filtroFim").value;
   const busca = normalizar(document.getElementById("filtroBusca").value);
 
   resultadosFiltrados = todosResultados.filter(item => {
-    const data = item.salvoEm ? new Date(item.salvoEm) : dataBR(item.data);
-    const dataOk = (!inicio || data >= new Date(`${inicio}T00:00:00`)) && (!fim || data <= new Date(`${fim}T23:59:59`));
+    const escolaOk = !escola || item.escola === escola;
     const turmaOk = !turma || item.turma === turma;
     const perfilOk = !perfil || String(item.perfil || "").includes(perfil);
     const buscaOk = !busca || normalizar(item.nome || "").includes(busca);
-    return dataOk && turmaOk && perfilOk && buscaOk;
+    return escolaOk && turmaOk && perfilOk && buscaOk;
   });
 
   renderizarIndicadores();
@@ -123,7 +130,7 @@ function renderizarTurmas(){
 function renderizarTabela(){
   const corpo = document.getElementById("tabelaResultados");
   if(!resultadosFiltrados.length){
-    corpo.innerHTML = `<tr><td colspan="10">Nenhum resultado encontrado.</td></tr>`;
+    corpo.innerHTML = `<tr><td colspan="11">Nenhum resultado encontrado.</td></tr>`;
     return;
   }
 
@@ -131,6 +138,7 @@ function renderizarTabela(){
     <tr>
       <td>${escapeHtml(item.data || "")}</td>
       <td>${escapeHtml(item.nome || "")}</td>
+      <td>${escapeHtml(item.escola || "")}</td>
       <td>${escapeHtml(item.turma || "")}</td>
       <td>${numero(item.palavrasCorretas)}</td>
       <td>${numero(item.dificeisCorretas)}</td>
@@ -145,10 +153,11 @@ function renderizarTabela(){
 
 function exportarTabela(){
   if(!resultadosFiltrados.length) return;
-  const cabecalho = ["Data","Aluno","Turma","Conhecidas","Difíceis","Total","Precisão","Compreensão","Tempo","Perfil"];
+  const cabecalho = ["Data","Aluno","Escola","Turma","Conhecidas","Difíceis","Total","Precisão","Compreensão","Tempo","Perfil"];
   const linhas = resultadosFiltrados.map(item => [
     item.data || "",
     item.nome || "",
+    item.escola || "",
     item.turma || "",
     numero(item.palavrasCorretas),
     numero(item.dificeisCorretas),
@@ -180,13 +189,6 @@ function numero(valor){
 
 function normalizar(valor){
   return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-}
-
-function dataBR(valor){
-  if(!valor) return new Date(0);
-  const partes = String(valor).match(/(\d{2})\/(\d{2})\/(\d{4})/);
-  if(!partes) return new Date(valor);
-  return new Date(`${partes[3]}-${partes[2]}-${partes[1]}T00:00:00`);
 }
 
 function escapeHtml(valor){
