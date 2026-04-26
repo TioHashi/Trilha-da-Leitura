@@ -105,22 +105,22 @@
       <div class="result-grid">
         <div>
           <label for="palavrasCorretas">Palavras corretas</label>
-          <input id="palavrasCorretas" type="number" min="0" max="60" inputmode="numeric" oninput="atualizarResultado()">
+          <input id="palavrasCorretas" type="number" min="0" max="60" inputmode="numeric" oninput="marcarResultadoAlterado()">
         </div>
 
         <div>
           <label for="dificeisCorretas">Palavras difíceis corretas</label>
-          <input id="dificeisCorretas" type="number" min="0" max="40" inputmode="numeric" oninput="atualizarResultado()">
+          <input id="dificeisCorretas" type="number" min="0" max="40" inputmode="numeric" oninput="marcarResultadoAlterado()">
         </div>
 
         <div>
           <label for="precisao">Precisão (%)</label>
-          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" placeholder="Automática se vazio" oninput="atualizarResultado()">
+          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" placeholder="Automática se vazio" oninput="marcarResultadoAlterado()">
         </div>
 
         <div>
           <label for="observacaoPreLeitor">Observação se pré-leitor</label>
-          <select id="observacaoPreLeitor" onchange="atualizarResultado()">
+          <select id="observacaoPreLeitor" onchange="marcarResultadoAlterado()">
             <option value="auto">Automática pelos acertos</option>
             <option value="nivel1">Nível 1 - Não leu palavras do item</option>
             <option value="nivel2">Nível 2 - Nomeou letras isoladas</option>

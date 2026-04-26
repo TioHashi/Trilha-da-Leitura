@@ -22,6 +22,7 @@ const estado = {
 let acertosCompreensao = 0;
 let acaoConfirmada = null;
 let registroAtualId = null;
+let resultadoSalvo = false;
 const circunferencia = 283;
 
 function pagina(id){
@@ -47,6 +48,7 @@ function iniciarTrilha(){
     return;
   }
   registroAtualId = criarIdRegistro();
+  resultadoSalvo = false;
   estado.conhecidas.gasto = 0;
   estado.dificeis.gasto = 0;
   montarLista(palavrasConhecidas, "listaConhecidas", "");
@@ -107,6 +109,7 @@ function atualizarBotaoPausa(tipo){
 }
 
 function abrirDificeis(){
+  resultadoSalvo = false;
   finalizarTempo("conhecidas");
   montarLista(palavrasDificeis, "listaDificeis", "dificil");
   pagina("dificeis");
@@ -114,12 +117,14 @@ function abrirDificeis(){
 }
 
 function abrirTexto(){
+  resultadoSalvo = false;
   finalizarTempo("dificeis");
   pagina("texto");
 }
 
 function abrirResultado(){
   acertosCompreensao = calcularCompreensao();
+  resultadoSalvo = false;
   pagina("resultado");
   atualizarResultado();
 }
@@ -152,6 +157,11 @@ function atualizarResultado(){
     <div class="resultado-linha"><span>Tempo nas palavras difíceis</span><strong>${formatarTempo(estado.dificeis.gasto)}</strong></div>
   `;
   return {corretas, dificeis, precisao, total, perfil:classificacao.perfil, criterio:classificacao.criterio};
+}
+
+function marcarResultadoAlterado(){
+  resultadoSalvo = false;
+  atualizarResultado();
 }
 
 function limitarNumero(valor, minimo, maximo){
@@ -199,7 +209,7 @@ async function salvarResultado(silencioso){
 
     const resultado = atualizarResultado();
     if(!registroAtualId) registroAtualId = criarIdRegistro();
-    const salvamento = await TrilhaDB.salvar({
+    await TrilhaDB.salvar({
       id:registroAtualId,
       salvoEm:new Date().toISOString(),
       data:new Date().toLocaleString("pt-BR"),
@@ -219,12 +229,8 @@ async function salvarResultado(silencioso){
       perfil:resultado.perfil,
       criterio:resultado.criterio
     });
-    if(!silencioso){
-      const mensagem = salvamento.destino === "firebase"
-        ? "Resultado salvo no Firebase."
-        : `Resultado salvo neste dispositivo, mas ainda não foi para o Firebase. Motivo: ${salvamento.erro || "verifique internet, Firestore e regras de segurança."}`;
-      mostrarModal("Salvo", mensagem);
-    }
+    resultadoSalvo = true;
+    if(!silencioso) mostrarModal("Salvo", "Dados salvos.");
     return true;
   }catch(error){
     console.error("Erro ao salvar resultado:", error);
@@ -236,8 +242,30 @@ async function salvarResultado(silencioso){
 }
 
 async function novoAluno(){
-  await salvarResultado(true);
+  if(resultadoSalvo){
+    mostrarConfirmacao(
+      "Novo aluno",
+      "Os dados deste aluno já foram salvos. Deseja iniciar um novo aluno?",
+      limparParaNovoAluno,
+      "Continuar"
+    );
+    return;
+  }
+
+  mostrarConfirmacao(
+    "Novo aluno",
+    "Os dados deste aluno ainda não foram salvos. Deseja salvar e iniciar um novo aluno?",
+    async () => {
+      const salvou = await salvarResultado(true);
+      if(salvou) limparParaNovoAluno();
+    },
+    "Salvar e continuar"
+  );
+}
+
+function limparParaNovoAluno(){
   registroAtualId = null;
+  resultadoSalvo = false;
   document.getElementById("nomeAluno").value = "";
   document.getElementById("turmaAluno").value = "";
   document.getElementById("palavrasCorretas").value = "";
@@ -263,12 +291,12 @@ function mostrarModal(titulo, mensagem){
   document.getElementById("alertaModal").classList.add("show");
 }
 
-function mostrarConfirmacao(titulo, mensagem, acao){
+function mostrarConfirmacao(titulo, mensagem, acao, textoConfirmar){
   acaoConfirmada = acao;
   document.getElementById("tituloModal").textContent = titulo;
   document.getElementById("mensagemModal").textContent = mensagem;
   document.getElementById("cancelarModal").style.display = "block";
-  document.getElementById("confirmarModal").textContent = "Apagar";
+  document.getElementById("confirmarModal").textContent = textoConfirmar || "Continuar";
   document.getElementById("alertaModal").classList.add("show");
 }
 
