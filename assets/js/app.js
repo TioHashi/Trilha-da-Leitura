@@ -1,18 +1,7 @@
-const palavrasConhecidas = [
-  "casa","bola","mesa","pato","gato","vida","mala","faca","vaca","sapo",
-  "dedo","boca","cama","rua","fogo","água","leite","peixe","porta","janela",
-  "livro","lápis","escola","menino","menina","amigo","flor","terra","sol","lua",
-  "chuva","vento","carro","barco","doce","fruta","banana","panela","roupa","sapato",
-  "brinquedo","boneca","caderno","cadeira","árvore","praça","família","comida","cidade","caminho",
-  "alegre","bonito","pequeno","grande","rápido","devagar","cantar","pular","brincar","sorrir"
-];
-
-const palavrasDificeis = [
-  "abstrato","abundância","adversidade","ambiguidade","analfabeto","arquitetura","benevolente","circunstância","coerência","complexidade",
-  "consequência","contemplar","contraditório","democracia","desenvolvimento","dignidade","disciplina","efervescente","emancipação","equilíbrio",
-  "estratégia","extraordinário","fragilidade","generosidade","hipótese","identidade","imprevisível","inquietação","integridade","intermitente",
-  "melancolia","necessidade","oportunidade","perseverança","perspectiva","precipício","responsabilidade","solidariedade","transparência","vulnerável"
-];
+const bancoConteudo = window.TrilhaConteudo || {palavrasConhecidas:[], palavrasDificeis:[], textos:[]};
+let palavrasConhecidasAtuais = [];
+let palavrasDificeisAtuais = [];
+let textoAtual = null;
 
 const estado = {
   conhecidas:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barConhecidas", spark:"sparkConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas", lista:"listaConhecidas"},
@@ -38,6 +27,29 @@ function montarLista(lista, alvo, classeExtra){
   }).join("");
 }
 
+function sortearItens(lista, quantidade){
+  return [...lista].sort(() => Math.random() - 0.5).slice(0, quantidade);
+}
+
+function prepararConteudoDaTrilha(){
+  palavrasConhecidasAtuais = sortearItens(bancoConteudo.palavrasConhecidas, 60);
+  palavrasDificeisAtuais = sortearItens(bancoConteudo.palavrasDificeis, 40);
+  textoAtual = sortearItens(bancoConteudo.textos, 1)[0] || null;
+  montarTextoAtual();
+}
+
+function montarTextoAtual(){
+  if(!textoAtual) return;
+  document.getElementById("textoLeitura").textContent = textoAtual.texto;
+  document.getElementById("perguntasTexto").innerHTML = textoAtual.perguntas.map((questao, indice) => {
+    const nome = `q${indice + 1}`;
+    const alternativas = questao.alternativas.map(alternativa => {
+      return `<label class="option"><input type="radio" name="${nome}" value="${alternativa.correta ? "1" : "0"}" onchange="marcarResultadoAlterado()"> ${alternativa.texto}</label>`;
+    }).join("");
+    return `<div class="question"><p>${indice + 1}. ${questao.pergunta}</p>${alternativas}</div>`;
+  }).join("");
+}
+
 function iniciarTrilha(){
   const nome = document.getElementById("nomeAluno").value.trim();
   const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
@@ -50,9 +62,10 @@ function iniciarTrilha(){
   }
   registroAtualId = criarIdRegistro();
   resultadoSalvo = false;
+  prepararConteudoDaTrilha();
   estado.conhecidas.gasto = 0;
   estado.dificeis.gasto = 0;
-  montarLista(palavrasConhecidas, "listaConhecidas", "");
+  montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
   pagina("conhecidas");
   iniciarTimer("conhecidas");
 }
@@ -117,7 +130,7 @@ function atualizarBotaoPausa(tipo){
 function abrirDificeis(){
   resultadoSalvo = false;
   finalizarTempo("conhecidas");
-  montarLista(palavrasDificeis, "listaDificeis", "dificil");
+  montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
   pagina("dificeis");
   iniciarTimer("dificeis");
 }
@@ -125,19 +138,33 @@ function abrirDificeis(){
 function abrirTexto(){
   resultadoSalvo = false;
   finalizarTempo("dificeis");
+  montarTextoAtual();
   pagina("texto");
 }
 
 function abrirResultado(){
+  if(!respostasCompreensaoPreenchidas()){
+    mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de ver o resultado.");
+    return;
+  }
   acertosCompreensao = calcularCompreensao();
   resultadoSalvo = false;
   pagina("resultado");
   atualizarResultado();
 }
 
+function respostasCompreensaoPreenchidas(){
+  const totalPerguntas = textoAtual && Array.isArray(textoAtual.perguntas) ? textoAtual.perguntas.length : 2;
+  for(let indice = 1; indice <= totalPerguntas; indice += 1){
+    if(!document.querySelector(`input[name="q${indice}"]:checked`)) return false;
+  }
+  return true;
+}
+
 function calcularCompreensao(){
   let total = 0;
-  ["q1","q2"].forEach(nome => {
+  const totalPerguntas = textoAtual && Array.isArray(textoAtual.perguntas) ? textoAtual.perguntas.length : 2;
+  Array.from({length:totalPerguntas}, (_, indice) => `q${indice + 1}`).forEach(nome => {
     const marcada = document.querySelector(`input[name="${nome}"]:checked`);
     if(marcada && marcada.value === "1") total += 1;
   });
@@ -212,8 +239,6 @@ async function salvarResultado(silencioso){
     const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
     const dificeisValor = document.getElementById("dificeisCorretas").value.trim();
     const precisaoValor = document.getElementById("precisao").value.trim();
-    const q1Respondida = Boolean(document.querySelector('input[name="q1"]:checked'));
-    const q2Respondida = Boolean(document.querySelector('input[name="q2"]:checked'));
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!escola || !turma || !nome){
       if(!silencioso) mostrarModal("Atenção", "Escola, turma e nome são obrigatórios para salvar o resultado.");
@@ -223,7 +248,7 @@ async function salvarResultado(silencioso){
       if(!silencioso) mostrarModal("Atenção", "Conclua a trilha até a página de resultado antes de salvar.");
       return false;
     }
-    if(!q1Respondida || !q2Respondida){
+    if(!respostasCompreensaoPreenchidas()){
       if(!silencioso) mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de salvar.");
       return false;
     }
@@ -257,7 +282,8 @@ async function salvarResultado(silencioso){
       tempoDificeis:formatarTempo(estado.dificeis.gasto),
       tempoTotal:formatarTempo(estado.conhecidas.gasto + estado.dificeis.gasto),
       perfil:resultado.perfil,
-      criterio:resultado.criterio
+      criterio:resultado.criterio,
+      textoLido:textoAtual ? textoAtual.texto : ""
     });
     resultadoSalvo = true;
     if(!silencioso) mostrarModal("Salvo", "Dados salvos.");
@@ -407,8 +433,9 @@ function ajustarGrade(id){
   grade.style.setProperty("--word-gap", `${melhor.gap}px`);
 }
 
-montarLista(palavrasConhecidas, "listaConhecidas", "");
-montarLista(palavrasDificeis, "listaDificeis", "dificil");
+prepararConteudoDaTrilha();
+montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
+montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
 atualizarResultado();
 window.addEventListener("resize", ajustarGrades);
 window.addEventListener("orientationchange", () => setTimeout(ajustarGrades, 250));

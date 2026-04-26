@@ -115,23 +115,9 @@
     <section id="texto" class="page">
       <h2>Página 3 - Texto e Compreensão</h2>
 
-      <article class="story">
-        Clara morava perto de uma pequena praça. Em uma manhã de sábado, ela encontrou um passarinho caído ao lado de uma árvore. A menina chamou sua avó, que colocou o animal com cuidado em uma caixa aberta. Depois de descansar um pouco e beber água, o passarinho bateu as asas e voltou para o galho. Clara sorriu, feliz por ter ajudado.
-      </article>
+      <article id="textoLeitura" class="story"></article>
 
-      <div class="questions">
-        <div class="question">
-          <p>1. Onde Clara encontrou o passarinho?</p>
-          <label class="option"><input type="radio" name="q1" value="0"> Dentro da cozinha de sua casa.</label>
-          <label class="option"><input type="radio" name="q1" value="1"> Ao lado de uma árvore na praça.</label>
-        </div>
-
-        <div class="question">
-          <p>2. O que aconteceu depois que o passarinho descansou?</p>
-          <label class="option"><input type="radio" name="q2" value="1"> Ele bateu as asas e voltou para o galho.</label>
-          <label class="option"><input type="radio" name="q2" value="0"> Ele ficou dormindo dentro da caixa.</label>
-        </div>
-      </div>
+      <div id="perguntasTexto" class="questions"></div>
 
       <div class="controls">
         <button class="btn-result" type="button" onclick="abrirResultado()">Resultado</button>
@@ -195,6 +181,7 @@
   <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
   <script src="assets/js/firebase-config.js"></script>
   <script src="assets/js/database.js"></script>
+  <script src="assets/js/conteudo.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>
