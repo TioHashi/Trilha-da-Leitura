@@ -1,6 +1,7 @@
 let todosResultados = [];
 let resultadosFiltrados = [];
 let unsubscribeResultados = null;
+let ordenacaoTabela = {campo:"salvoEm", direcao:"desc"};
 const escolasPadrao = [
   "E.M.E.F. CILIRA VIEIRA DE SOUZA",
   "E.M.E.F. XV DE NOVEMBRO",
@@ -84,10 +85,59 @@ function aplicarFiltros(){
     return escolaOk && turmaOk && perfilOk && buscaOk;
   });
 
+  ordenarResultadosFiltrados();
   renderizarIndicadores();
   renderizarPerfil();
   renderizarTurmas();
   renderizarTabela();
+}
+
+function ordenarTabela(campo){
+  if(ordenacaoTabela.campo === campo){
+    ordenacaoTabela.direcao = ordenacaoTabela.direcao === "asc" ? "desc" : "asc";
+  }else{
+    ordenacaoTabela.campo = campo;
+    ordenacaoTabela.direcao = campo === "data" || campo === "salvoEm" ? "desc" : "asc";
+  }
+  ordenarResultadosFiltrados();
+  renderizarTabela();
+}
+
+function ordenarResultadosFiltrados(){
+  const {campo, direcao} = ordenacaoTabela;
+  const fator = direcao === "asc" ? 1 : -1;
+  resultadosFiltrados.sort((a,b) => compararCampo(a, b, campo) * fator);
+}
+
+function compararCampo(a, b, campo){
+  if(["palavrasCorretas","dificeisCorretas","total","precisao","compreensao","tempoTotalSegundos"].includes(campo)){
+    return numero(valorCampo(a, campo)) - numero(valorCampo(b, campo));
+  }
+  if(campo === "data" || campo === "salvoEm"){
+    return dataOrdenacao(a) - dataOrdenacao(b);
+  }
+  return String(valorCampo(a, campo) || "").localeCompare(String(valorCampo(b, campo) || ""), "pt-BR", {numeric:true, sensitivity:"base"});
+}
+
+function valorCampo(item, campo){
+  if(campo === "escola") return escolaMaiuscula(item.escola);
+  if(campo === "tempoTotalSegundos") return item.tempoTotalSegundos || segundosDoTempo(item.tempoTotal);
+  return item[campo];
+}
+
+function dataOrdenacao(item){
+  const iso = Date.parse(item.salvoEm || "");
+  if(Number.isFinite(iso)) return iso;
+  const partes = String(item.data || "").match(/(\d{2})\/(\d{2})\/(\d{4}),?\s*(\d{2}):(\d{2}):(\d{2})/);
+  if(!partes) return 0;
+  return new Date(Number(partes[3]), Number(partes[2]) - 1, Number(partes[1]), Number(partes[4]), Number(partes[5]), Number(partes[6])).getTime();
+}
+
+function segundosDoTempo(valor){
+  const texto = String(valor || "");
+  const minutos = Number((texto.match(/(\d+)\s*min/) || [0,0])[1]);
+  const segundos = Number((texto.match(/(\d+)\s*s/) || [0,0])[1]);
+  return minutos * 60 + segundos;
 }
 
 function renderizarIndicadores(){
@@ -154,6 +204,7 @@ function renderizarTurmas(){
 
 function renderizarTabela(){
   const corpo = document.getElementById("tabelaResultados");
+  atualizarCabecalhosOrdenacao();
   if(!resultadosFiltrados.length){
     corpo.innerHTML = `<tr><td colspan="11">Nenhum resultado encontrado.</td></tr>`;
     return;
@@ -174,6 +225,19 @@ function renderizarTabela(){
       <td>${escapeHtml(item.perfil || "")}</td>
     </tr>
   `).join("");
+}
+
+function atualizarCabecalhosOrdenacao(){
+  document.querySelectorAll(".sort-btn").forEach(botao => {
+    const ativo = botao.dataset.sort === ordenacaoTabela.campo || (botao.dataset.sort === "data" && ordenacaoTabela.campo === "salvoEm");
+    botao.classList.toggle("active", ativo);
+    botao.setAttribute("aria-sort", ativo ? (ordenacaoTabela.direcao === "asc" ? "ascending" : "descending") : "none");
+    const icone = botao.querySelector("span");
+    if(icone) icone.textContent = ativo ? (ordenacaoTabela.direcao === "asc" ? "A-Z" : "Z-A") : "↕";
+    if(ativo && ["palavrasCorretas","dificeisCorretas","total","precisao","compreensao","tempoTotalSegundos","data","salvoEm"].includes(ordenacaoTabela.campo)){
+      if(icone) icone.textContent = ordenacaoTabela.direcao === "asc" ? "1-9" : "9-1";
+    }
+  });
 }
 
 function exportarTabela(){

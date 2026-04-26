@@ -320,6 +320,36 @@ th{
   line-height:1;
 }
 
+.sort-btn{
+  width:100%;
+  border:0;
+  padding:0;
+  color:inherit;
+  background:transparent;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+
+.sort-btn span{
+  min-width:20px;
+  color:#64748b;
+  font-size:.64rem;
+  font-weight:900;
+}
+
+.sort-btn.active span{
+  color:#0b3a9e;
+}
+
+th:nth-child(2) .sort-btn{
+  justify-content:flex-start;
+}
+
 td{
   color:#334155;
   font-weight:700;

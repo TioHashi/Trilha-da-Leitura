@@ -95,17 +95,17 @@
         <table>
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Aluno</th>
-              <th>Escola</th>
-              <th>Turma</th>
-              <th>Conhecidas</th>
-              <th>Difíceis</th>
-              <th>Total</th>
-              <th>Precisão</th>
-              <th>Compreensão</th>
-              <th>Tempo</th>
-              <th>Perfil</th>
+              <th><button type="button" class="sort-btn" data-sort="data" onclick="ordenarTabela('data')">Data <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="nome" onclick="ordenarTabela('nome')">Aluno <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="escola" onclick="ordenarTabela('escola')">Escola <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="turma" onclick="ordenarTabela('turma')">Turma <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="palavrasCorretas" onclick="ordenarTabela('palavrasCorretas')">Conhecidas <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="dificeisCorretas" onclick="ordenarTabela('dificeisCorretas')">Difíceis <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="total" onclick="ordenarTabela('total')">Total <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="precisao" onclick="ordenarTabela('precisao')">Precisão <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="compreensao" onclick="ordenarTabela('compreensao')">Compreensão <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="tempoTotalSegundos" onclick="ordenarTabela('tempoTotalSegundos')">Tempo <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="perfil" onclick="ordenarTabela('perfil')">Perfil <span></span></button></th>
             </tr>
           </thead>
           <tbody id="tabelaResultados">
@@ -121,6 +121,6 @@
   <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
   <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/dashboard.js"></script>
+  <script src="assets/js/dashboard.js?v=20260426-3"></script>
 </body>
 </html>
