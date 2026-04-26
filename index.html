@@ -17,6 +17,10 @@
       <div class="inicio-card">
         <label for="nomeAluno">Nome do aluno</label>
         <input id="nomeAluno" type="text" autocomplete="name" required>
+
+        <label for="turmaAluno">Turma</label>
+        <input id="turmaAluno" type="text" autocomplete="off" required>
+
         <button class="btn-primary start-button" type="button" onclick="iniciarTrilha()">Iniciar Trilha</button>
       </div>
     </section>
@@ -111,18 +115,66 @@
 
         <div>
           <label for="precisao">Precisão (%)</label>
-          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" oninput="atualizarResultado()">
+          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" placeholder="Automática se vazio" oninput="atualizarResultado()">
+        </div>
+
+        <div>
+          <label for="observacaoPreLeitor">Observação se pré-leitor</label>
+          <select id="observacaoPreLeitor" onchange="atualizarResultado()">
+            <option value="auto">Automática pelos acertos</option>
+            <option value="nivel1">Nível 1 - Não leu palavras do item</option>
+            <option value="nivel2">Nível 2 - Nomeou letras isoladas</option>
+            <option value="nivel3">Nível 3 - Silabou as palavras</option>
+            <option value="nivel4">Nível 4 - Leu até 10 palavras e até 5 difíceis</option>
+          </select>
         </div>
       </div>
 
       <div id="resultadoFinal" class="resultado-box" aria-live="polite"></div>
+
+      <div class="controls">
+        <button class="btn-primary" type="button" onclick="salvarResultado()">Salvar resultado</button>
+        <button class="btn-next" type="button" onclick="novoAluno()">Novo aluno</button>
+      </div>
+
+      <section class="database-panel">
+        <div class="database-header">
+          <h3>Banco local de resultados</h3>
+          <div class="database-actions">
+            <button class="btn-next" type="button" onclick="exportarCSV()">Exportar CSV</button>
+            <button class="btn-pause" type="button" onclick="limparBanco()">Limpar banco</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Aluno</th>
+                <th>Turma</th>
+                <th>Conhecidas</th>
+                <th>Difíceis</th>
+                <th>Total</th>
+                <th>Precisão</th>
+                <th>Compreensão</th>
+                <th>Perfil</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaResultados"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
   </main>
 
-  <div id="alertaPare" class="alerta" role="dialog" aria-modal="true" aria-labelledby="tituloPare">
+  <div id="alertaModal" class="alerta" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
     <div class="alerta-card">
-      <h3 id="tituloPare">PARE</h3>
-      <button type="button" onclick="fecharPare()">OK</button>
+      <h3 id="tituloModal">PARE</h3>
+      <p id="mensagemModal"></p>
+      <div class="modal-actions">
+        <button id="cancelarModal" class="btn-next" type="button" onclick="fecharModal()">Cancelar</button>
+        <button id="confirmarModal" type="button" onclick="confirmarModal()">OK</button>
+      </div>
     </div>
   </div>
 
