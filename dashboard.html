@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Trilha da Leitura</title>
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+  <main class="dashboard-shell">
+    <header class="dashboard-hero">
+      <div>
+        <p class="eyebrow">Trilha da Leitura</p>
+        <h1>Dashboard de Resultados</h1>
+        <p class="hero-copy">Acompanhamento das avaliações salvas no Firebase Firestore.</p>
+      </div>
+      <button type="button" class="refresh-btn" onclick="carregarResultados()">Atualizar</button>
+    </header>
+
+    <section class="filters" aria-label="Filtros do dashboard">
+      <label>
+        Turma
+        <select id="filtroTurma" onchange="aplicarFiltros()">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>
+        Perfil
+        <select id="filtroPerfil" onchange="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="Pré-leitor">Pré-leitor</option>
+          <option value="Leitor Iniciante">Leitor Iniciante</option>
+          <option value="Leitor Fluente">Leitor Fluente</option>
+        </select>
+      </label>
+      <label>
+        De
+        <input id="filtroInicio" type="date" onchange="aplicarFiltros()">
+      </label>
+      <label>
+        Até
+        <input id="filtroFim" type="date" onchange="aplicarFiltros()">
+      </label>
+      <label class="search-filter">
+        Buscar aluno
+        <input id="filtroBusca" type="search" placeholder="Nome do aluno" oninput="aplicarFiltros()">
+      </label>
+    </section>
+
+    <section class="stats-grid" aria-label="Indicadores principais">
+      <article class="stat-card">
+        <span>Estudantes avaliados</span>
+        <strong id="totalAvaliacoes">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Precisão média</span>
+        <strong id="mediaPrecisao">0%</strong>
+      </article>
+      <article class="stat-card">
+        <span>Total médio de palavras</span>
+        <strong id="mediaPalavras">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Compreensão média</span>
+        <strong id="mediaCompreensao">0/2</strong>
+      </article>
+    </section>
+
+    <section class="chart-layout">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Distribuição por perfil</h2>
+          <span id="perfilResumo">0 registros</span>
+        </div>
+        <div class="profile-chart">
+          <div class="donut" id="perfilDonut"></div>
+          <div class="legend" id="perfilLegenda"></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Turmas</h2>
+          <span>Quantidade por turma</span>
+        </div>
+        <div id="graficoTurmas" class="bar-list"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Resultados dos alunos</h2>
+        <button type="button" class="export-btn" onclick="exportarTabela()">Exportar CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Aluno</th>
+              <th>Turma</th>
+              <th>Conhecidas</th>
+              <th>Difíceis</th>
+              <th>Total</th>
+              <th>Precisão</th>
+              <th>Compreensão</th>
+              <th>Tempo</th>
+              <th>Perfil</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaResultados">
+            <tr><td colspan="10">Carregando resultados...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
