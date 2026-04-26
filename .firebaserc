@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "trilha-leitura"
+  },
+  "targets": {
+    "trilha-leitura": {
+      "hosting": {
+        "trilha-da-leitura-01": [
+          "trilha-da-leitura-01"
+        ]
+      }
+    }
+  }
+}
