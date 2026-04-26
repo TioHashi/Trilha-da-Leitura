@@ -9,6 +9,7 @@
   --line:#dbeafe;
   --panel:#ffffff;
   --bg:#eef6ff;
+  --footer-altura:46px;
 }
 
 *{box-sizing:border-box}
@@ -16,6 +17,7 @@
 body{
   margin:0;
   min-height:100vh;
+  padding-bottom:calc(var(--footer-altura) + 10px);
   font-family:Arial, Helvetica, sans-serif;
   color:var(--ink);
   background:
@@ -25,7 +27,7 @@ body{
 }
 
 .dashboard-shell{
-  width:min(1600px,100%);
+  width:min(100% - 24px, 1760px);
   margin:0 auto;
   padding:clamp(10px,2vw,18px);
 }
@@ -248,26 +250,27 @@ input{
 
 .table-wrap{
   width:100%;
-  overflow-x:auto;
+  overflow-x:hidden;
   border-radius:14px;
 }
 
 table{
-  width:max-content;
-  min-width:100%;
+  width:100%;
+  min-width:0;
   border-collapse:collapse;
-  table-layout:auto;
+  table-layout:fixed;
 }
 
 th,
 td{
-  max-width:260px;
-  padding:10px 9px;
+  padding:9px 7px;
   border-bottom:1px solid #e5e7eb;
   text-align:center;
   white-space:normal;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
+  word-break:normal;
   vertical-align:middle;
+  font-size:clamp(.74rem, .82vw, .92rem);
 }
 
 th:nth-child(2),
@@ -277,19 +280,38 @@ td:nth-child(2){
 
 th:nth-child(3),
 td:nth-child(3){
-  min-width:240px;
+  width:22%;
 }
 
 th:nth-child(10),
 td:nth-child(10){
-  min-width:150px;
+  width:13%;
 }
+
+th:nth-child(1),
+td:nth-child(1){width:12%}
+
+th:nth-child(2),
+td:nth-child(2){width:16%}
+
+th:nth-child(4),
+td:nth-child(4){width:7%}
+
+th:nth-child(5),
+td:nth-child(5),
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(7),
+td:nth-child(7),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(9),
+td:nth-child(9){width:7%}
 
 th{
   color:var(--blue-dark);
   background:#eff6ff;
-  font-size:.9rem;
-  white-space:nowrap;
+  white-space:normal;
 }
 
 td{
@@ -310,4 +332,34 @@ td{
   .chart-layout{grid-template-columns:1fr}
   .profile-chart{align-items:flex-start;flex-direction:column}
   .donut{width:140px}
+}
+
+@media (max-width:760px){
+  :root{--footer-altura:52px}
+  .dashboard-shell{width:100%;padding:8px}
+  .panel{padding:10px}
+  .table-wrap{overflow-x:auto}
+  table{min-width:820px;table-layout:auto}
+  th,
+  td{font-size:.78rem;white-space:nowrap}
+}
+
+footer{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  z-index:5;
+  width:100%;
+  min-height:var(--footer-altura);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform:translateX(-50%);
+  padding:8px 10px;
+  text-align:center;
+  font-weight:900;
+  color:#1e3a8a;
+  background:rgba(239,246,255,.94);
+  border-top:1px solid #bfdbfe;
+  font-size:clamp(.78rem,2.6vw,.95rem);
 }
