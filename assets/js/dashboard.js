@@ -231,7 +231,8 @@ function escapeHtml(valor){
 }
 
 function atualizarStatus(mensagem){
-  document.getElementById("statusDashboard").textContent = mensagem;
+  const status = document.getElementById("statusDashboard");
+  if(status) status.textContent = mensagem;
 }
 
 preencherEscolas();

@@ -64,14 +64,7 @@ h1{
 }
 
 .dashboard-status{
-  display:inline-flex;
-  margin:14px 0 0;
-  padding:7px 10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.16);
-  color:#fff;
-  font-size:.9rem;
-  font-weight:900;
+  display:none;
 }
 
 button{
@@ -358,6 +351,7 @@ footer{
   padding:8px 10px;
   text-align:center;
   font-weight:900;
+  line-height:1.2;
   color:#1e3a8a;
   background:rgba(239,246,255,.94);
   border-top:1px solid #bfdbfe;
