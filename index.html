@@ -1,426 +1,133 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Trilha da Leitura</title>
-
-<style>
-:root{
---blue:#2563eb;
---green:#22c55e;
---yellow:#f59e0b;
---red:#ef4444;
-}
-
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:linear-gradient(#eef4ff,#dbeafe);
-padding:15px 15px 80px;
-}
-
-/* RODAPÉ DESTACADO */
-footer{
-position:fixed;
-bottom:10px;
-left:0;
-width:100%;
-text-align:center;
-font-size:14px;
-font-weight:800;
-color:#1e3a8a;
-}
-
-/* layout */
-.page{
-display:none;
-max-width:1200px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:24px;
-box-shadow:0 8px 30px rgba(0,0,0,.08);
-}
-
-.active{display:block;}
-
-h1{
-text-align:center;
-color:#2563eb;
-margin-bottom:15px;
-}
-
-.startBtn{
-display:block;
-margin:30px auto;
-width:300px;
-max-width:100%;
-padding:18px;
-border:none;
-border-radius:18px;
-background:#2563eb;
-color:white;
-font-size:20px;
-font-weight:bold;
-}
-
-label{
-display:block;
-margin-top:15px;
-font-weight:bold;
-}
-
-input,select{
-width:100%;
-padding:14px;
-margin-top:8px;
-border-radius:12px;
-border:1px solid #ccc;
-}
-
-/* timer */
-.timer-wrap{
-display:flex;
-justify-content:center;
-margin:25px 0;
-}
-
-.base-timer{
-position:relative;
-width:180px;
-height:180px;
-}
-
-.base-timer svg{
-transform:scaleX(-1);
-}
-
-.base-timer_path-elapsed{
-stroke:#ddd;
-stroke-width:8;
-fill:none;
-}
-
-.base-timer_path-remaining{
-stroke-width:8;
-fill:none;
-stroke:currentColor;
-stroke-linecap:round;
-}
-
-.green{color:#22c55e;}
-.yellow{color:#f59e0b;}
-.red{color:#ef4444;}
-
-.base-timer_label{
-position:absolute;
-inset:0;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-font-weight:800;
-}
-
-.base-timer_label span{
-font-size:60px;
-}
-
-/* palavras */
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(95px,1fr));
-gap:8px;
-margin-top:15px;
-}
-
-.word{
-background:#eff6ff;
-padding:10px 5px;
-border-radius:10px;
-text-align:center;
-font-size:18px;
-font-weight:700;
-word-break:break-word;
-}
-
-.controls{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-top:20px;
-}
-
-button{
-flex:1;
-padding:14px;
-border:none;
-border-radius:12px;
-font-weight:bold;
-color:white;
-}
-
-.pause{background:#ef4444;}
-.continuar{background:#22c55e;}
-.next{background:#10b981;}
-.compBtn{background:#f59e0b;}
-
-.story{
-margin-top:20px;
-background:#fffef5;
-padding:20px;
-border-left:5px solid #f59e0b;
-border-radius:12px;
-line-height:1.8;
-}
-
-.result{
-display:none;
-margin-top:20px;
-background:#dbeafe;
-padding:25px;
-border-radius:16px;
-font-size:22px;
-font-weight:bold;
-line-height:1.8;
-}
-
-@media(max-width:600px){
-.grid{
-grid-template-columns:repeat(3,1fr);
-}
-.word{
-font-size:15px;
-}
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trilha da Leitura</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-
-<!-- INICIO -->
-<div id="page1" class="page active">
-
-<h1>Trilha da Leitura</h1>
-
-<label>Nome do estudante</label>
-<input id="aluno" placeholder="Digite o nome do aluno">
-
-<button class="startBtn" onclick="iniciar()">
-Iniciar Trilha
-</button>
-
-</div>
-
-
-
-<!-- PALAVRAS CONHECIDAS -->
-<div id="page2" class="page">
-
-<h1>60 Palavras Conhecidas</h1>
-
-<div class="timer-wrap">
-<div class="base-timer">
-<svg viewBox="0 0 100 100">
-<circle class="base-timer_path-elapsed" cx="50" cy="50" r="45"/>
-<path id="timer1"
-stroke-dasharray="283"
-class="base-timer_path-remaining green"
-d="M50,50 m-45,0 a45,45 0 1,0 90,0 a45,45 0 1,0 -90,0"/>
-</svg>
-
-<div class="base-timer_label">
-<span id="tempo1">60</span>
-<small>segundos</small>
-</div>
-</div>
-</div>
-
-<div id="palavras" class="grid"></div>
-
-<div class="controls">
-<button id="pauseBtn1" class="pause" onclick="togglePause1()">Pausar</button>
-<button class="next" onclick="irDificeis()">Palavras Desconhecidas</button>
-</div>
-
-</div>
-
-
-
-<!-- PALAVRAS DIFICEIS -->
-<div id="page3" class="page">
-
-<h1>40 Palavras Possivelmente Desconhecidas</h1>
-
-<div class="timer-wrap">
-<div class="base-timer">
-<svg viewBox="0 0 100 100">
-<circle class="base-timer_path-elapsed" cx="50" cy="50" r="45"/>
-<path id="timer2"
-stroke-dasharray="283"
-class="base-timer_path-remaining green"
-d="M50,50 m-45,0 a45,45 0 1,0 90,0 a45,45 0 1,0 -90,0"/>
-</svg>
-
-<div class="base-timer_label">
-<span id="tempo2">60</span>
-<small>segundos</small>
-</div>
-</div>
-</div>
-
-<div id="dificeis" class="grid"></div>
-
-<div class="controls">
-<button id="pauseBtn2" class="pause" onclick="togglePause2()">Pausar</button>
-<button class="next" onclick="irTexto()">Texto e Compreensão</button>
-</div>
-
-</div>
-
-
-
-<!-- TEXTO -->
-<div id="page4" class="page">
-
-<h1>Texto e Compreensão</h1>
-
-<div class="story">
-Um menino plantou uma semente no quintal e regou todos os dias.
-</div>
-
-<label>O menino plantou:</label>
-<select id="q1">
-<option>Uma semente</option>
-<option>Uma pedra</option>
-</select>
-
-<label>Ele cuidou:</label>
-<select id="q2">
-<option>Regando</option>
-<option>Esquecendo</option>
-</select>
-
-<div class="controls">
-<button class="compBtn" onclick="goPage(5)">Resultado</button>
-</div>
-
-</div>
-
-
-
-<!-- RESULTADO -->
-<div id="page5" class="page">
-
-<h1>Classificação</h1>
-
-<label>Palavras corretas</label>
-<input id="corretas">
-
-<label>Palavras desconhecidas corretas</label>
-<input id="desconhecidas">
-
-<label>Precisão</label>
-<input id="precisao">
-
-<button class="next" onclick="classificar()">Gerar Resultado</button>
-
-<div id="resultado" class="result"></div>
-
-</div>
-
-
-
-<footer>
-© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0
-</footer>
-
-
-
-<script>
-
-function goPage(n){
-document.querySelectorAll('.page')
-.forEach(p=>p.classList.remove('active'));
-document.getElementById('page'+n)
-.classList.add('active');
-}
-
-/* LISTAS */
-const conhecidas=["casa","bola","gato","mesa","lua","rio","sol","pipa","cama","rato","vaca","rosa","anel","dedo","fogo","garfo","ilha","janela","leite","muro","navio","pedra","quadro","roupa","sapato","terra","uva","vento","zebra","abelha","barco","chuva","doce","estrela","folha","grama","hotel","igreja","jardim","lápis","manga","ninho","olho","porta","queijo","sino","tomate","vaso","areia","beijo","cano","drama","eco","fita","galo","harpa","jarra","lenha","macaco","noite"];
-
-const dificeis=["abóbada","acólito","anáfora","apogeu","arcabouço","arquipélago","artífice","azulejo","bálsamo","bússola","cadência","calabouço","caramujo","catacumba","catedral","claraboia","cordilheira","crisálida","crosta","cupinzeiro","desfiladeiro","diligência","dossel","estalagem","estuário","fanal","fornalha","gazela","geleira","hortênsia","labirinto","lamparina","manancial","mirante","obelisco","penhasco","pináculo","santuário","vertente","miríade"];
-
-function mostrarLista(lista,id){
-document.getElementById(id).innerHTML=
-lista.map(p=>`<div class="word">${p}</div>`).join('');
-}
-
-/* TIMER */
-let t1=60,p1=false,timer1;
-let t2=60,p2=false,timer2;
-
-function iniciar(){
-goPage(2);
-mostrarLista(conhecidas,"palavras");
-timer1=setInterval(()=>{
-if(!p1){t1--;tempo1.innerHTML=t1;}
-},1000);
-}
-
-function togglePause1(){
-p1=!p1;
-pauseBtn1.innerText=p1?"Continuar":"Pausar";
-pauseBtn1.className=p1?"continuar":"pause";
-}
-
-function irDificeis(){
-clearInterval(timer1);
-goPage(3);
-mostrarLista(dificeis,"dificeis");
-timer2=setInterval(()=>{
-if(!p2){t2--;tempo2.innerHTML=t2;}
-},1000);
-}
-
-function togglePause2(){
-p2=!p2;
-pauseBtn2.innerText=p2?"Continuar":"Pausar";
-pauseBtn2.className=p2?"continuar":"pause";
-}
-
-function irTexto(){
-clearInterval(timer2);
-goPage(4);
-}
-
-function classificar(){
-let p=parseInt(corretas.value)||0;
-let d=parseInt(desconhecidas.value)||0;
-let pr=parseInt(precisao.value)||0;
-
-let perfil="";
-
-if(p<=10) perfil="Pré-leitor";
-else if(p<=65) perfil="Leitor Iniciante";
-else if(pr>=90) perfil="Leitor Fluente";
-
-resultado.style.display="block";
-resultado.innerHTML=
-`Perfil: ${perfil}<br>
-Conhecidas: ${p}<br>
-Desconhecidas: ${d}<br>
-Precisão: ${pr}%`;
-}
-
-</script>
-
+  <main>
+    <section id="inicio" class="page active">
+      <div class="topo">
+        <h1>Trilha da Leitura</h1>
+        <p class="subtitulo">Avaliação de fluência leitora para estudantes do ensino básico.</p>
+      </div>
+
+      <div class="inicio-card">
+        <label for="nomeAluno">Nome do aluno</label>
+        <input id="nomeAluno" type="text" autocomplete="name" required>
+        <button class="btn-primary start-button" type="button" onclick="iniciarTrilha()">Iniciar Trilha</button>
+      </div>
+    </section>
+
+    <section id="conhecidas" class="page">
+      <h2>Página 1 - Palavras Conhecidas</h2>
+
+      <div class="timer-area">
+        <div class="timer" aria-live="polite">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+            <circle id="barConhecidas" class="timer-bar green" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div class="timer-label">
+            <strong id="tempoConhecidas">60</strong>
+            <span>segundos</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaConhecidas" class="word-grid"></div>
+
+      <div class="controls">
+        <button id="pauseConhecidas" class="btn-pause" type="button" onclick="alternarPausa('conhecidas')">Pausar</button>
+        <button class="btn-next" type="button" onclick="abrirDificeis()">Próximo</button>
+      </div>
+    </section>
+
+    <section id="dificeis" class="page">
+      <h2>Página 2 - Palavras Possivelmente Desconhecidas</h2>
+
+      <div class="timer-area">
+        <div class="timer" aria-live="polite">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+            <circle id="barDificeis" class="timer-bar green" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div class="timer-label">
+            <strong id="tempoDificeis">60</strong>
+            <span>segundos</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaDificeis" class="word-grid"></div>
+
+      <div class="controls">
+        <button id="pauseDificeis" class="btn-pause" type="button" onclick="alternarPausa('dificeis')">Pausar</button>
+        <button class="btn-next" type="button" onclick="abrirTexto()">Texto</button>
+      </div>
+    </section>
+
+    <section id="texto" class="page">
+      <h2>Página 3 - Texto e Compreensão</h2>
+
+      <article class="story">
+        Clara morava perto de uma pequena praça. Em uma manhã de sábado, ela encontrou um passarinho caído ao lado de uma árvore. A menina chamou sua avó, que colocou o animal com cuidado em uma caixa aberta. Depois de descansar um pouco e beber água, o passarinho bateu as asas e voltou para o galho. Clara sorriu, feliz por ter ajudado.
+      </article>
+
+      <div class="questions">
+        <div class="question">
+          <p>1. Onde Clara encontrou o passarinho?</p>
+          <label class="option"><input type="radio" name="q1" value="0"> Dentro da cozinha de sua casa.</label>
+          <label class="option"><input type="radio" name="q1" value="1"> Ao lado de uma árvore na praça.</label>
+        </div>
+
+        <div class="question">
+          <p>2. O que aconteceu depois que o passarinho descansou?</p>
+          <label class="option"><input type="radio" name="q2" value="1"> Ele bateu as asas e voltou para o galho.</label>
+          <label class="option"><input type="radio" name="q2" value="0"> Ele ficou dormindo dentro da caixa.</label>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn-result" type="button" onclick="abrirResultado()">Resultado</button>
+      </div>
+    </section>
+
+    <section id="resultado" class="page">
+      <h2>Página 4 - Resultado</h2>
+
+      <div class="result-grid">
+        <div>
+          <label for="palavrasCorretas">Palavras corretas</label>
+          <input id="palavrasCorretas" type="number" min="0" max="60" inputmode="numeric" oninput="atualizarResultado()">
+        </div>
+
+        <div>
+          <label for="dificeisCorretas">Palavras difíceis corretas</label>
+          <input id="dificeisCorretas" type="number" min="0" max="40" inputmode="numeric" oninput="atualizarResultado()">
+        </div>
+
+        <div>
+          <label for="precisao">Precisão (%)</label>
+          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" oninput="atualizarResultado()">
+        </div>
+      </div>
+
+      <div id="resultadoFinal" class="resultado-box" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="alertaPare" class="alerta" role="dialog" aria-modal="true" aria-labelledby="tituloPare">
+    <div class="alerta-card">
+      <h3 id="tituloPare">PARE</h3>
+      <button type="button" onclick="fecharPare()">OK</button>
+    </div>
+  </div>
+
+  <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
