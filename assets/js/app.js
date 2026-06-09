@@ -23,7 +23,7 @@ function pagina(id){
 
 function montarLista(lista, alvo, classeExtra){
   document.getElementById(alvo).innerHTML = lista.map(palavra => {
-    return `<div class="word ${classeExtra || ""}">${palavra}</div>`;
+    return `<div class="word ${classeExtra || ""}">${caixaAlta(palavra)}</div>`;
   }).join("");
 }
 
@@ -40,18 +40,18 @@ function prepararConteudoDaTrilha(){
 
 function montarTextoAtual(){
   if(!textoAtual) return;
-  document.getElementById("textoLeitura").textContent = textoAtual.texto;
+  document.getElementById("textoLeitura").textContent = caixaAlta(textoAtual.texto);
   document.getElementById("perguntasTexto").innerHTML = textoAtual.perguntas.map((questao, indice) => {
     const nome = `q${indice + 1}`;
     const alternativas = questao.alternativas.map(alternativa => {
-      return `<label class="option"><input type="radio" name="${nome}" value="${alternativa.correta ? "1" : "0"}" onchange="marcarResultadoAlterado()"> ${alternativa.texto}</label>`;
+      return `<label class="option"><input type="radio" name="${nome}" value="${alternativa.correta ? "1" : "0"}" onchange="marcarResultadoAlterado()"> ${caixaAlta(alternativa.texto)}</label>`;
     }).join("");
-    return `<div class="question"><p>${indice + 1}. ${questao.pergunta}</p>${alternativas}</div>`;
+    return `<div class="question"><p>${indice + 1}. ${caixaAlta(questao.pergunta)}</p>${alternativas}</div>`;
   }).join("");
 }
 
 function iniciarTrilha(){
-  const nome = document.getElementById("nomeAluno").value.trim();
+  const nome = caixaAlta(document.getElementById("nomeAluno").value.trim());
   const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
   const turma = document.getElementById("turmaAluno").value.trim();
   if(!escola || !turma || !nome){
@@ -239,7 +239,7 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
 
 async function salvarResultado(silencioso){
   try{
-    const nome = document.getElementById("nomeAluno").value.trim();
+    const nome = caixaAlta(document.getElementById("nomeAluno").value.trim());
     const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
     const turma = document.getElementById("turmaAluno").value.trim();
     const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
@@ -400,6 +400,10 @@ function criarIdRegistro(){
 }
 
 function escolaMaiuscula(valor){
+  return String(valor || "").toLocaleUpperCase("pt-BR");
+}
+
+function caixaAlta(valor){
   return String(valor || "").toLocaleUpperCase("pt-BR");
 }
 

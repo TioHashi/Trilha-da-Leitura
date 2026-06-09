@@ -19,6 +19,7 @@ body{
   padding:18px 14px calc(var(--footer-altura) + 12px);
   font-family:Arial, Helvetica, sans-serif;
   color:var(--texto);
+  text-transform:uppercase;
   overflow-x:hidden;
   background:
     radial-gradient(circle at top left, #fef3c7 0, transparent 34%),
@@ -222,6 +223,7 @@ select{
   color:var(--texto);
   background:#fff;
   outline:none;
+  text-transform:uppercase;
 }
 
 input:focus,
@@ -381,6 +383,7 @@ select:focus{
   font-weight:800;
   font-size:var(--word-font, .9rem);
   line-height:1.15;
+  text-transform:uppercase;
   white-space:nowrap;
   word-break:normal;
   overflow-wrap:normal;
@@ -437,6 +440,7 @@ button:active{transform:translateY(1px)}
   border:2px solid #fde68a;
   font-size:clamp(1.05rem,3vw,1.22rem);
   line-height:1.65;
+  text-transform:uppercase;
 }
 
 .questions{
