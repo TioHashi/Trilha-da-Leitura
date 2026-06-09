@@ -261,7 +261,7 @@ td{
   height:auto;
   min-height:0;
   max-height:32px;
-  padding:3px 7px;
+  padding:3px 5px;
   border-bottom:1px solid #e5e7eb;
   text-align:center;
   white-space:nowrap;
@@ -269,7 +269,7 @@ td{
   text-overflow:ellipsis;
   word-break:normal;
   vertical-align:middle;
-  font-size:clamp(.74rem, .82vw, .92rem);
+  font-size:clamp(.68rem, .76vw, .86rem);
   line-height:1;
 }
 
@@ -286,7 +286,7 @@ td:nth-child(2){
 
 th:nth-child(3),
 td:nth-child(3){
-  width:18%;
+  width:17%;
 }
 
 th:nth-child(10),
@@ -296,14 +296,14 @@ td:nth-child(10){
 
 th:nth-child(12),
 td:nth-child(12){
-  width:7%;
+  width:6%;
 }
 
 th:nth-child(1),
 td:nth-child(1){width:11%}
 
 th:nth-child(2),
-td:nth-child(2){width:14%}
+td:nth-child(2){width:13%}
 
 th:nth-child(4),
 td:nth-child(4){width:6%}
@@ -317,10 +317,10 @@ td:nth-child(7),
 th:nth-child(8),
 td:nth-child(8),
 th:nth-child(9),
-td:nth-child(9){width:6%}
+td:nth-child(9){width:7%}
 
 th:nth-child(11),
-td:nth-child(11){width:9%}
+td:nth-child(11){width:8%}
 
 .delete-btn{
   min-height:24px;
@@ -350,19 +350,20 @@ th{
   font-weight:900;
   cursor:pointer;
   display:inline-flex;
-  flex-direction:column;
+  flex-direction:row;
   align-items:center;
   justify-content:center;
-  gap:2px;
+  gap:3px;
   text-align:center;
   line-height:1;
+  white-space:nowrap;
 }
 
 .sort-btn span{
   display:block;
   min-width:0;
   color:#64748b;
-  font-size:.64rem;
+  font-size:.58rem;
   font-weight:900;
   line-height:1;
 }
