@@ -27,7 +27,7 @@ async function obterFirestoreDashboard(){
 
 async function carregarResultados(){
   const tabela = document.getElementById("tabelaResultados");
-  tabela.innerHTML = `<tr><td colspan="11">Carregando resultados...</td></tr>`;
+  tabela.innerHTML = `<tr><td colspan="12">Carregando resultados...</td></tr>`;
   preencherEscolas();
   preencherTurmas();
   atualizarStatus("Conectando ao Firebase...");
@@ -45,13 +45,13 @@ async function carregarResultados(){
       atualizarStatus(`${todosResultados.length} resultado(s) carregado(s) do Firebase.`);
     }, error => {
       atualizarStatus(`Erro ao ler Firebase: ${error.message || "verifique regras do Firestore."}`);
-      tabela.innerHTML = `<tr><td colspan="11">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
+      tabela.innerHTML = `<tr><td colspan="12">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
     });
   }catch(error){
     preencherEscolas();
     preencherTurmas();
     atualizarStatus(`Erro ao conectar: ${error.message || "Firebase não carregado."}`);
-    tabela.innerHTML = `<tr><td colspan="11">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
+    tabela.innerHTML = `<tr><td colspan="12">Não foi possível carregar os dados. ${escapeHtml(error.message || "")}</td></tr>`;
   }
 }
 
@@ -206,7 +206,7 @@ function renderizarTabela(){
   const corpo = document.getElementById("tabelaResultados");
   atualizarCabecalhosOrdenacao();
   if(!resultadosFiltrados.length){
-    corpo.innerHTML = `<tr><td colspan="11">Nenhum resultado encontrado.</td></tr>`;
+    corpo.innerHTML = `<tr><td colspan="12">Nenhum resultado encontrado.</td></tr>`;
     return;
   }
 
@@ -223,8 +223,26 @@ function renderizarTabela(){
       <td>${numero(item.compreensao)}/2</td>
       <td>${escapeHtml(item.tempoTotal || "")}</td>
       <td>${escapeHtml(item.perfil || "")}</td>
+      <td><button type="button" class="delete-btn" onclick="excluirResultado('${escapeJs(item.id)}')">Excluir</button></td>
     </tr>
   `).join("");
+}
+
+async function excluirResultado(id){
+  const item = todosResultados.find(resultado => resultado.id === id);
+  const nome = item && item.nome ? ` de ${item.nome}` : "";
+  const confirmar = window.confirm(`Deseja excluir definitivamente este resultado${nome}?`);
+  if(!confirmar) return;
+
+  try{
+    const db = await obterFirestoreDashboard();
+    const colecao = window.trilhaFirestoreCollection || "resultadosAlunos";
+    await db.collection(colecao).doc(id).delete();
+    atualizarStatus("Resultado excluído.");
+  }catch(error){
+    atualizarStatus(`Erro ao excluir: ${error.message || "verifique as regras do Firestore."}`);
+    alert(`Não foi possível excluir o resultado. ${error.message || ""}`);
+  }
 }
 
 function atualizarCabecalhosOrdenacao(){
@@ -292,6 +310,10 @@ function escapeHtml(valor){
     '"':"&quot;",
     "'":"&#039;"
   })[caractere]);
+}
+
+function escapeJs(valor){
+  return String(valor ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 function atualizarStatus(mensagem){

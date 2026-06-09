@@ -5,7 +5,7 @@ service cloud.firestore {
     match /resultadosAlunos/{id} {
       allow create, update: if true;
       allow read: if true;
-      allow delete: if false;
+      allow delete: if true;
     }
 
     match /{document=**} {

@@ -286,22 +286,27 @@ td:nth-child(2){
 
 th:nth-child(3),
 td:nth-child(3){
-  width:22%;
+  width:18%;
 }
 
 th:nth-child(10),
 td:nth-child(10){
-  width:13%;
+  width:7%;
+}
+
+th:nth-child(12),
+td:nth-child(12){
+  width:7%;
 }
 
 th:nth-child(1),
-td:nth-child(1){width:12%}
+td:nth-child(1){width:11%}
 
 th:nth-child(2),
-td:nth-child(2){width:16%}
+td:nth-child(2){width:14%}
 
 th:nth-child(4),
-td:nth-child(4){width:7%}
+td:nth-child(4){width:6%}
 
 th:nth-child(5),
 td:nth-child(5),
@@ -312,7 +317,21 @@ td:nth-child(7),
 th:nth-child(8),
 td:nth-child(8),
 th:nth-child(9),
-td:nth-child(9){width:7%}
+td:nth-child(9){width:6%}
+
+th:nth-child(11),
+td:nth-child(11){width:9%}
+
+.delete-btn{
+  min-height:24px;
+  padding:4px 8px;
+  border-radius:8px;
+  color:#fff;
+  background:var(--red);
+  font-size:.72rem;
+  line-height:1;
+  box-shadow:none;
+}
 
 th{
   color:var(--blue-dark);
