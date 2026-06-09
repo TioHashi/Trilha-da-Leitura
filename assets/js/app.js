@@ -51,7 +51,7 @@ function montarTextoAtual(){
 }
 
 function iniciarTrilha(){
-  const nome = caixaAlta(document.getElementById("nomeAluno").value.trim());
+  const nome = document.getElementById("nomeAluno").value.trim();
   const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
   const turma = document.getElementById("turmaAluno").value.trim();
   if(!escola || !turma || !nome){
@@ -239,7 +239,7 @@ function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
 
 async function salvarResultado(silencioso){
   try{
-    const nome = caixaAlta(document.getElementById("nomeAluno").value.trim());
+    const nome = document.getElementById("nomeAluno").value.trim();
     const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
     const turma = document.getElementById("turmaAluno").value.trim();
     const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
