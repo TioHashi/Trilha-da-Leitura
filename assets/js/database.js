@@ -73,6 +73,15 @@ const TrilhaDB = (() => {
   }
 
   async function salvarFirebase(registro){
+    if(!window.TrilhaAuth){
+      return {ok:false, erro:"Autenticação não carregada."};
+    }
+
+    const usuario = await window.TrilhaAuth.currentUser();
+    if(!usuario){
+      return {ok:false, erro:"Faça login para sincronizar com o Firestore."};
+    }
+
     const db = await obterFirestore();
     if(!db){
       return {ok:false, erro:"Firebase não inicializado. Verifique firebase-config.js e a conexão com a internet."};
@@ -80,8 +89,17 @@ const TrilhaDB = (() => {
 
     try{
       const colecao = window.trilhaFirestoreCollection || "resultadosAlunos";
+      const token = typeof usuario.getIdTokenResult === "function" ? await usuario.getIdTokenResult() : {claims:{}};
+      const claims = token.claims || {};
+      const turmaFinal = claims.turma ? String(claims.turma) : registro.turma;
       await db.collection(colecao).doc(registro.id).set({
         ...registro,
+        professorUid: usuario.uid || "",
+        professorEmail: usuario.email || "",
+        professoresPermitidos: [usuario.uid || ""],
+        escola: claims.escola ? String(claims.escola) : registro.escola,
+        serie: claims.serie ? String(claims.serie) : serieDaTurma(turmaFinal),
+        turma: turmaFinal,
         atualizadoEmFirebase: firebase.firestore.FieldValue.serverTimestamp()
       }, {merge:true});
       return {ok:true};
@@ -129,6 +147,11 @@ const TrilhaDB = (() => {
   function removerTodos(){
     localStorage.removeItem(chave);
     localStorage.removeItem(chaveFila);
+  }
+
+  function serieDaTurma(turma){
+    const partes = String(turma || "").match(/^(\d+)\s*ANO/i);
+    return partes ? `${partes[1]}º Ano` : "Série não informada";
   }
 
   window.addEventListener("online", sincronizarPendentes);

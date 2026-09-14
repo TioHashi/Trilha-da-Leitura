@@ -1,2 +1,15 @@
 .firebase/
 node_modules/
+.env
+.env.*
+!.env.example
+.secret.local
+functions/node_modules/
+functions/lib/
+functions/.secret.local
+functions/functions/.secret.local
+functions/**/.secret.local
+dist/
+firebase-debug.log
+firestore-debug.log
+firebase.regras-test.local.json

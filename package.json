@@ -1,0 +1,45 @@
+{
+  "name": "trilha-da-leitura",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de avaliacao e acompanhamento da fluencia leitora.",
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:ts && npm run build:css",
+    "build:functions": "npm --prefix functions run build",
+    "build:pages": "npm run build && node scripts/build-pages.mjs",
+    "build:ts": "tsc --project tsconfig.json",
+    "watch:ts": "tsc --project tsconfig.json --watch",
+    "build:css": "tailwindcss -i ./src/styles/input.css -o ./public/assets/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./src/styles/input.css -o ./public/assets/css/tailwind.css --watch",
+    "test": "node --test tests/reading-rules.test.mjs tests/no-bootstrap.test.mjs tests/no-secrets.test.mjs tests/auth-static.test.mjs tests/ai-assistant-static.test.mjs tests/pages-build-static.test.mjs tests/emulator-ptbr-static.test.mjs tests/trilha-turma-static.test.mjs tests/favicon-static.test.mjs",
+    "test:functions": "npm --prefix functions test",
+    "test:rules": "npm run testar:regras",
+    "testar:regras": "node scripts/testar-regras-firestore.mjs",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "format:check": "node tests/format-check.mjs",
+    "verify:pages": "node scripts/verify-pages-build.mjs",
+    "serve": "npx http-server . -c-1",
+    "serve:pages": "npx http-server dist -c-1",
+    "emulators": "firebase emulators:start --project trilha-leitura --import .firebase/emuladores --export-on-exit .firebase/emuladores",
+    "emuladores": "npm run emulators",
+    "seed:emulators": "npm run semear:emuladores",
+    "semear:emuladores": "node scripts/semear-emuladores.mjs",
+    "recalcular:perfis": "node scripts/recalcular-perfis-emuladores.mjs",
+    "verificar:emuladores": "node scripts/verificar-dados-emuladores.mjs",
+    "dev": "npm run serve"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.0.0",
+    "firebase-tools": "^15.28.2",
+    "http-server": "^14.1.1",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

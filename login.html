@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="auth-ready">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Trilha da Leitura</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="public/assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+</head>
+<body>
+  <main class="auth-shell">
+    <section class="auth-panel" aria-labelledby="loginTitle">
+      <div class="auth-brand">
+        <span class="auth-mark" aria-hidden="true">TL</span>
+        <div>
+          <p>Trilha da Leitura</p>
+          <h1 id="loginTitle">Acesso ao sistema</h1>
+        </div>
+      </div>
+
+      <form class="auth-form" data-login-form>
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+        <button type="submit">Entrar</button>
+        <button class="auth-reset" type="button" data-reset-password>Esqueci minha senha</button>
+      </form>
+
+      <p class="auth-help">Use o acesso criado no Trilha da Leitura pelo administrador do sistema.</p>
+      <p class="auth-status" data-auth-status aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="public/assets/js/auth.js?v=20260609-2"></script>
+  <script>
+    window.TrilhaAuth.initLoginPage();
+  </script>
+</body>
+</html>

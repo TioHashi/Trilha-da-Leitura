@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trilha Turma | Trilha da Leitura</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body class="trilha-turma-body">
+  <main>
+    <div class="auth-bar" aria-label="Sessão do usuário">
+      <span data-auth-status aria-live="polite">Verificando sessão...</span>
+      <a href="index.html">Avaliação individual</a>
+      <a href="dashboard.html">Dashboard</a>
+      <button type="button" onclick="window.TrilhaAuth.signOut()">Sair</button>
+    </div>
+
+    <section class="page active turma-page">
+      <div id="trilhaTurmaPalco" class="turma-stage modo-conhecidas">
+        <div class="turma-timer-area">
+          <div class="turma-timer-stack">
+            <div class="timer" aria-live="polite">
+              <svg viewBox="0 0 100 100" aria-hidden="true">
+                <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                <circle id="barTurma" class="timer-bar green" cx="50" cy="50" r="45"></circle>
+              </svg>
+              <div id="sparkTurma" class="fuse-spark" aria-hidden="true"><span></span></div>
+              <div class="timer-label">
+                <strong id="turmaContador">1</strong>
+                <span>segundos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="turma-word-card" aria-live="polite">
+          <p id="turmaPalavra">Pronto?</p>
+        </div>
+
+        <div id="turmaResumoCategoria" class="turma-category-counter" aria-live="polite">
+          Palavras: 0 feitas • 60 faltam • tempo limite 1min
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="public/assets/js/auth.js?v=20260609-2"></script>
+  <script>
+    window.TrilhaAuth.initProtectedPage();
+  </script>
+  <script src="assets/js/conteudo.js?v=20260609-2"></script>
+  <script type="module" src="public/assets/js/trilha-turma.js?v=20260902-2"></script>
+</body>
+</html>

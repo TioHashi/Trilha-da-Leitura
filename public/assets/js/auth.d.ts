@@ -1,0 +1,17 @@
+declare const janelaAuth: Window & typeof globalThis;
+declare const AUTH_READY_CLASS = "auth-ready";
+declare const AUTH_REQUIRED_PAGES: string[];
+declare function isFirebaseAvailable(): boolean;
+declare function initializeFirebase(): any;
+declare function connectEmulatorsWhenLocal(): void;
+declare function isLocalDevelopmentHost(hostname: string): boolean;
+declare function getLocalEmulatorHost(hostname: string): string;
+declare function getPageName(): string;
+declare function getLoginUrl(): string;
+declare function getRedirectAfterLogin(): string;
+declare function setAuthStatus(message: string): void;
+declare function showDocument(): void;
+declare function currentUser(): Promise<any>;
+declare function initProtectedPage(): Promise<void>;
+declare function initLoginPage(): Promise<void>;
+declare function signOut(): Promise<void>;

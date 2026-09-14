@@ -14,6 +14,8 @@
 
 html,body{min-height:100%}
 
+html:not(.auth-ready) body{visibility:hidden}
+
 body{
   margin:0;
   padding:18px 14px calc(var(--footer-altura) + 12px);
@@ -38,6 +40,38 @@ body{
 }
 
 .page.active{display:block}
+
+.auth-bar{
+  width:min(1120px,100%);
+  margin:0 auto 12px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  color:#1e3a8a;
+  font-size:.9rem;
+  font-weight:900;
+}
+
+.auth-bar a,
+.auth-bar button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:7px 12px;
+  border-radius:10px;
+  color:#fff;
+  background:#07348c;
+  font-size:.9rem;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:none;
+}
+
+.auth-bar button{
+  border:0;
+}
 
 .word-page.active{
   display:flex;
@@ -428,7 +462,211 @@ button:active{transform:translateY(1px)}
 .btn-result{background:var(--amarelo);color:#422006}
 
 .controls button{flex:1 1 170px}
-.start-button{width:100%;margin-top:18px}
+.start-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+
+.start-button{
+  width:100%;
+  margin-top:0;
+}
+
+.btn-dashboard{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:12px 16px;
+  border-radius:14px;
+  color:#07348c;
+  background:#facc15;
+  font-size:1rem;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:0 8px 18px rgba(15,23,42,.12);
+}
+
+.btn-dashboard:active{transform:translateY(1px)}
+
+.turma-page{
+  width:min(1280px,100%);
+}
+
+.turma-stage{
+  display:grid;
+  gap:18px;
+  min-height:calc(100dvh - var(--footer-altura) - 250px);
+  padding:clamp(16px,3vw,28px);
+  border:2px solid #bfdbfe;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(219,234,254,.86), transparent 28%),
+    linear-gradient(135deg, #f8fbff, #eff6ff);
+}
+
+.turma-stage.modo-dificeis{
+  border-color:#fde68a;
+  background:
+    radial-gradient(circle at 100% 0, rgba(254,243,199,.9), transparent 30%),
+    linear-gradient(135deg, #fff7ed, #f8fbff);
+}
+
+.turma-stage-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.turma-stage-head h1{
+  margin:0;
+  font-size:clamp(1.8rem,4.6vw,3.2rem);
+}
+
+.turma-stage-head span{
+  flex:0 0 auto;
+  padding:8px 12px;
+  border-radius:999px;
+  color:#07348c;
+  background:#dbeafe;
+  font-weight:900;
+}
+
+.turma-kicker{
+  margin:0 0 6px;
+  color:#15803d;
+  font-size:.84rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.turma-timer-area{
+  display:flex;
+  justify-content:center;
+}
+
+.turma-timer-stack{
+  display:grid;
+  justify-items:center;
+  gap:12px;
+}
+
+.turma-timer-area .timer{
+  width:clamp(120px,18vw,190px);
+}
+
+.turma-category-counter{
+  justify-self:center;
+  margin-top:clamp(6px,1.5vw,14px);
+  padding:4px 8px;
+  color:#475569;
+  background:transparent;
+  font-size:clamp(.78rem,1.4vw,.95rem);
+  font-weight:800;
+  text-align:center;
+}
+
+.turma-word-card{
+  display:grid;
+  place-items:center;
+  min-height:clamp(190px,32vw,340px);
+  padding:18px;
+  border:2px solid #bfdbfe;
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 18px 36px rgba(37,99,235,.12);
+}
+
+.modo-dificeis .turma-word-card{
+  border-color:#fed7aa;
+}
+
+.turma-word-card p{
+  margin:0;
+  color:#0f172a;
+  font-size:clamp(3.2rem,13vw,9rem);
+  font-weight:900;
+  line-height:1;
+  text-align:center;
+  text-transform:uppercase;
+  overflow-wrap:anywhere;
+}
+
+.turma-status{
+  margin:0;
+  color:#334155;
+  text-align:center;
+  font-size:1.05rem;
+  font-weight:900;
+}
+
+.turma-actions{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+
+.turma-actions button{
+  width:100%;
+}
+
+.trilha-turma-body{
+  padding:10px 12px calc(var(--footer-altura) + 8px);
+  background:linear-gradient(135deg, #eef6ff, #f8fbff 58%, #ecfeff);
+}
+
+.trilha-turma-body .auth-bar{
+  width:min(1440px,100%);
+}
+
+.trilha-turma-body .turma-page{
+  width:min(1440px,100%);
+  min-height:calc(100dvh - var(--footer-altura) - 66px);
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+.trilha-turma-body .turma-stage{
+  grid-template-rows:auto 1fr;
+  gap:clamp(18px,3vw,34px);
+  min-height:calc(100dvh - var(--footer-altura) - 66px);
+  padding:clamp(14px,2.5vw,34px);
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+.trilha-turma-body .turma-timer-area .timer{
+  width:clamp(118px,14vw,190px);
+}
+
+.trilha-turma-body .turma-category-counter{
+  font-size:clamp(.78rem,1.25vw,1rem);
+}
+
+.trilha-turma-body .turma-word-card{
+  min-height:0;
+  border:0;
+  border-radius:24px;
+  background:#fff;
+}
+
+.trilha-turma-body .turma-word-card p{
+  font-size:clamp(3.8rem,13vw,11rem);
+  width:100%;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+  line-height:1;
+}
 
 .story{
   margin:16px 0 18px;
@@ -577,6 +815,7 @@ footer{
   :root{--footer-altura:52px}
   body{padding:8px 8px calc(var(--footer-altura) + 8px)}
   .page{border-radius:18px;padding:14px}
+  .auth-bar{align-items:stretch;flex-direction:column}
   .brand-banner{border-radius:20px;min-height:112px;padding:13px 14px}
   .book-mark{width:clamp(72px,24vw,96px)}
   .brand-text strong{font-size:clamp(1.55rem,9.5vw,2.75rem)}
@@ -592,5 +831,10 @@ footer{
   .story{padding:14px}
   .question{padding:13px}
   .controls{gap:8px}
+  .start-actions{grid-template-columns:1fr}
+  .turma-stage{min-height:auto;padding:12px}
+  .turma-stage-head{flex-direction:column}
+  .turma-word-card{min-height:190px}
+  .turma-actions{grid-template-columns:1fr}
   button{width:100%;font-size:.98rem}
 }

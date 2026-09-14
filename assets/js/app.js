@@ -13,6 +13,9 @@ let acaoConfirmada = null;
 let registroAtualId = null;
 let resultadoSalvo = false;
 const circunferencia = 283;
+let vinculoAvaliacao = {administrador:false, escola:"", turma:""};
+let alunosAvaliacao = [];
+let unsubscribeAlunosAvaliacao = null;
 
 function pagina(id){
   document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
@@ -180,22 +183,24 @@ function calcularCompreensao(){
 function atualizarResultado(){
   const corretas = limitarNumero(document.getElementById("palavrasCorretas").value, 0, 60);
   const dificeis = limitarNumero(document.getElementById("dificeisCorretas").value, 0, 40);
+  const textoCorretas = limitarNumero(document.getElementById("palavrasTextoCorretas").value, 0, 100);
   const total = corretas + dificeis;
   const precisaoDigitada = document.getElementById("precisao").value.trim();
-  const precisao = precisaoDigitada === "" ? limitarNumero(total, 0, 100) : limitarNumero(precisaoDigitada, 0, 100);
-  const classificacao = classificarPerfil(corretas, dificeis, precisao);
+  const precisao = precisaoDigitada === "" ? limitarNumero(textoCorretas, 0, 100) : limitarNumero(precisaoDigitada, 0, 100);
+  const classificacao = classificarPerfil(corretas, dificeis, textoCorretas, precisao);
   document.getElementById("resultadoFinal").innerHTML = `
     <div class="resultado-linha"><span>Perfil leitor</span><strong>${classificacao.perfil}</strong></div>
     <div class="resultado-linha"><span>Critério aplicado</span><strong>${classificacao.criterio}</strong></div>
-    <div class="resultado-linha"><span>Palavras corretas</span><strong>${corretas}</strong></div>
-    <div class="resultado-linha"><span>Palavras difíceis corretas</span><strong>${dificeis}</strong></div>
-    <div class="resultado-linha"><span>Total de palavras</span><strong>${total}</strong></div>
-    <div class="resultado-linha"><span>Precisão</span><strong>${precisao}%</strong></div>
+    <div class="resultado-linha"><span>Palavras conhecidas corretas</span><strong>${corretas}</strong></div>
+    <div class="resultado-linha"><span>Palavras possivelmente desconhecidas corretas</span><strong>${dificeis}</strong></div>
+    <div class="resultado-linha"><span>Total nas listas</span><strong>${total}</strong></div>
+    <div class="resultado-linha"><span>Palavras corretas no texto</span><strong>${textoCorretas}</strong></div>
+    <div class="resultado-linha"><span>Precisão do texto</span><strong>${precisao}%</strong></div>
     <div class="resultado-linha"><span>Compreensão</span><strong>${acertosCompreensao}/2</strong></div>
     <div class="resultado-linha"><span>Tempo nas palavras conhecidas</span><strong>${formatarTempo(estado.conhecidas.gasto)}</strong></div>
     <div class="resultado-linha"><span>Tempo nas palavras difíceis</span><strong>${formatarTempo(estado.dificeis.gasto)}</strong></div>
   `;
-  return {corretas, dificeis, precisao, total, perfil:classificacao.perfil, criterio:classificacao.criterio};
+  return {corretas, dificeis, textoCorretas, precisao, total, perfil:classificacao.perfil, criterio:classificacao.criterio};
 }
 
 function marcarResultadoAlterado(){
@@ -209,14 +214,13 @@ function limitarNumero(valor, minimo, maximo){
   return Math.min(maximo, Math.max(minimo, Math.round(numero)));
 }
 
-function classificarPerfil(conhecidasCorretas, dificeisCorretas, precisao){
-  const total = conhecidasCorretas + dificeisCorretas;
+function classificarPerfil(conhecidasCorretas, dificeisCorretas, textoCorretas, precisao){
   const observacao = document.getElementById("observacaoPreLeitor").value;
 
-  if(total > 65 && precisao >= 90){
+  if(textoCorretas > 65 && precisao > 90){
     return {
       perfil:"Leitor Fluente",
-      criterio:"Mais de 65 palavras corretas no total e precisão igual ou superior a 90%."
+      criterio:"Leu mais de 65 palavras corretas no texto narrativo, com precisão superior a 90%."
     };
   }
 
@@ -244,6 +248,7 @@ async function salvarResultado(silencioso){
     const turma = document.getElementById("turmaAluno").value.trim();
     const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
     const dificeisValor = document.getElementById("dificeisCorretas").value.trim();
+    const textoValor = document.getElementById("palavrasTextoCorretas").value.trim();
     const precisaoValor = document.getElementById("precisao").value.trim();
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!escola || !turma || !nome){
@@ -258,8 +263,8 @@ async function salvarResultado(silencioso){
       if(!silencioso) mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de salvar.");
       return false;
     }
-    if(palavrasValor === "" || dificeisValor === "" || precisaoValor === ""){
-      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras corretas, Palavras difíceis corretas e Precisão (%) antes de salvar.");
+    if(palavrasValor === "" || dificeisValor === "" || textoValor === "" || precisaoValor === ""){
+      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras conhecidas corretas, Palavras difíceis corretas, Palavras corretas no texto e Precisão (%) antes de salvar.");
       return false;
     }
 
@@ -278,6 +283,7 @@ async function salvarResultado(silencioso){
       turma,
       palavrasCorretas:resultado.corretas,
       dificeisCorretas:resultado.dificeis,
+      palavrasTextoCorretas:resultado.textoCorretas,
       total:resultado.total,
       precisao:resultado.precisao,
       compreensao:acertosCompreensao,
@@ -334,11 +340,14 @@ async function novoAluno(){
 function limparParaNovoAluno(){
   registroAtualId = null;
   resultadoSalvo = false;
-  document.getElementById("escolaAluno").value = "";
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  if(campoEscola && !campoEscola.disabled) campoEscola.value = "";
   document.getElementById("nomeAluno").value = "";
-  document.getElementById("turmaAluno").value = "";
+  if(campoTurma && !campoTurma.disabled) campoTurma.value = "";
   document.getElementById("palavrasCorretas").value = "";
   document.getElementById("dificeisCorretas").value = "";
+  document.getElementById("palavrasTextoCorretas").value = "";
   document.getElementById("precisao").value = "";
   document.getElementById("observacaoPreLeitor").value = "auto";
   document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
@@ -348,6 +357,7 @@ function limparParaNovoAluno(){
   clearInterval(estado.conhecidas.intervalo);
   clearInterval(estado.dificeis.intervalo);
   atualizarResultado();
+  aplicarVinculoAvaliacao();
   pagina("inicio");
 }
 
@@ -403,6 +413,132 @@ function escolaMaiuscula(valor){
   return String(valor || "").toLocaleUpperCase("pt-BR");
 }
 
+async function aplicarVinculoAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno || !window.TrilhaAuth) return;
+
+  try{
+    const usuario = await window.TrilhaAuth.currentUser();
+    if(!usuario || typeof usuario.getIdTokenResult !== "function") return;
+    const token = await usuario.getIdTokenResult();
+    const claims = token.claims || {};
+    const role = String(claims.role || claims.papel || "");
+    vinculoAvaliacao = {
+      administrador: role === "admin" || role === "administrador",
+      escola: escolaMaiuscula(claims.escola || ""),
+      turma: String(claims.turma || "")
+    };
+
+    configurarSelecaoAlunoAvaliacao();
+    if(vinculoAvaliacao.administrador){
+      carregarAlunosAvaliacao();
+      return;
+    }
+    if(vinculoAvaliacao.escola){
+      campoEscola.innerHTML = `<option value="${escapeHtmlAvaliacao(vinculoAvaliacao.escola)}">${escapeHtmlAvaliacao(vinculoAvaliacao.escola)}</option>`;
+      campoEscola.value = vinculoAvaliacao.escola;
+      campoEscola.disabled = true;
+      campoEscola.setAttribute("aria-readonly", "true");
+    }
+    if(vinculoAvaliacao.turma){
+      campoTurma.innerHTML = `<option value="${escapeHtmlAvaliacao(vinculoAvaliacao.turma)}">${escapeHtmlAvaliacao(vinculoAvaliacao.turma)}</option>`;
+      campoTurma.value = vinculoAvaliacao.turma;
+      campoTurma.disabled = true;
+      campoTurma.setAttribute("aria-readonly", "true");
+    }
+    carregarAlunosAvaliacao();
+  }catch(error){
+    console.warn("Não foi possível aplicar o vínculo do professor na avaliação.", error);
+  }
+}
+
+function configurarSelecaoAlunoAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno) return;
+  if(campoAluno.dataset.configurado === "true") return;
+
+  campoAluno.dataset.configurado = "true";
+  campoAluno.innerHTML = `<option value="">Selecione o aluno</option>`;
+  campoAluno.addEventListener("change", marcarResultadoAlterado);
+  campoEscola.addEventListener("change", carregarAlunosAvaliacao);
+  campoTurma.addEventListener("change", carregarAlunosAvaliacao);
+}
+
+async function carregarAlunosAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno || !window.TrilhaAuth || !window.firebase) return;
+
+  const escola = escolaMaiuscula(campoEscola.value);
+  const turma = campoTurma.value;
+  if(!escola || !turma){
+    alunosAvaliacao = [];
+    preencherAlunosAvaliacao();
+    return;
+  }
+
+  try{
+    const usuario = await window.TrilhaAuth.currentUser();
+    if(!usuario) return;
+    if(unsubscribeAlunosAvaliacao) unsubscribeAlunosAvaliacao();
+
+    campoAluno.disabled = true;
+    campoAluno.innerHTML = `<option value="">Carregando alunos...</option>`;
+
+    let consulta = firebase.firestore().collection("alunos")
+      .where("escola", "==", escola)
+      .where("turma", "==", turma);
+
+    if(!vinculoAvaliacao.administrador){
+      consulta = consulta.where("professoresPermitidos", "array-contains", usuario.uid);
+    }
+
+    unsubscribeAlunosAvaliacao = consulta.onSnapshot(snapshot => {
+      alunosAvaliacao = snapshot.docs
+        .map(doc => ({id:doc.id, ...doc.data()}))
+        .filter(aluno => aluno.ativo !== false && aluno.nome)
+        .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR", {sensitivity:"base"}));
+      preencherAlunosAvaliacao();
+    }, error => {
+      console.warn("Não foi possível carregar alunos para avaliação.", error);
+      alunosAvaliacao = [];
+      campoAluno.disabled = false;
+      campoAluno.innerHTML = `<option value="">Não foi possível carregar os alunos</option>`;
+    });
+  }catch(error){
+    console.warn("Não foi possível consultar alunos para avaliação.", error);
+  }
+}
+
+function preencherAlunosAvaliacao(){
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoAluno) return;
+  const valorAtual = campoAluno.value;
+  const opcoes = alunosAvaliacao.map(aluno => `<option value="${escapeHtmlAvaliacao(aluno.nome)}">${escapeHtmlAvaliacao(aluno.nome)}</option>`).join("");
+  campoAluno.innerHTML = `<option value=""></option>${opcoes}`;
+  campoAluno.disabled = false;
+  if(valorAtual && alunosAvaliacao.some(aluno => aluno.nome === valorAtual)){
+    campoAluno.value = valorAtual;
+  }else{
+    campoAluno.value = "";
+  }
+}
+
+function escapeHtmlAvaliacao(valor){
+  return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[caractere]);
+}
+
 function caixaAlta(valor){
   return String(valor || "").toLocaleUpperCase("pt-BR");
 }
@@ -447,5 +583,6 @@ prepararConteudoDaTrilha();
 montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
 montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
 atualizarResultado();
+aplicarVinculoAvaliacao();
 window.addEventListener("resize", ajustarGrades);
 window.addEventListener("orientationchange", () => setTimeout(ajustarGrades, 250));

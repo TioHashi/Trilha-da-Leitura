@@ -2,9 +2,32 @@
   "firestore": {
     "rules": "firestore.rules"
   },
+  "functions": {
+    "source": "functions"
+  },
+  "emulators": {
+    "auth": {
+      "host": "0.0.0.0",
+      "port": 9099
+    },
+    "firestore": {
+      "host": "0.0.0.0",
+      "port": 8085
+    },
+    "functions": {
+      "host": "0.0.0.0",
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true,
+      "host": "0.0.0.0",
+      "port": 4000
+    },
+    "singleProjectMode": true
+  },
   "hosting": {
     "site": "trilha-da-leitura-01",
-    "public": ".",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "firestore.rules",

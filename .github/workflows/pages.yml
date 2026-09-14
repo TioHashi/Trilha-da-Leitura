@@ -1,0 +1,85 @@
+name: Publicar frontend no GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Testar e preparar frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configurar Java para emuladores
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias do frontend
+        run: npm ci
+
+      - name: Instalar dependencias das Cloud Functions
+        run: npm --prefix functions ci
+
+      - name: Validar TypeScript do frontend
+        run: npm run typecheck
+
+      - name: Validar TypeScript das Cloud Functions
+        run: npm --prefix functions run typecheck
+
+      - name: Executar testes do frontend
+        run: npm test
+
+      - name: Executar testes das Cloud Functions
+        run: npm run test:functions
+
+      - name: Executar testes das regras no emulador
+        run: npm run testar:regras
+
+      - name: Preparar build do GitHub Pages
+        run: npm run build:pages
+
+      - name: Validar artefato do Pages
+        run: npm run verify:pages
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato do frontend
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publicar no Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publicar artefato
+        id: deployment
+        uses: actions/deploy-pages@v4

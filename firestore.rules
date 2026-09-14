@@ -2,10 +2,246 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.role == "admin" ||
+        request.auth.token.role == "administrador"
+      );
+    }
+
+    function isTeacher() {
+      return signedIn() && request.auth.token.role == "professor";
+    }
+
+    function hasTeacherScope() {
+      return isTeacher()
+        && request.auth.token.escola is string
+        && request.auth.token.turma is string;
+    }
+
+    function belongsToTeacherScope(data) {
+      return hasTeacherScope()
+        && (
+          ("professorUid" in data && data.professorUid == request.auth.uid) ||
+          ("professoresPermitidos" in data && request.auth.uid in data.professoresPermitidos)
+        )
+        && data.escola == request.auth.token.escola
+        && data.turma == request.auth.token.turma;
+    }
+
+    function validResultKeys(data) {
+      return data.keys().hasOnly([
+        "id",
+        "salvoEm",
+        "data",
+        "nome",
+        "escola",
+        "serie",
+        "turma",
+        "palavrasCorretas",
+        "dificeisCorretas",
+        "palavrasTextoCorretas",
+        "total",
+        "precisao",
+        "compreensao",
+        "tempoConhecidasSegundos",
+        "tempoDificeisSegundos",
+        "tempoTotalSegundos",
+        "tempoConhecidas",
+        "tempoDificeis",
+        "tempoTotal",
+        "perfil",
+        "criterio",
+        "textoLido",
+        "professorUid",
+        "professorEmail",
+        "professoresPermitidos",
+        "atualizadoEmFirebase"
+      ]);
+    }
+
+    function validResultData(data) {
+      return validResultKeys(data)
+        && data.id is string
+        && data.nome is string
+        && data.escola is string
+        && (!("serie" in data) || data.serie is string)
+        && data.turma is string
+        && data.palavrasCorretas is number
+        && data.dificeisCorretas is number
+        && data.palavrasTextoCorretas is number
+        && data.total is number
+        && data.precisao is number
+        && data.compreensao is number
+        && data.tempoConhecidasSegundos is number
+        && data.tempoDificeisSegundos is number
+        && data.tempoTotalSegundos is number
+        && data.perfil is string
+        && data.criterio is string
+        && (!("professorUid" in data) || data.professorUid is string)
+        && (!("professorEmail" in data) || data.professorEmail is string)
+        && (!("professoresPermitidos" in data) || data.professoresPermitidos is list)
+        && data.palavrasCorretas >= 0
+        && data.palavrasCorretas <= 60
+        && data.dificeisCorretas >= 0
+        && data.dificeisCorretas <= 40
+        && data.palavrasTextoCorretas >= 0
+        && data.palavrasTextoCorretas <= 100
+        && data.total == data.palavrasCorretas + data.dificeisCorretas
+        && data.precisao >= 0
+        && data.precisao <= 100
+        && data.compreensao >= 0
+        && data.compreensao <= 2;
+    }
+
+    function validAnalysisKeys(data) {
+      return data.keys().hasOnly([
+        "id",
+        "geradoEm",
+        "salvoEm",
+        "escopo",
+        "alunoAnonimo",
+        "alunoNome",
+        "professorUid",
+        "professorEmail",
+        "professorNome",
+        "escola",
+        "turma",
+        "totalRegistrosAnalisados",
+        "indicadores",
+        "analise"
+      ]);
+    }
+
+    function validAnalysisData(data) {
+      return validAnalysisKeys(data)
+        && data.id is string
+        && data.geradoEm is string
+        && data.escopo in ["turma", "aluno"]
+        && (!("alunoNome" in data) || data.alunoNome is string)
+        && data.professorUid is string
+        && data.professorEmail is string
+        && (!("professorNome" in data) || data.professorNome is string)
+        && data.escola is string
+        && data.turma is string
+        && data.totalRegistrosAnalisados is number
+        && data.totalRegistrosAnalisados >= 1
+        && data.totalRegistrosAnalisados <= 80
+        && data.indicadores is map
+        && data.analise is map;
+    }
+
+    function ownsAnalysis(data) {
+      return hasTeacherScope()
+        && data.professorUid == request.auth.uid
+        && data.escola == request.auth.token.escola
+        && data.turma == request.auth.token.turma;
+    }
+
+    function validStudentKeys(data) {
+      return data.keys().hasOnly([
+        "id",
+        "nome",
+        "escola",
+        "serie",
+        "turma",
+        "professorUid",
+        "professorEmail",
+        "professoresPermitidos",
+        "ativo",
+        "criadoEm",
+        "atualizadoEm"
+      ]);
+    }
+
+    function validStudentData(data) {
+      return validStudentKeys(data)
+        && data.id is string
+        && data.nome is string
+        && data.nome.size() >= 2
+        && data.nome.size() <= 120
+        && data.escola is string
+        && data.turma is string
+        && (!("serie" in data) || data.serie is string)
+        && data.professorUid is string
+        && data.professorEmail is string
+        && data.professoresPermitidos is list
+        && data.professorUid in data.professoresPermitidos
+        && data.ativo is bool
+        && (!("criadoEm" in data) || data.criadoEm is timestamp)
+        && (!("atualizadoEm" in data) || data.atualizadoEm is timestamp);
+    }
+
+    function ownsStudent(data) {
+      return hasTeacherScope()
+        && (
+          data.professorUid == request.auth.uid ||
+          request.auth.uid in data.professoresPermitidos
+        )
+        && data.escola == request.auth.token.escola
+        && data.turma == request.auth.token.turma;
+    }
+
+    function validUserKeys(data) {
+      return data.keys().hasOnly([
+        "uid",
+        "nome",
+        "email",
+        "papel",
+        "escola",
+        "serie",
+        "turma",
+        "ativo",
+        "ambiente",
+        "observacao",
+        "atualizadoEmFirebase"
+      ]);
+    }
+
+    function validUserData(data) {
+      return validUserKeys(data)
+        && data.uid is string
+        && data.nome is string
+        && data.email is string
+        && data.papel in ["professor", "administrador"]
+        && data.ativo is bool
+        && (!("escola" in data) || data.escola is string)
+        && (!("serie" in data) || data.serie is string)
+        && (!("turma" in data) || data.turma is string)
+        && (!("ambiente" in data) || data.ambiente is string)
+        && (!("observacao" in data) || data.observacao is string)
+        && (!("atualizadoEmFirebase" in data) || data.atualizadoEmFirebase is timestamp);
+    }
+
     match /resultadosAlunos/{id} {
-      allow create, update: if true;
-      allow read: if true;
-      allow delete: if true;
+      allow read: if isAdmin() || belongsToTeacherScope(resource.data);
+      allow create, update: if validResultData(request.resource.data)
+        && (isAdmin() || belongsToTeacherScope(request.resource.data));
+      allow delete: if isAdmin();
+    }
+
+    match /analisesPedagogicas/{id} {
+      allow read: if isAdmin() || ownsAnalysis(resource.data);
+      allow create, update: if validAnalysisData(request.resource.data)
+        && (isAdmin() || ownsAnalysis(request.resource.data));
+      allow delete: if isAdmin() || ownsAnalysis(resource.data);
+    }
+
+    match /alunos/{id} {
+      allow read: if isAdmin() || ownsStudent(resource.data);
+      allow create, update: if validStudentData(request.resource.data)
+        && (isAdmin() || ownsStudent(request.resource.data));
+      allow delete: if isAdmin() || ownsStudent(resource.data);
+    }
+
+    match /usuarios/{id} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && validUserData(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /{document=**} {

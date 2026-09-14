@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-trilha-blue: #0b4dcc;
+  --color-trilha-blue-dark: #07348c;
+  --color-trilha-sky: #3b82f6;
+  --color-trilha-green: #22c55e;
+  --color-trilha-yellow: #facc15;
+  --color-trilha-red: #ef4444;
+  --color-trilha-ink: #172033;
+  --color-trilha-muted: #64748b;
+  --color-trilha-line: #dbeafe;
+  --font-sans: Arial, Helvetica, sans-serif;
+}
+
+/*
+  Fase 1:
+  O CSS legado em assets/css continua sendo a fonte visual em producao.
+  Este arquivo prepara a migracao gradual para Tailwind sem apagar estilos atuais.
+*/

@@ -14,6 +14,8 @@
 
 *{box-sizing:border-box}
 
+html:not(.auth-ready) body{visibility:hidden}
+
 body{
   margin:0;
   min-height:100vh;
@@ -76,10 +78,134 @@ button{
   cursor:pointer;
 }
 
+.dashboard-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:stretch;
+  justify-content:end;
+  gap:10px;
+  width:clamp(260px,24vw,320px);
+  flex:0 0 auto;
+}
+
+.dashboard-actions span{
+  grid-column:1 / -1;
+  display:block;
+  color:#dbeafe;
+  font-size:.9rem;
+  font-weight:900;
+  line-height:1.25;
+  text-align:center;
+  overflow-wrap:anywhere;
+}
+
+.analysis-cta{
+  grid-column:1 / -1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  width:100%;
+  padding:10px 14px;
+  border:1px solid rgba(255,255,255,.38);
+  border-radius:14px;
+  color:#07348c;
+  background:#fff;
+  text-decoration:none;
+  box-shadow:0 10px 24px rgba(15,23,42,.18);
+}
+
+.analysis-cta span{
+  display:none;
+}
+
+.analysis-cta strong{
+  color:var(--blue-dark);
+  font-size:1rem;
+  line-height:1.15;
+  text-align:center;
+}
+
+.nav-btn,
 .refresh-btn,
+.logout-btn,
 .export-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:10px 14px;
+  border-radius:12px;
   background:#fff;
   color:var(--blue-dark);
+  font-weight:900;
+  text-decoration:none;
+}
+
+.dashboard-actions .nav-btn{
+  grid-column:1 / -1;
+}
+
+.dashboard-actions .nav-btn,
+.dashboard-actions .analysis-cta,
+.dashboard-actions .refresh-btn,
+.dashboard-actions .logout-btn{
+  width:100%;
+}
+
+.logout-btn{
+  color:#fff;
+  background:#ef4444;
+}
+
+.analysis-hero{
+  background:
+    linear-gradient(135deg, rgba(7,52,140,.96), rgba(11,77,204,.92)),
+    linear-gradient(90deg, #dbeafe, #dcfce7);
+}
+
+.analysis-guide{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+
+.analysis-guide article{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:6px 12px;
+  align-items:start;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 10px 28px rgba(37,99,235,.08);
+}
+
+.analysis-guide span{
+  grid-row:span 2;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  color:#fff;
+  background:var(--blue);
+  font-weight:900;
+}
+
+.analysis-guide strong{
+  color:var(--blue-dark);
+  font-size:1rem;
+}
+
+.analysis-guide p{
+  margin:0;
+  color:#475569;
+  font-size:.92rem;
+  font-weight:700;
+  line-height:1.35;
 }
 
 .filters{
@@ -110,6 +236,55 @@ input{
   background:#fff;
   color:var(--ink);
   font-size:1rem;
+}
+
+.student-register-panel{
+  margin:0 0 14px;
+}
+
+.student-register-form{
+  display:grid;
+  grid-template-columns:minmax(240px, 1fr) auto;
+  gap:12px;
+  align-items:end;
+}
+
+.admin-register-form{
+  grid-template-columns:repeat(3,minmax(180px,1fr));
+}
+
+.admin-register-form button{
+  grid-column:1 / -1;
+  justify-self:end;
+  min-width:240px;
+}
+
+.student-save-btn{
+  color:#07348c;
+  background:#facc15;
+  box-shadow:0 8px 18px rgba(250,204,21,.28);
+}
+
+.student-save-btn:disabled{
+  cursor:not-allowed;
+  color:#64748b;
+  background:#e2e8f0;
+  box-shadow:none;
+}
+
+.student-register-status{
+  min-height:20px;
+  margin:10px 0 0;
+  color:var(--blue-dark);
+  font-weight:900;
+}
+
+.student-without-result{
+  background:#f8fbff;
+}
+
+.student-without-result td{
+  color:#475569;
 }
 
 .stats-grid{
@@ -171,6 +346,283 @@ input{
 .panel-head span{
   color:var(--muted);
   font-weight:800;
+}
+
+.vertical-head{
+  align-items:flex-start;
+}
+
+.vertical-head p{
+  margin:4px 0 0;
+  color:#64748b;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.analysis-workspace{
+  display:grid;
+  grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);
+  gap:14px;
+  margin-top:14px;
+}
+
+.ai-control-panel{
+  align-self:start;
+}
+
+.analysis-form-grid,
+.analysis-context-grid{
+  display:grid;
+  gap:12px;
+}
+
+.analysis-form-grid{
+  grid-template-columns:1fr 1fr;
+}
+
+.info-box{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f8fbff;
+}
+
+.info-box p{
+  margin:0 0 6px;
+  color:var(--blue-dark);
+  font-size:.76rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.info-box strong{
+  display:block;
+  color:#334155;
+  font-size:.93rem;
+  line-height:1.35;
+}
+
+.success-box{
+  border-color:#bbf7d0;
+  background:#f0fdf4;
+}
+
+.success-box p{
+  color:#166534;
+}
+
+.human-review{
+  margin:12px 0;
+  padding:13px;
+  border:1px solid #fde68a;
+  border-radius:14px;
+  color:#713f12;
+  background:#fffbeb;
+  font-size:.94rem;
+  font-weight:900;
+  line-height:1.35;
+}
+
+.analysis-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.primary-action,
+.secondary-action,
+.history-open-btn,
+.history-delete-btn{
+  min-height:44px;
+  border-radius:12px;
+  font-weight:900;
+}
+
+.primary-action{
+  color:#fff;
+  background:var(--blue);
+}
+
+.secondary-action,
+.history-open-btn{
+  color:var(--blue-dark);
+  background:#fff;
+  border:1px solid var(--line);
+}
+
+.history-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.history-delete-btn{
+  color:#fff;
+  background:#dc2626;
+}
+
+.analysis-status{
+  min-height:22px;
+  margin:12px 0 0;
+  color:var(--blue-dark);
+  font-weight:900;
+}
+
+.analysis-status[data-tipo="erro"]{
+  color:#b91c1c;
+}
+
+.analysis-status[data-tipo="sucesso"]{
+  color:#15803d;
+}
+
+.report-panel{
+  min-height:260px;
+}
+
+.saved-report-panel{
+  grid-column:1 / -1;
+}
+
+.report-content{
+  display:grid;
+  gap:14px;
+}
+
+.report-date-line{
+  margin:0;
+  padding:12px 14px;
+  border:1px solid #bfdbfe;
+  border-radius:14px;
+  color:#07348c;
+  background:#eff6ff;
+  font-weight:900;
+  line-height:1.3;
+}
+
+.report-meta{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:4px;
+}
+
+.report-meta div,
+.report-section{
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f8fbff;
+}
+
+.report-meta span{
+  display:block;
+  color:#64748b;
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.report-meta strong{
+  display:block;
+  margin-top:3px;
+  color:#0f172a;
+  font-size:.9rem;
+  line-height:1.25;
+}
+
+.report-section h3{
+  margin:0 0 8px;
+  color:var(--blue-dark);
+  font-size:1.02rem;
+}
+
+.report-section p,
+.report-section li{
+  color:#334155;
+  font-weight:700;
+  line-height:1.45;
+}
+
+.report-section ul{
+  margin:0;
+  padding-left:20px;
+}
+
+.history-panel{
+  grid-column:1 / -1;
+}
+
+.history-list{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.history-card{
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#f8fbff;
+}
+
+.history-card h3{
+  margin:0;
+  color:var(--blue-dark);
+  font-size:1rem;
+}
+
+.history-date{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:6px 9px;
+  border-radius:999px;
+  color:#07348c;
+  background:#dbeafe;
+  font-size:.8rem;
+  font-weight:900;
+}
+
+.history-card p{
+  margin:0;
+  color:#475569;
+  font-size:.9rem;
+  font-weight:700;
+  line-height:1.35;
+}
+
+.history-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.history-tags span{
+  padding:5px 8px;
+  border-radius:999px;
+  color:#0f172a;
+  background:#e0f2fe;
+  font-size:.76rem;
+  font-weight:900;
+}
+
+.history-indicators{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.history-indicators span{
+  padding:8px;
+  border-radius:10px;
+  color:#334155;
+  background:#fff;
+  font-size:.78rem;
+  font-weight:900;
+  text-align:center;
 }
 
 .profile-chart{
@@ -390,11 +842,20 @@ td{
 
 @media (max-width:900px){
   .dashboard-hero{align-items:flex-start;flex-direction:column}
+  .dashboard-actions{width:100%;justify-content:stretch}
   .filters,
+  .student-register-form,
+  .admin-register-form,
   .stats-grid,
-  .chart-layout{grid-template-columns:1fr}
+  .chart-layout,
+  .analysis-guide,
+  .analysis-workspace,
+  .analysis-form-grid,
+  .history-list{grid-template-columns:1fr}
   .profile-chart{align-items:flex-start;flex-direction:column}
   .donut{width:140px}
+  .report-meta{grid-template-columns:1fr}
+  .admin-register-form button{justify-self:stretch;min-width:0}
 }
 
 @media (max-width:760px){
