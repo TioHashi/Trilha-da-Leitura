@@ -72,5 +72,7 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /gerarAnalisePedagogicaLocal/);
   assert.match(fonte, /chaveDiaDocumento/);
   assert.match(fonte, /dataAvaliacao/);
+  assert.match(fonte, /registrosMaisRecentesPorAluno/);
+  assert.match(fonte, /registro\(s\) mais recente\(s\) dos alunos filtrados/);
   assert.doesNotMatch(fonte, /alunoNome: item\.alunoNome/);
 });

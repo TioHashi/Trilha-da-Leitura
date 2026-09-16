@@ -87,6 +87,18 @@ function registrosDoAluno(nome) {
         .filter((resultado) => String(resultado.nome || "").trim() === nome)
         .sort((a, b) => timestampRegistro(b) - timestampRegistro(a));
 }
+function registrosMaisRecentesPorAluno(registrosBase = resultadosFiltrados || []) {
+    const mapa = new Map();
+    for (const resultado of registrosBase) {
+        const nome = String(resultado.nome || "").trim() || "Sem identificação";
+        const chave = `${nome}|${resultado.escola || ""}|${resultado.turma || ""}`;
+        const existente = mapa.get(chave);
+        if (!existente || timestampRegistro(resultado) > timestampRegistro(existente)) {
+            mapa.set(chave, resultado);
+        }
+    }
+    return [...mapa.values()].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+}
 function ultimaDataDaTurma() {
     const registrosOrdenados = [...(resultadosFiltrados || [])].sort((a, b) => timestampRegistro(b) - timestampRegistro(a));
     return registrosOrdenados[0] ? chaveDataAvaliacao(registrosOrdenados[0]) : "";
@@ -204,7 +216,7 @@ function montarPayload(historicoAnalises = []) {
     }
     const dataTurma = dataSelecionada || ultimaDataDaTurma();
     estadoIA.ultimoAlunoNome = "";
-    const registrosTurma = [...(resultadosFiltrados || [])].filter((resultado) => mesmoDiaRegistro(resultado, dataTurma));
+    const registrosTurma = registrosMaisRecentesPorAluno(resultadosFiltrados || []);
     estadoIA.ultimaDataAvaliacao = dataTurma;
     return {
         escopo,
@@ -548,7 +560,8 @@ function gerarAnalisePedagogicaLocal(payload) {
         ? ` Comparando com o relatório anterior salvo em ${new Date(historicoMaisRecente.geradoEm).toLocaleDateString("pt-BR")}, a precisão média ${diferencaTexto(indicadores.mediaPrecisao, historicoMaisRecente.mediaPrecisao, "%")} e a média de palavras no texto ${diferencaTexto(indicadores.mediaTotalPalavras, historicoMaisRecente.mediaTotalPalavras)}.`
         : " Ainda não há relatório anterior suficiente para comparação automática.";
     const escopoTexto = payload.escopo === "aluno" ? "do aluno selecionado" : "da turma";
-    const resumo = `Relatório local para análise ${escopoTexto}. Foram considerados ${payload.registros.length} registro(s) da data selecionada, com precisão média de ${indicadores.mediaPrecisao}%, média de ${indicadores.mediaTotalPalavras} palavras corretas no texto e compreensão média de ${indicadores.mediaCompreensao}/2.${contextoHistorico}`;
+    const baseRegistrosTexto = payload.escopo === "turma" ? "registro(s) mais recente(s) dos alunos filtrados" : "registro(s) da data selecionada";
+    const resumo = `Relatório local para análise ${escopoTexto}. Foram considerados ${payload.registros.length} ${baseRegistrosTexto}, com precisão média de ${indicadores.mediaPrecisao}%, média de ${indicadores.mediaTotalPalavras} palavras corretas no texto e compreensão média de ${indicadores.mediaCompreensao}/2.${contextoHistorico}`;
     return {
         geradoEm: new Date().toISOString(),
         escopo: payload.escopo,

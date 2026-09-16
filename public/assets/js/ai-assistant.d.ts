@@ -138,6 +138,7 @@ declare function opcoesAlunos(): Array<{
     anonimo: string;
 }>;
 declare function registrosDoAluno(nome: string): ResultadoDashboard[];
+declare function registrosMaisRecentesPorAluno(registrosBase?: ResultadoDashboard[]): ResultadoDashboard[];
 declare function ultimaDataDaTurma(): string;
 declare function registrosAnonimizados(registrosBase?: ResultadoDashboard[]): RegistroAnalise[];
 declare function filtrosAtivosTexto(): string;
