@@ -19,7 +19,7 @@
       let dados = null;
 
       try{
-        dados = JSON.parse(sessionStorage.getItem(chave) || "null");
+        dados = JSON.parse(localStorage.getItem(chave) || "null");
       }catch(error){
         dados = null;
       }
@@ -29,24 +29,44 @@
         return;
       }
 
+      if(dados.titulo){
+        document.title = String(dados.titulo).replace(/\s+/g, " ").trim();
+      }
+
+      let aguardandoCss = false;
+      let imprimiu = false;
+
+      function imprimir(){
+        if(imprimiu) return;
+        imprimiu = true;
+        window.setTimeout(function(){
+          window.focus();
+          window.print();
+        }, 250);
+      }
+
       if(dados.cssHref){
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = dados.cssHref;
+        aguardandoCss = true;
+        link.addEventListener("load", imprimir, { once: true });
+        link.addEventListener("error", imprimir, { once: true });
         document.head.appendChild(link);
       }
 
       raiz.innerHTML = dados.relatorioHtml;
-      sessionStorage.removeItem(chave);
+      localStorage.removeItem(chave);
 
       window.addEventListener("afterprint", function(){
         window.close();
       });
 
-      window.setTimeout(function(){
-        window.focus();
-        window.print();
-      }, 550);
+      if(!aguardandoCss){
+        imprimir();
+      }else{
+        window.setTimeout(imprimir, 900);
+      }
     })();
   </script>
 </body>

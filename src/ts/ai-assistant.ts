@@ -1179,18 +1179,32 @@ function imprimirRelatorio(): void {
 
   const chave = `trilha-relatorio-impressao-${Date.now()}`;
   const dadosImpressao = {
+    titulo: tituloRelatorioParaImpressao(relatorio),
     relatorioHtml: relatorio.outerHTML,
-    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-12"
+    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-13"
   };
-  sessionStorage.setItem(chave, JSON.stringify(dadosImpressao));
+
+  try {
+    localStorage.setItem(chave, JSON.stringify(dadosImpressao));
+  } catch (error) {
+    setEstado("Não foi possível preparar o relatório para impressão. Tente novamente.", "erro");
+    return;
+  }
 
   const janelaImpressao = window.open(`imprimir-relatorio.html?relatorio=${encodeURIComponent(chave)}`, "_blank");
   if (!janelaImpressao) {
-    sessionStorage.removeItem(chave);
+    localStorage.removeItem(chave);
     setEstado("O navegador bloqueou a página de impressão. Permita pop-ups para imprimir o relatório.", "erro");
     return;
   }
   janelaImpressao.focus();
+}
+
+function tituloRelatorioParaImpressao(relatorio: HTMLElement): string {
+  const titulo = relatorio.querySelector<HTMLElement>(".report-cover h3")?.textContent
+    || relatorio.querySelector<HTMLElement>("h3")?.textContent
+    || "Relatório Pedagógico";
+  return titulo.replace(/\s+/g, " ").trim();
 }
 
 function imprimirRelatorioHistorico(id: string): void {
