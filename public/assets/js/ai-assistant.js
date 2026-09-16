@@ -977,17 +977,50 @@ function imprimirRelatorio() {
         setEstado("Gere ou abra um relatório antes de imprimir.", "erro");
         return;
     }
-    document.getElementById("printReportRoot")?.remove();
-    document.querySelectorAll(".print-report-target").forEach((item) => item.classList.remove("print-report-target"));
-    const raizImpressao = document.createElement("main");
-    raizImpressao.id = "printReportRoot";
-    raizImpressao.setAttribute("aria-hidden", "true");
-    raizImpressao.appendChild(relatorio.cloneNode(true));
-    document.body.appendChild(raizImpressao);
-    raizImpressao.classList.add("print-report-target");
-    const limparRaiz = () => raizImpressao.remove();
-    window.addEventListener("afterprint", limparRaiz, { once: true });
-    window.setTimeout(() => window.print(), 50);
+    document.getElementById("printReportFrame")?.remove();
+    const cssDashboard = document.querySelector('link[href*="dashboard.css"]')?.href
+        || "assets/css/dashboard.css?v=2026/07-10";
+    const frame = document.createElement("iframe");
+    frame.id = "printReportFrame";
+    frame.title = "Impressão do relatório pedagógico";
+    frame.style.position = "fixed";
+    frame.style.right = "0";
+    frame.style.bottom = "0";
+    frame.style.width = "0";
+    frame.style.height = "0";
+    frame.style.border = "0";
+    frame.style.opacity = "0";
+    document.body.appendChild(frame);
+    const documento = frame.contentDocument;
+    const janela = frame.contentWindow;
+    if (!documento || !janela) {
+        frame.remove();
+        setEstado("Não foi possível preparar a impressão do relatório.", "erro");
+        return;
+    }
+    documento.open();
+    documento.write(`<!doctype html>
+    <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>Relatório Pedagógico</title>
+        <link rel="stylesheet" href="${escapeHtml(cssDashboard)}">
+      </head>
+      <body>
+        <main id="printReportRoot" class="print-report-target">${relatorio.outerHTML}</main>
+      </body>
+    </html>`);
+    documento.close();
+    const limparFrame = () => window.setTimeout(() => frame.remove(), 500);
+    janela.addEventListener("afterprint", limparFrame, { once: true });
+    window.setTimeout(() => {
+        janela.focus();
+        janela.print();
+        window.setTimeout(() => {
+            if (document.body.contains(frame))
+                frame.remove();
+        }, 1500);
+    }, 350);
 }
 function imprimirRelatorioHistorico(id) {
     abrirRelatorioHistorico(id);
