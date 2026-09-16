@@ -69,6 +69,9 @@ test("avaliacao individual lista alunos vinculados ao professor", () => {
 
   assert.match(html, /<select id="nomeAluno" required>/);
   assert.doesNotMatch(html, /Palavras corretas no texto/);
+  assert.match(html, /assets\/css\/app\.css\?v=20260916-7/);
+  assert.match(html, /assets\/js\/app\.js\?v=20260916-7/);
+  assert.match(fonte, /removerCampoTextoResultado/);
   assert.match(fonte, /carregarAlunosAvaliacao/);
   assert.match(fonte, /firebase\.firestore\(\)\.collection\("alunos"\)/);
   assert.match(fonte, /where\("professoresPermitidos", "array-contains", usuario\.uid\)/);

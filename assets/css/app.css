@@ -724,6 +724,10 @@ button:active{transform:translateY(1px)}
   align-items:end;
 }
 
+.result-grid > div:has(#palavrasTextoCorretas){
+  display:none !important;
+}
+
 .result-grid > div{
   display:flex;
   flex-direction:column;
