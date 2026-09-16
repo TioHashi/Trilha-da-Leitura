@@ -721,6 +721,18 @@ button:active{transform:translateY(1px)}
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:12px;
+  align-items:end;
+}
+
+.result-grid > div{
+  display:flex;
+  flex-direction:column;
+}
+
+.result-grid label{
+  min-height:42px;
+  display:flex;
+  align-items:flex-end;
 }
 
 .resultado-box{
