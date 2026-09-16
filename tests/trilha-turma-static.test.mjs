@@ -49,10 +49,12 @@ test("avaliacao individual sorteia palavras e textos por ciclo sem repeticao", (
   assert.match(fonte, /localStorage\.setItem\(chave/);
 });
 
-test("tela inicial possui atalhos superiores para atividade coletiva e dashboard", () => {
+test("tela inicial mantem Trilha Turma no botao principal e dashboard no topo", () => {
   const html = readFileSync("index.html", "utf8");
+  const ocorrenciasTrilhaTurma = html.match(/Iniciar Trilha Turma/g) || [];
   assert.match(html, /Iniciar Trilha Turma/);
   assert.match(html, /trilha-turma\.html/);
+  assert.equal(ocorrenciasTrilhaTurma.length, 1);
   assert.match(html, /Dashboard/);
   assert.match(html, /dashboard\.html/);
 });
