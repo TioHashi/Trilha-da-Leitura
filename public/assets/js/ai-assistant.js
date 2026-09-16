@@ -971,17 +971,22 @@ function abrirRelatorioHistorico(id, atualizarLista = true) {
 function imprimirRelatorio() {
     const relatorioHistorico = elemento("iaRelatorioSalvo");
     const relatorioAtual = elemento("iaResultado");
-    const alvo = relatorioHistorico.querySelector(".pedagogical-report")
-        ? relatorioHistorico
-        : relatorioAtual.querySelector(".pedagogical-report")
-            ? relatorioAtual
-            : null;
-    if (!alvo) {
+    const relatorio = relatorioHistorico.querySelector(".pedagogical-report")
+        || relatorioAtual.querySelector(".pedagogical-report");
+    if (!relatorio) {
         setEstado("Gere ou abra um relatório antes de imprimir.", "erro");
         return;
     }
+    document.getElementById("printReportRoot")?.remove();
     document.querySelectorAll(".print-report-target").forEach((item) => item.classList.remove("print-report-target"));
-    alvo.classList.add("print-report-target");
+    const raizImpressao = document.createElement("main");
+    raizImpressao.id = "printReportRoot";
+    raizImpressao.setAttribute("aria-hidden", "true");
+    raizImpressao.appendChild(relatorio.cloneNode(true));
+    document.body.appendChild(raizImpressao);
+    raizImpressao.classList.add("print-report-target");
+    const limparRaiz = () => raizImpressao.remove();
+    window.addEventListener("afterprint", limparRaiz, { once: true });
     window.setTimeout(() => window.print(), 50);
 }
 function imprimirRelatorioHistorico(id) {
