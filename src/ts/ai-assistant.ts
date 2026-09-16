@@ -213,11 +213,6 @@ function setCarregando(carregando: boolean): void {
 }
 
 function atualizarPainel(): void {
-  const total = (resultadosFiltrados || []).length;
-  elemento<HTMLElement>("iaFiltrosAtivos").textContent = `${filtrosAtivosTexto()} Registros filtrados: ${total}.`;
-  elemento<HTMLElement>("iaDadosEnviados").textContent =
-    `Serão enviados no máximo ${LIMITE_REGISTROS_IA} registros filtrados mais recentes, apenas com indicadores anonimizados: perfil leitor, palavras conhecidas corretas, palavras possivelmente desconhecidas corretas, palavras corretas no texto, precisão, compreensão, tempo e evolução. Nomes, escola, turma, textos completos e listas de palavras não serão enviados.`;
-
   const seletorEscopo = elemento<HTMLSelectElement>("iaEscopo");
   const seletorAluno = elemento<HTMLSelectElement>("iaAluno");
   const alunos = opcoesAlunos();

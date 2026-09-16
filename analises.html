@@ -137,18 +137,6 @@
           </label>
       </div>
 
-      <div class="analysis-context-grid">
-        <div class="info-box">
-          <p>Filtros ativos</p>
-          <strong id="iaFiltrosAtivos">Aguardando resultados.</strong>
-        </div>
-
-        <div class="info-box success-box">
-          <p>Dados usados pela IA</p>
-          <strong id="iaDadosEnviados"></strong>
-        </div>
-      </div>
-
           <p class="human-review">
             A análise produzida por Inteligência Artificial é apenas um recurso de apoio e deve ser revisada pelo professor. Ela não substitui avaliação pedagógica profissional.
           </p>
@@ -178,25 +166,16 @@
         <div class="panel-head vertical-head">
           <div>
             <h2 id="iaHistoricoTitulo">Histórico de análises salvas</h2>
-            <p>Mostra o professor, a escola, a turma e os principais indicadores de cada relatório.</p>
+            <p>Abra uma análise salva para consultar o relatório completo.</p>
           </div>
         </div>
         <div id="iaHistorico" class="history-list" aria-live="polite">
           <p class="empty">Carregando histórico.</p>
         </div>
-      </section>
-
-      <article class="panel report-panel saved-report-panel" aria-labelledby="iaRelatorioSalvoTitulo">
-        <div class="panel-head vertical-head">
-          <div>
-            <h2 id="iaRelatorioSalvoTitulo">Relatório aberto do histórico</h2>
-            <p>Use o botão “Abrir relatório” no histórico para consultar uma análise salva.</p>
-          </div>
-        </div>
-        <div id="iaRelatorioSalvo" class="report-content" aria-live="polite">
+        <div id="iaRelatorioSalvo" class="report-content saved-history-report" aria-live="polite">
           <p class="empty">Nenhum relatório do histórico aberto.</p>
         </div>
-      </article>
+      </section>
 
       <article class="panel synthesis-compare-panel" aria-labelledby="iaComparacaoTitulo">
         <div class="panel-head vertical-head">

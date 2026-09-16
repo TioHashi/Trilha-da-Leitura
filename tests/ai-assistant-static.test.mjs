@@ -41,12 +41,13 @@ test("payload do cliente usa campos em portugues e anonimizacao", () => {
 test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () => {
   const html = readFileSync("analises.html", "utf8");
   const fonte = readFileSync("src/ts/ai-assistant.ts", "utf8");
-  assert.match(html, /Relatório aberto do histórico/);
   assert.match(html, /iaRelatorioSalvo/);
   assert.match(html, /Comparar sínteses salvas/);
   assert.match(html, /iaCompararBase/);
   assert.match(html, /iaCompararAtual/);
-  assert.ok(html.indexOf("Histórico de análises salvas") < html.indexOf("Relatório aberto do histórico"));
+  assert.match(html, /saved-history-report/);
+  assert.doesNotMatch(html, /Filtros ativos/);
+  assert.doesNotMatch(html, /Dados usados pela IA/);
   assert.match(fonte, /professorNome/);
   assert.match(fonte, /alunoNome/);
   assert.match(fonte, /Aluno avaliado/);

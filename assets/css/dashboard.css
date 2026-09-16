@@ -484,6 +484,10 @@ input{
   grid-column:1 / -1;
 }
 
+.saved-history-report{
+  margin-top:18px;
+}
+
 .synthesis-compare-panel{
   grid-column:1 / -1;
 }

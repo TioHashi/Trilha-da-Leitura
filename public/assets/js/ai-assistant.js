@@ -82,10 +82,6 @@ function setCarregando(carregando) {
     elemento("iaGerarNovamente").disabled = carregando;
 }
 function atualizarPainel() {
-    const total = (resultadosFiltrados || []).length;
-    elemento("iaFiltrosAtivos").textContent = `${filtrosAtivosTexto()} Registros filtrados: ${total}.`;
-    elemento("iaDadosEnviados").textContent =
-        `Serão enviados no máximo ${LIMITE_REGISTROS_IA} registros filtrados mais recentes, apenas com indicadores anonimizados: perfil leitor, palavras conhecidas corretas, palavras possivelmente desconhecidas corretas, palavras corretas no texto, precisão, compreensão, tempo e evolução. Nomes, escola, turma, textos completos e listas de palavras não serão enviados.`;
     const seletorEscopo = elemento("iaEscopo");
     const seletorAluno = elemento("iaAluno");
     const alunos = opcoesAlunos();
