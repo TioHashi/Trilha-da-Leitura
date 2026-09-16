@@ -4,6 +4,8 @@ import test from "node:test";
 
 test("dashboard possui atalho para historico e IA", () => {
   const html = readFileSync("dashboard.html", "utf8");
+  assert.match(html, /Voltar à Avaliação/);
+  assert.match(html, /index\.html/);
   assert.match(html, /Histórico e IA/);
   assert.match(html, /analises\.html/);
   assert.doesNotMatch(html, /id="iaGerar"/);

@@ -33,8 +33,20 @@ test("pagina Trilha Turma usa palavras existentes e nao salva resultados", () =>
   assert.match(readFileSync("assets/css/app.css", "utf8"), /white-space:nowrap/);
   assert.match(fonte, /palavrasConhecidas/);
   assert.match(fonte, /palavrasDificeis/);
+  assert.match(fonte, /sortearSemRepetirPorCiclo/);
+  assert.match(fonte, /trilha-turma-ciclo-/);
   assert.doesNotMatch(html, /turmaIniciarConhecidas|turmaIniciarDificeis|turmaPausar|turmaProxima/);
   assert.doesNotMatch(html + fonte, /salvarResultado|resultadosAlunos|analisesPedagogicas|Gerar análise/);
+});
+
+test("avaliacao individual sorteia palavras e textos por ciclo sem repeticao", () => {
+  const fonte = readFileSync("assets/js/app.js", "utf8");
+  assert.match(fonte, /chaveItemCiclo/);
+  assert.match(fonte, /trilha-ciclo-/);
+  assert.match(fonte, /palavras-conhecidas/);
+  assert.match(fonte, /palavras-possivelmente-desconhecidas/);
+  assert.match(fonte, /textos-narrativos/);
+  assert.match(fonte, /localStorage\.setItem\(chave/);
 });
 
 test("tela inicial possui atalhos superiores para atividade coletiva e dashboard", () => {
