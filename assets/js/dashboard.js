@@ -304,7 +304,7 @@ function preencherAlunosTransferencia(select){
     return;
   }
 
-  select.innerHTML = alunos.map(aluno => {
+  select.innerHTML = `<option value="">Selecione o aluno</option>` + alunos.map(aluno => {
     const detalhe = `${escolaMaiuscula(aluno.escola)} • ${aluno.turma || "Sem turma"}`;
     return `<option value="${escapeHtml(aluno.id)}">${escapeHtml(aluno.nome || "Aluno sem nome")} — ${escapeHtml(detalhe)}</option>`;
   }).join("");

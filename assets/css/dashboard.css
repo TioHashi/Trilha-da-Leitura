@@ -256,13 +256,9 @@ input{
   align-items:end;
 }
 
-.student-transfer-list{
-  grid-row:span 2;
-}
-
 .student-transfer-list select{
-  min-height:174px;
-  padding:8px;
+  min-height:42px;
+  padding:9px 10px;
 }
 
 .student-transfer-list option{
@@ -453,6 +449,7 @@ input{
 .primary-action,
 .secondary-action,
 .history-open-btn,
+.history-print-btn,
 .history-delete-btn{
   min-height:36px;
   padding:8px 11px;
@@ -468,15 +465,21 @@ input{
 }
 
 .secondary-action,
-.history-open-btn{
+.history-open-btn,
+.history-print-btn{
   color:var(--blue-dark);
   background:#fff;
   border:1px solid var(--line);
 }
 
+.history-print-btn{
+  border-color:#bbf7d0;
+  color:#166534;
+}
+
 .history-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:8px;
 }
 
