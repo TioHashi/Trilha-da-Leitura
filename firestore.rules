@@ -113,6 +113,14 @@ service cloud.firestore {
         "turma",
         "totalRegistrosAnalisados",
         "indicadores",
+        "resumoDesempenho",
+        "evidenciasObservadas",
+        "pontosAtencao",
+        "recomendacoesPedagogicas",
+        "planoIntervencaoSugerido",
+        "sugestaoAcompanhamento",
+        "limitacoesAnalise",
+        "avisoResponsabilidade",
         "analise"
       ]);
     }
@@ -132,10 +140,78 @@ service cloud.firestore {
         && data.totalRegistrosAnalisados >= 1
         && data.totalRegistrosAnalisados <= 80
         && data.indicadores is map
+        && (!("resumoDesempenho" in data) || data.resumoDesempenho is string)
+        && (!("evidenciasObservadas" in data) || data.evidenciasObservadas is list)
+        && (!("pontosAtencao" in data) || data.pontosAtencao is list)
+        && (!("recomendacoesPedagogicas" in data) || data.recomendacoesPedagogicas is list)
+        && (!("planoIntervencaoSugerido" in data) || data.planoIntervencaoSugerido is list)
+        && (!("sugestaoAcompanhamento" in data) || data.sugestaoAcompanhamento is string)
+        && (!("limitacoesAnalise" in data) || data.limitacoesAnalise is list)
+        && (!("avisoResponsabilidade" in data) || data.avisoResponsabilidade is string)
         && data.analise is map;
     }
 
     function ownsAnalysis(data) {
+      return hasTeacherScope()
+        && data.professorUid == request.auth.uid
+        && data.escola == request.auth.token.escola
+        && data.turma == request.auth.token.turma;
+    }
+
+    function validComparisonKeys(data) {
+      return data.keys().hasOnly([
+        "id",
+        "tipo",
+        "geradoEm",
+        "salvoEm",
+        "professorUid",
+        "professorEmail",
+        "professorNome",
+        "escola",
+        "turma",
+        "analiseAnteriorId",
+        "analiseMaisRecenteId",
+        "dataAnaliseAnterior",
+        "dataAnaliseMaisRecente",
+        "escopoAnterior",
+        "escopoMaisRecente",
+        "indicadoresAnteriores",
+        "indicadoresMaisRecentes",
+        "diferencas",
+        "sinteseAnterior",
+        "sinteseMaisRecente",
+        "interpretacaoComparacao",
+        "avisoResponsabilidade"
+      ]);
+    }
+
+    function validComparisonData(data) {
+      return validComparisonKeys(data)
+        && data.id is string
+        && data.tipo == "comparacao-sinteses"
+        && data.geradoEm is string
+        && data.salvoEm is string
+        && data.professorUid is string
+        && data.professorEmail is string
+        && (!("professorNome" in data) || data.professorNome is string)
+        && data.escola is string
+        && data.turma is string
+        && data.analiseAnteriorId is string
+        && data.analiseMaisRecenteId is string
+        && data.dataAnaliseAnterior is string
+        && data.dataAnaliseMaisRecente is string
+        && data.escopoAnterior in ["turma", "aluno"]
+        && data.escopoMaisRecente in ["turma", "aluno"]
+        && data.indicadoresAnteriores is map
+        && data.indicadoresMaisRecentes is map
+        && data.diferencas is map
+        && data.sinteseAnterior is string
+        && data.sinteseMaisRecente is string
+        && data.interpretacaoComparacao is string
+        && data.avisoResponsabilidade is string;
+    }
+
+    function ownsComparison(data) {
       return hasTeacherScope()
         && data.professorUid == request.auth.uid
         && data.escola == request.auth.token.escola
@@ -229,6 +305,13 @@ service cloud.firestore {
       allow create, update: if validAnalysisData(request.resource.data)
         && (isAdmin() || ownsAnalysis(request.resource.data));
       allow delete: if isAdmin() || ownsAnalysis(resource.data);
+    }
+
+    match /comparacoesPedagogicas/{id} {
+      allow read: if isAdmin() || ownsComparison(resource.data);
+      allow create, update: if validComparisonData(request.resource.data)
+        && (isAdmin() || ownsComparison(request.resource.data));
+      allow delete: if isAdmin() || ownsComparison(resource.data);
     }
 
     match /alunos/{id} {

@@ -84,6 +84,52 @@ function validAnalysis(overrides = {}) {
   };
 }
 
+function validComparison(overrides = {}) {
+  return {
+    id: "comparacao-teste",
+    tipo: "comparacao-sinteses",
+    geradoEm: "2026-09-01T12:15:00.000Z",
+    salvoEm: "2026-09-01T12:15:00.000Z",
+    professorUid: "professor-1",
+    professorEmail: "professor1@trilhaleitura.local",
+    professorNome: "Professor 1",
+    escola: "ESCOLA TESTE",
+    turma: "2 ANO A",
+    analiseAnteriorId: "analise-a",
+    analiseMaisRecenteId: "analise-b",
+    dataAnaliseAnterior: "2026-08-01T12:00:00.000Z",
+    dataAnaliseMaisRecente: "2026-09-01T12:00:00.000Z",
+    escopoAnterior: "turma",
+    escopoMaisRecente: "turma",
+    indicadoresAnteriores: {
+      mediaPrecisao: 80,
+      mediaTotalPalavras: 42,
+      mediaCompreensao: 1,
+      preLeitores: 4,
+      leitoresIniciantes: 4,
+      leitoresFluentes: 2
+    },
+    indicadoresMaisRecentes: {
+      mediaPrecisao: 86,
+      mediaTotalPalavras: 50,
+      mediaCompreensao: 2,
+      preLeitores: 2,
+      leitoresIniciantes: 5,
+      leitoresFluentes: 3
+    },
+    diferencas: {
+      precisaoMedia: 6,
+      palavrasTextoMedia: 8,
+      compreensaoMedia: 1
+    },
+    sinteseAnterior: "Sintese anterior ficticia.",
+    sinteseMaisRecente: "Sintese mais recente ficticia.",
+    interpretacaoComparacao: "Houve avancos nos principais indicadores.",
+    avisoResponsabilidade: "A comparacao deve ser revisada pelo professor.",
+    ...overrides
+  };
+}
+
 function validStudent(overrides = {}) {
   return {
     id: "aluno-teste",
@@ -332,6 +378,53 @@ test("administrador consulta todas as analises pedagogicas", async () => {
   })));
 
   const snapshot = await assertSucceeds(getDocs(collection(db, "analisesPedagogicas")));
+  assert.equal(snapshot.size, 2);
+});
+
+test("professor cria e le comparacao pedagogica da propria turma", async () => {
+  const db = testEnv.authenticatedContext("professor-1", {
+    role: "professor",
+    escola: "ESCOLA TESTE",
+    turma: "2 ANO A"
+  }).firestore();
+  const ref = doc(db, "comparacoesPedagogicas/comparacao-teste");
+
+  await assertSucceeds(setDoc(ref, validComparison()));
+  await assertSucceeds(getDoc(ref));
+});
+
+test("professor nao cria comparacao pedagogica fora do proprio vinculo", async () => {
+  const db = testEnv.authenticatedContext("professor-1", {
+    role: "professor",
+    escola: "ESCOLA TESTE",
+    turma: "2 ANO A"
+  }).firestore();
+  const ref = doc(db, "comparacoesPedagogicas/comparacao-fora-do-vinculo");
+
+  await assertFails(setDoc(ref, validComparison({
+    id: "comparacao-fora-do-vinculo",
+    turma: "2 ANO B"
+  })));
+});
+
+test("administrador consulta todas as comparacoes pedagogicas", async () => {
+  const db = testEnv.authenticatedContext("admin-1", { role: "admin" }).firestore();
+  await assertSucceeds(setDoc(doc(db, "comparacoesPedagogicas/comparacao-a"), validComparison({
+    id: "comparacao-a",
+    professorUid: "professor-1",
+    professorEmail: "professor1@trilhaleitura.local",
+    escola: "ESCOLA TESTE",
+    turma: "2 ANO A"
+  })));
+  await assertSucceeds(setDoc(doc(db, "comparacoesPedagogicas/comparacao-b"), validComparison({
+    id: "comparacao-b",
+    professorUid: "professor-2",
+    professorEmail: "professor2@trilhaleitura.local",
+    escola: "OUTRA ESCOLA",
+    turma: "2 ANO B"
+  })));
+
+  const snapshot = await assertSucceeds(getDocs(collection(db, "comparacoesPedagogicas")));
   assert.equal(snapshot.size, 2);
 });
 

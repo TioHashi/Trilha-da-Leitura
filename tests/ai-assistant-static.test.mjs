@@ -61,4 +61,7 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /compararSinteses/);
   assert.match(fonte, /Síntese anterior/);
   assert.match(fonte, /Síntese mais recente/);
+  assert.match(fonte, /comparacoesPedagogicas/);
+  assert.match(fonte, /salvarComparacaoSinteses/);
+  assert.match(fonte, /resumoDesempenho:/);
 });

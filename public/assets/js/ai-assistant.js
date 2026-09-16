@@ -461,6 +461,14 @@ async function salvarAnaliseAutomatica() {
             "turma": contexto.turma || "Todas",
             totalRegistrosAnalisados: estadoIA.ultimaResposta.totalRegistrosAnalisados,
             indicadores,
+            resumoDesempenho: estadoIA.ultimaResposta.analise.resumoDesempenho,
+            evidenciasObservadas: estadoIA.ultimaResposta.analise.evidenciasObservadas,
+            pontosAtencao: estadoIA.ultimaResposta.analise.pontosAtencao,
+            recomendacoesPedagogicas: estadoIA.ultimaResposta.analise.recomendacoesPedagogicas,
+            planoIntervencaoSugerido: estadoIA.ultimaResposta.analise.planoIntervencaoSugerido,
+            sugestaoAcompanhamento: estadoIA.ultimaResposta.analise.sugestaoAcompanhamento,
+            limitacoesAnalise: estadoIA.ultimaResposta.analise.limitacoesAnalise,
+            avisoResponsabilidade: estadoIA.ultimaResposta.analise.avisoResponsabilidade || AVISO_REVISAO_HUMANA,
             analise: estadoIA.ultimaResposta.analise
         }, { merge: true });
         setEstado("Análise salva no histórico local do Trilha da Leitura.", "sucesso");
@@ -544,7 +552,62 @@ function diferencaTexto(atual, anterior, unidade = "") {
         return `caiu ${Math.abs(diferenca)}${unidade}`;
     return `permaneceu em ${atual}${unidade}`;
 }
-function compararSinteses() {
+function textoSintese(item) {
+    return item.analise?.resumoDesempenho || item.resumoDesempenho || "Resumo indisponível.";
+}
+function montarInterpretacaoComparacao(base, atual) {
+    const indBase = base.indicadores || calcularIndicadores([]);
+    const indAtual = atual.indicadores || calcularIndicadores([]);
+    return [
+        `Precisão média: ${diferencaTexto(indAtual.mediaPrecisao, indBase.mediaPrecisao, "%")}.`,
+        `Palavras corretas no texto: ${diferencaTexto(indAtual.mediaTotalPalavras, indBase.mediaTotalPalavras)}.`,
+        `Compreensão média: ${diferencaTexto(indAtual.mediaCompreensao, indBase.mediaCompreensao)}.`
+    ].join(" ");
+}
+async function salvarComparacaoSinteses(base, atual) {
+    const contexto = await obterContextoUsuario();
+    const db = await obterFirestoreIA();
+    const indBase = base.indicadores || calcularIndicadores([]);
+    const indAtual = atual.indicadores || calcularIndicadores([]);
+    const geradoEm = new Date().toISOString();
+    const id = [
+        contexto.uid,
+        "comparacao",
+        base.id,
+        atual.id,
+        geradoEm.replace(/[^0-9]/g, "")
+    ].join("-").slice(0, 520);
+    const comparacao = {
+        id,
+        tipo: "comparacao-sinteses",
+        geradoEm,
+        salvoEm: geradoEm,
+        professorUid: contexto.uid,
+        professorEmail: contexto.email,
+        professorNome: contexto.nome,
+        escola: contexto.escola || atual.escola || base.escola || "Todas",
+        turma: contexto.turma || atual.turma || base.turma || "Todas",
+        analiseAnteriorId: base.id,
+        analiseMaisRecenteId: atual.id,
+        dataAnaliseAnterior: base.geradoEm,
+        dataAnaliseMaisRecente: atual.geradoEm,
+        escopoAnterior: base.escopo,
+        escopoMaisRecente: atual.escopo,
+        indicadoresAnteriores: indBase,
+        indicadoresMaisRecentes: indAtual,
+        diferencas: {
+            precisaoMedia: indAtual.mediaPrecisao - indBase.mediaPrecisao,
+            palavrasTextoMedia: indAtual.mediaTotalPalavras - indBase.mediaTotalPalavras,
+            compreensaoMedia: indAtual.mediaCompreensao - indBase.mediaCompreensao
+        },
+        sinteseAnterior: textoSintese(base),
+        sinteseMaisRecente: textoSintese(atual),
+        interpretacaoComparacao: montarInterpretacaoComparacao(base, atual),
+        avisoResponsabilidade: "Esta comparação é um apoio visual entre relatórios salvos. A interpretação final deve ser feita pelo professor."
+    };
+    await db.collection("comparacoesPedagogicas").doc(id).set(comparacao, { merge: true });
+}
+async function compararSinteses() {
     const seletorBase = elemento("iaCompararBase");
     const seletorAtual = elemento("iaCompararAtual");
     const resultado = elemento("iaComparacaoResultado");
@@ -562,6 +625,8 @@ function compararSinteses() {
     const indAtual = atual.indicadores || calcularIndicadores([]);
     const dataBase = new Date(base.geradoEm).toLocaleString("pt-BR");
     const dataAtual = new Date(atual.geradoEm).toLocaleString("pt-BR");
+    const sinteseAnterior = textoSintese(base);
+    const sinteseMaisRecente = textoSintese(atual);
     resultado.innerHTML = `
     <div class="comparison-summary">
       <h3>Comparação entre relatórios</h3>
@@ -587,14 +652,22 @@ function compararSinteses() {
     </div>
     <section class="report-section">
       <h3>Síntese anterior</h3>
-      <p>${escapeHtml(base.analise?.resumoDesempenho || base.resumoDesempenho || "Resumo indisponível.")}</p>
+      <p>${escapeHtml(sinteseAnterior)}</p>
     </section>
     <section class="report-section">
       <h3>Síntese mais recente</h3>
-      <p>${escapeHtml(atual.analise?.resumoDesempenho || atual.resumoDesempenho || "Resumo indisponível.")}</p>
+      <p>${escapeHtml(sinteseMaisRecente)}</p>
     </section>
     <p class="human-review">Esta comparação é um apoio visual entre relatórios salvos. A interpretação final deve ser feita pelo professor.</p>
   `;
+    try {
+        await salvarComparacaoSinteses(base, atual);
+        setEstado("Comparação salva automaticamente no banco de dados.", "sucesso");
+    }
+    catch (error) {
+        const mensagem = error instanceof Error && error.message ? error.message : "Não foi possível salvar a comparação no banco de dados.";
+        setEstado(mensagem, "erro");
+    }
 }
 function abrirRelatorioHistorico(id, atualizarLista = true) {
     const item = estadoIA.historico.find((analise) => analise.id === id);
@@ -696,7 +769,9 @@ function inicializar() {
     elemento("iaGerar").addEventListener("click", gerarAnalise);
     elemento("iaGerarNovamente").addEventListener("click", gerarAnalise);
     elemento("iaCopiar").addEventListener("click", copiarAnalise);
-    elemento("iaCompararSinteses").addEventListener("click", compararSinteses);
+    elemento("iaCompararSinteses").addEventListener("click", () => {
+        compararSinteses();
+    });
     elemento("iaHistorico").addEventListener("click", (event) => {
         const alvo = event.target;
         const botaoAbrir = alvo.closest("[data-relatorio-id]");

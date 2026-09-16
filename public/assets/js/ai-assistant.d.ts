@@ -70,6 +70,34 @@ interface AnaliseSalva extends HistoricoAnaliseIA {
     indicadores: IndicadoresAnalise;
     analise: AnaliseIA;
 }
+interface ComparacaoSinteses {
+    id: string;
+    tipo: "comparacao-sinteses";
+    geradoEm: string;
+    salvoEm: string;
+    professorUid: string;
+    professorEmail: string;
+    professorNome?: string;
+    escola: string;
+    turma: string;
+    analiseAnteriorId: string;
+    analiseMaisRecenteId: string;
+    dataAnaliseAnterior: string;
+    dataAnaliseMaisRecente: string;
+    escopoAnterior: "turma" | "aluno";
+    escopoMaisRecente: "turma" | "aluno";
+    indicadoresAnteriores: IndicadoresAnalise;
+    indicadoresMaisRecentes: IndicadoresAnalise;
+    diferencas: {
+        precisaoMedia: number;
+        palavrasTextoMedia: number;
+        compreensaoMedia: number;
+    };
+    sinteseAnterior: string;
+    sinteseMaisRecente: string;
+    interpretacaoComparacao: string;
+    avisoResponsabilidade: string;
+}
 interface ContextoUsuarioIA {
     administrador: boolean;
     uid: string;
@@ -153,7 +181,10 @@ declare function renderizarHistorico(): void;
 declare function rotuloAnaliseSalva(item: AnaliseSalva): string;
 declare function atualizarComparacaoSinteses(): void;
 declare function diferencaTexto(atual: number, anterior: number, unidade?: string): string;
-declare function compararSinteses(): void;
+declare function textoSintese(item: AnaliseSalva): string;
+declare function montarInterpretacaoComparacao(base: AnaliseSalva, atual: AnaliseSalva): string;
+declare function salvarComparacaoSinteses(base: AnaliseSalva, atual: AnaliseSalva): Promise<void>;
+declare function compararSinteses(): Promise<void>;
 declare function abrirRelatorioHistorico(id: string, atualizarLista?: boolean): void;
 declare function nomeProfessor(nome?: string, email?: string): string;
 declare function nomeAlunoRelatorio(nome?: string): string;
