@@ -27,3 +27,8 @@ test("scripts de Pages impedem publicacao de codigo interno e secrets", () => {
   assert.match(verificador, /OPENAI_API_KEY/);
   assert.match(verificador, /bootstrap/i);
 });
+
+test("pagina de analises usa versao atual do assistente pedagogico", () => {
+  const html = readFileSync("analises.html", "utf8");
+  assert.match(html, /public\/assets\/js\/ai-assistant\.js\?v=20260916-1/);
+});
