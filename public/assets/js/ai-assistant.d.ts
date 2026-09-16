@@ -42,6 +42,7 @@ interface RespostaFuncao {
     escopo: "turma" | "aluno";
     totalRegistrosAnalisados: number;
     analise: AnaliseIA;
+    origem?: "openai" | "local";
 }
 interface IndicadoresAnalise {
     mediaPrecisao: number;
@@ -60,6 +61,9 @@ interface HistoricoAnaliseIA extends IndicadoresAnalise {
 interface AnaliseSalva extends HistoricoAnaliseIA {
     id: string;
     salvoEm?: string;
+    dataAvaliacao?: string;
+    dataReferencia?: string;
+    origem?: "openai" | "local";
     alunoAnonimo?: string;
     alunoNome?: string;
     professorUid: string;
@@ -113,6 +117,8 @@ declare const estadoIA: {
     ultimaAnaliseTexto: string;
     ultimaResposta: RespostaFuncao | null;
     ultimoPayload: ReturnType<typeof montarPayload> | null;
+    ultimaDataAvaliacao: string;
+    ultimoAlunoNome: string;
     historico: AnaliseSalva[];
     relatorioAbertoId: string;
     contextoAtual: ContextoUsuarioIA | null;
@@ -121,12 +127,19 @@ declare function elemento<T extends HTMLElement>(id: string): T;
 declare function numero(valor: unknown): number;
 declare function segundosDoTempo(valor: unknown): number;
 declare function dataRegistro(resultado: ResultadoDashboard): string | undefined;
+declare function timestampRegistro(resultado: ResultadoDashboard): number;
+declare function chaveDataAvaliacao(resultado: ResultadoDashboard): string;
+declare function dataCurta(valor: string): string;
+declare function rotuloDataAvaliacao(valor: string): string;
+declare function mesmoDiaRegistro(resultado: ResultadoDashboard, dataSelecionada: string): boolean;
 declare function mapaAlunos(): Map<string, string>;
 declare function opcoesAlunos(): Array<{
     nome: string;
     anonimo: string;
 }>;
-declare function registrosAnonimizados(): RegistroAnalise[];
+declare function registrosDoAluno(nome: string): ResultadoDashboard[];
+declare function ultimaDataDaTurma(): string;
+declare function registrosAnonimizados(registrosBase?: ResultadoDashboard[]): RegistroAnalise[];
 declare function filtrosAtivosTexto(): string;
 declare function setEstado(mensagem: string, tipo?: "info" | "erro" | "sucesso"): void;
 declare function setCarregando(carregando: boolean): void;
@@ -162,14 +175,24 @@ declare function chamarAssistenteIA(payload: {
     historicoAnalises: HistoricoAnaliseIA[];
 }): Promise<RespostaFuncao>;
 declare function deveTentarEndpointLocal(error: unknown): boolean;
+declare function deveUsarRelatorioLocalOnline(error: unknown): boolean;
 declare function isHostDesenvolvimentoLocal(hostname: string): boolean;
 declare function hostEmuladorLocal(hostname: string): string;
+declare function slugDocumento(valor: string): string;
+declare function chaveDiaDocumento(valor: string): string;
 declare function chamarAssistenteLocal(payload: {
     escopo: "turma" | "aluno";
     alunoSelecionado?: string;
     registros: RegistroAnalise[];
     historicoAnalises: HistoricoAnaliseIA[];
 }): Promise<RespostaFuncao>;
+declare function perfilMaisFrequente(registros: RegistroAnalise[]): string;
+declare function gerarAnalisePedagogicaLocal(payload: {
+    escopo: "turma" | "aluno";
+    alunoSelecionado?: string;
+    registros: RegistroAnalise[];
+    historicoAnalises: HistoricoAnaliseIA[];
+}): RespostaFuncao;
 declare function calcularIndicadores(registros: RegistroAnalise[]): IndicadoresAnalise;
 declare function historicoParaIA(historico: AnaliseSalva[]): HistoricoAnaliseIA[];
 declare function obterContextoUsuario(): Promise<ContextoUsuarioIA>;

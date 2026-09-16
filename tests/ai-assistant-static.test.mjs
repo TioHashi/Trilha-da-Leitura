@@ -45,6 +45,7 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(html, /Comparar sínteses salvas/);
   assert.match(html, /iaCompararBase/);
   assert.match(html, /iaCompararAtual/);
+  assert.match(html, /iaDataAvaliacao/);
   assert.match(html, /saved-history-report/);
   assert.doesNotMatch(html, /Filtros ativos/);
   assert.doesNotMatch(html, /Dados usados pela IA/);
@@ -65,4 +66,8 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /comparacoesPedagogicas/);
   assert.match(fonte, /salvarComparacaoSinteses/);
   assert.match(fonte, /resumoDesempenho:/);
+  assert.match(fonte, /gerarAnalisePedagogicaLocal/);
+  assert.match(fonte, /chaveDiaDocumento/);
+  assert.match(fonte, /dataAvaliacao/);
+  assert.doesNotMatch(fonte, /alunoNome: item\.alunoNome/);
 });

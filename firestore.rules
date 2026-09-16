@@ -103,6 +103,9 @@ service cloud.firestore {
         "id",
         "geradoEm",
         "salvoEm",
+        "dataAvaliacao",
+        "dataReferencia",
+        "origem",
         "escopo",
         "alunoAnonimo",
         "alunoNome",
@@ -129,6 +132,9 @@ service cloud.firestore {
       return validAnalysisKeys(data)
         && data.id is string
         && data.geradoEm is string
+        && (!("dataAvaliacao" in data) || data.dataAvaliacao is string)
+        && (!("dataReferencia" in data) || data.dataReferencia is string)
+        && (!("origem" in data) || data.origem in ["openai", "local"])
         && data.escopo in ["turma", "aluno"]
         && (!("alunoNome" in data) || data.alunoNome is string)
         && data.professorUid is string

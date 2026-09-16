@@ -6,6 +6,8 @@ const estadoIA = {
     ultimaAnaliseTexto: "",
     ultimaResposta: null,
     ultimoPayload: null,
+    ultimaDataAvaliacao: "",
+    ultimoAlunoNome: "",
     historico: [],
     relatorioAbertoId: "",
     contextoAtual: null
@@ -29,6 +31,42 @@ function segundosDoTempo(valor) {
 function dataRegistro(resultado) {
     return resultado.salvoEm || resultado.data || undefined;
 }
+function timestampRegistro(resultado) {
+    const direto = Date.parse(dataRegistro(resultado) || "");
+    if (Number.isFinite(direto))
+        return direto;
+    const partes = String(resultado.data || "").match(/(\d{2})\/(\d{2})\/(\d{4}),?\s*(\d{2}):(\d{2}):(\d{2})/);
+    if (!partes)
+        return 0;
+    return new Date(Number(partes[3]), Number(partes[2]) - 1, Number(partes[1]), Number(partes[4]), Number(partes[5]), Number(partes[6])).getTime();
+}
+function chaveDataAvaliacao(resultado) {
+    const timestamp = timestampRegistro(resultado);
+    if (timestamp > 0)
+        return new Date(timestamp).toISOString();
+    return dataRegistro(resultado) || "";
+}
+function dataCurta(valor) {
+    if (!valor)
+        return "";
+    const data = new Date(valor);
+    if (!Number.isNaN(data.getTime()))
+        return data.toLocaleDateString("pt-BR");
+    return valor.split(",")[0] || valor;
+}
+function rotuloDataAvaliacao(valor) {
+    if (!valor)
+        return "";
+    const data = new Date(valor);
+    if (!Number.isNaN(data.getTime()))
+        return data.toLocaleString("pt-BR");
+    return valor;
+}
+function mesmoDiaRegistro(resultado, dataSelecionada) {
+    if (!dataSelecionada)
+        return true;
+    return dataCurta(chaveDataAvaliacao(resultado)) === dataCurta(dataSelecionada);
+}
 function mapaAlunos() {
     const mapa = new Map();
     for (const resultado of resultadosFiltrados || []) {
@@ -44,9 +82,18 @@ function opcoesAlunos() {
         .map(([nome, anonimo]) => ({ nome, anonimo }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 }
-function registrosAnonimizados() {
+function registrosDoAluno(nome) {
+    return [...(resultadosFiltrados || [])]
+        .filter((resultado) => String(resultado.nome || "").trim() === nome)
+        .sort((a, b) => timestampRegistro(b) - timestampRegistro(a));
+}
+function ultimaDataDaTurma() {
+    const registrosOrdenados = [...(resultadosFiltrados || [])].sort((a, b) => timestampRegistro(b) - timestampRegistro(a));
+    return registrosOrdenados[0] ? chaveDataAvaliacao(registrosOrdenados[0]) : "";
+}
+function registrosAnonimizados(registrosBase = resultadosFiltrados || []) {
     const mapa = mapaAlunos();
-    const registrosOrdenados = [...(resultadosFiltrados || [])].sort((a, b) => Date.parse(dataRegistro(b) || "") - Date.parse(dataRegistro(a) || ""));
+    const registrosOrdenados = [...registrosBase].sort((a, b) => timestampRegistro(b) - timestampRegistro(a));
     return registrosOrdenados.slice(0, LIMITE_REGISTROS_IA).map((resultado, indice) => {
         const nome = String(resultado.nome || "").trim() || "Sem identificação";
         return {
@@ -84,19 +131,43 @@ function setCarregando(carregando) {
 function atualizarPainel() {
     const seletorEscopo = elemento("iaEscopo");
     const seletorAluno = elemento("iaAluno");
+    const seletorData = elemento("iaDataAvaliacao");
     const alunos = opcoesAlunos();
-    const valorAtual = seletorAluno.value;
+    const valorAlunoAtual = seletorAluno.value;
+    const valorDataAtual = seletorData.value;
     seletorAluno.innerHTML = `<option value=""></option>` + alunos
-        .map((aluno) => `<option value="${aluno.anonimo}">${aluno.nome}</option>`)
+        .map((aluno) => `<option value="${escapeHtml(aluno.nome)}">${escapeHtml(aluno.nome)}</option>`)
         .join("");
-    if (valorAtual && alunos.some((aluno) => aluno.anonimo === valorAtual)) {
-        seletorAluno.value = valorAtual;
+    if (valorAlunoAtual && alunos.some((aluno) => aluno.nome === valorAlunoAtual)) {
+        seletorAluno.value = valorAlunoAtual;
     }
     seletorAluno.disabled = seletorEscopo.value !== "aluno" || alunos.length === 0;
+    if (seletorEscopo.value === "aluno") {
+        const registrosAluno = seletorAluno.value ? registrosDoAluno(seletorAluno.value) : [];
+        const datas = Array.from(new Set(registrosAluno.map(chaveDataAvaliacao).filter(Boolean)));
+        seletorData.innerHTML = `<option value=""></option>` + datas
+            .map((data) => `<option value="${escapeHtml(data)}">${escapeHtml(rotuloDataAvaliacao(data))}</option>`)
+            .join("");
+        if (valorDataAtual && datas.includes(valorDataAtual)) {
+            seletorData.value = valorDataAtual;
+        }
+        else if (datas.length === 1 && datas[0]) {
+            seletorData.value = datas[0];
+        }
+        seletorData.disabled = !seletorAluno.value || datas.length === 0;
+        return;
+    }
+    const ultimaData = ultimaDataDaTurma();
+    seletorData.innerHTML = ultimaData
+        ? `<option value="${escapeHtml(ultimaData)}">${escapeHtml(rotuloDataAvaliacao(ultimaData))}</option>`
+        : `<option value=""></option>`;
+    seletorData.value = ultimaData;
+    seletorData.disabled = true;
 }
 function montarPayload(historicoAnalises = []) {
     const escopo = elemento("iaEscopo").value === "aluno" ? "aluno" : "turma";
-    const registros = registrosAnonimizados();
+    const seletorData = elemento("iaDataAvaliacao");
+    const dataSelecionada = seletorData.value;
     if (escopo === "aluno") {
         const alunoSelecionado = elemento("iaAluno").value;
         if (!alunoSelecionado) {
@@ -107,14 +178,39 @@ function montarPayload(historicoAnalises = []) {
                 historicoAnalises: historicoAnalises.filter((item) => item.escopo === "aluno").slice(0, 6)
             };
         }
+        if (!dataSelecionada) {
+            estadoIA.ultimoAlunoNome = alunoSelecionado;
+            estadoIA.ultimaDataAvaliacao = "";
+            return {
+                escopo,
+                alunoSelecionado: mapaAlunos().get(alunoSelecionado) || "Aluno 1",
+                registros: [],
+                historicoAnalises: historicoAnalises.filter((item) => item.escopo === "aluno").slice(0, 6)
+            };
+        }
+        estadoIA.ultimoAlunoNome = alunoSelecionado;
+        const registrosSelecionados = registrosDoAluno(alunoSelecionado)
+            .filter((resultado) => mesmoDiaRegistro(resultado, dataSelecionada));
+        estadoIA.ultimaDataAvaliacao = dataSelecionada || (registrosSelecionados[0] ? chaveDataAvaliacao(registrosSelecionados[0]) : "");
+        const alunoAnonimo = mapaAlunos().get(alunoSelecionado) || "Aluno 1";
         return {
             escopo,
-            alunoSelecionado,
-            registros: registros.filter((registro) => registro.alunoAnonimo === alunoSelecionado),
-            historicoAnalises: historicoAnalises.filter((item) => item.escopo === "aluno").slice(0, 6)
+            alunoSelecionado: alunoAnonimo,
+            registros: registrosAnonimizados(registrosSelecionados),
+            historicoAnalises: historicoAnalises
+                .filter((item) => item.escopo === "aluno")
+                .slice(0, 6)
         };
     }
-    return { escopo, registros, historicoAnalises: historicoAnalises.filter((item) => item.escopo === "turma").slice(0, 6) };
+    const dataTurma = dataSelecionada || ultimaDataDaTurma();
+    estadoIA.ultimoAlunoNome = "";
+    const registrosTurma = [...(resultadosFiltrados || [])].filter((resultado) => mesmoDiaRegistro(resultado, dataTurma));
+    estadoIA.ultimaDataAvaliacao = dataTurma;
+    return {
+        escopo,
+        registros: registrosAnonimizados(registrosTurma),
+        historicoAnalises: historicoAnalises.filter((item) => item.escopo === "turma").slice(0, 6)
+    };
 }
 function listaHtml(itens) {
     if (!itens.length)
@@ -248,8 +344,12 @@ async function gerarAnalise() {
     const payload = montarPayload(historicoParaIA(historico));
     estadoIA.ultimoPayload = payload;
     if (!payload.registros.length) {
+        const alunoAtual = elemento("iaAluno").value;
+        const dataAtual = elemento("iaDataAvaliacao").value;
         setEstado(payload.escopo === "aluno"
-            ? "Selecione o nome do aluno para gerar a análise individual."
+            ? (!alunoAtual
+                ? "Selecione o nome do aluno para gerar a análise individual."
+                : (!dataAtual ? "Selecione a data da avaliação desse aluno." : "Não há registro para o aluno na data selecionada."))
             : "Não há dados suficientes para gerar a análise com os filtros atuais.", "erro");
         return;
     }
@@ -284,9 +384,17 @@ async function chamarAssistenteIA(payload) {
         return resposta.data;
     }
     catch (error) {
-        if (!deveTentarEndpointLocal(error))
-            throw error;
-        return chamarAssistenteLocal(payload);
+        if (deveTentarEndpointLocal(error)) {
+            try {
+                return await chamarAssistenteLocal(payload);
+            }
+            catch {
+                return gerarAnalisePedagogicaLocal(payload);
+            }
+        }
+        if (deveUsarRelatorioLocalOnline(error))
+            return gerarAnalisePedagogicaLocal(payload);
+        throw error;
     }
 }
 function deveTentarEndpointLocal(error) {
@@ -296,6 +404,17 @@ function deveTentarEndpointLocal(error) {
     const codigo = String(erro.code || "").toLowerCase();
     const mensagem = String(erro.message || "").toLowerCase();
     return codigo.includes("internal") || codigo.includes("not-found") || mensagem.includes("internal") || mensagem.includes("not found");
+}
+function deveUsarRelatorioLocalOnline(error) {
+    const erro = error;
+    const codigo = String(erro.code || "").toLowerCase();
+    const mensagem = String(erro.message || "").toLowerCase();
+    return codigo.includes("functions/not-found")
+        || codigo.includes("not-found")
+        || codigo.includes("internal")
+        || mensagem.includes("not-found")
+        || mensagem.includes("failed to fetch")
+        || mensagem.includes("internal");
 }
 function isHostDesenvolvimentoLocal(hostname) {
     return hostname === "localhost"
@@ -307,6 +426,21 @@ function isHostDesenvolvimentoLocal(hostname) {
 }
 function hostEmuladorLocal(hostname) {
     return hostname === "localhost" || hostname === "" ? "127.0.0.1" : hostname;
+}
+function slugDocumento(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "sem-identificacao";
+}
+function chaveDiaDocumento(valor) {
+    const data = new Date(valor);
+    if (!Number.isNaN(data.getTime()))
+        return data.toISOString().slice(0, 10).replace(/-/g, "");
+    return slugDocumento(valor || new Date().toISOString());
 }
 async function chamarAssistenteLocal(payload) {
     if (!janelaIA.TrilhaAuth) {
@@ -342,6 +476,61 @@ async function chamarAssistenteLocal(payload) {
         }
     }
     throw new Error(ultimoErro);
+}
+function perfilMaisFrequente(registros) {
+    const contagem = registros.reduce((acc, item) => {
+        const perfil = item.perfilLeitor || "Sem perfil informado";
+        acc.set(perfil, (acc.get(perfil) || 0) + 1);
+        return acc;
+    }, new Map());
+    return [...contagem.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "Sem perfil informado";
+}
+function gerarAnalisePedagogicaLocal(payload) {
+    const indicadores = calcularIndicadores(payload.registros);
+    const perfilBase = perfilMaisFrequente(payload.registros);
+    const historicoMaisRecente = payload.historicoAnalises[0];
+    const contextoHistorico = historicoMaisRecente
+        ? ` Comparando com o relatório anterior salvo em ${new Date(historicoMaisRecente.geradoEm).toLocaleDateString("pt-BR")}, a precisão média ${diferencaTexto(indicadores.mediaPrecisao, historicoMaisRecente.mediaPrecisao, "%")} e a média de palavras no texto ${diferencaTexto(indicadores.mediaTotalPalavras, historicoMaisRecente.mediaTotalPalavras)}.`
+        : " Ainda não há relatório anterior suficiente para comparação automática.";
+    const escopoTexto = payload.escopo === "aluno" ? "do aluno selecionado" : "da turma";
+    const resumo = `Relatório local para análise ${escopoTexto}. Foram considerados ${payload.registros.length} registro(s) da data selecionada, com precisão média de ${indicadores.mediaPrecisao}%, média de ${indicadores.mediaTotalPalavras} palavras corretas no texto e compreensão média de ${indicadores.mediaCompreensao}/2.${contextoHistorico}`;
+    return {
+        geradoEm: new Date().toISOString(),
+        escopo: payload.escopo,
+        totalRegistrosAnalisados: payload.registros.length,
+        origem: "local",
+        analise: {
+            resumoDesempenho: resumo,
+            evidenciasObservadas: [
+                `Perfil predominante observado: ${perfilBase}.`,
+                `Pré-leitores: ${indicadores.preLeitores}. Leitores iniciantes: ${indicadores.leitoresIniciantes}. Leitores fluentes: ${indicadores.leitoresFluentes}.`,
+                `Precisão média registrada: ${indicadores.mediaPrecisao}%.`
+            ],
+            pontosAtencao: [
+                indicadores.mediaPrecisao < 90 ? "A precisão média ainda exige acompanhamento para reduzir trocas, omissões ou hesitações." : "A precisão média está adequada, mas deve ser acompanhada em novas leituras.",
+                indicadores.mediaCompreensao < 2 ? "A compreensão registrada indica necessidade de retomar perguntas de localização e inferência simples." : "A compreensão registrada está favorável para a data analisada.",
+                indicadores.mediaTotalPalavras <= 65 ? "A fluência no texto ainda pode ser fortalecida com leituras breves, repetidas e orientadas." : "A quantidade de palavras no texto indica avanço, mantendo atenção à expressividade e compreensão."
+            ],
+            recomendacoesPedagogicas: [
+                "Planejar leitura diária curta com acompanhamento do professor.",
+                "Retomar palavras e pseudopalavras com maior dificuldade em pequenos grupos.",
+                "Registrar nova avaliação em outra data para comparar evolução com o histórico salvo."
+            ],
+            planoIntervencaoSugerido: [
+                "Semana 1: leitura guiada de palavras conhecidas e revisão de correspondências letra-som.",
+                "Semana 2: leitura de pseudopalavras e palavras novas com mediação.",
+                "Semana 3: leitura de texto curto com foco em precisão e compreensão.",
+                "Semana 4: nova verificação para comparar com este relatório."
+            ],
+            sugestaoAcompanhamento: "Comparar este relatório com a próxima avaliação salva para observar avanço de precisão, palavras no texto e compreensão.",
+            limitacoesAnalise: [
+                "Este relatório foi gerado localmente porque a chamada à IA online não foi concluída.",
+                "A comparação usa apenas indicadores salvos e sínteses anteriores disponíveis no banco de dados.",
+                "A análise não observa leitura oral, contexto da aula ou fatores pedagógicos externos."
+            ],
+            avisoResponsabilidade: AVISO_REVISAO_HUMANA
+        }
+    };
 }
 function calcularIndicadores(registros) {
     const total = Math.max(registros.length, 1);
@@ -438,18 +627,27 @@ async function salvarAnaliseAutomatica() {
         const contexto = await obterContextoUsuario();
         const db = await obterFirestoreIA();
         const indicadores = calcularIndicadores(estadoIA.ultimoPayload.registros);
+        const dataAvaliacao = estadoIA.ultimaDataAvaliacao || estadoIA.ultimaResposta.geradoEm;
+        const alunoNome = estadoIA.ultimaResposta.escopo === "aluno" ? alunoSelecionadoNome() || estadoIA.ultimoAlunoNome : "";
+        const idEscopo = estadoIA.ultimaResposta.escopo === "aluno"
+            ? `aluno-${slugDocumento(alunoNome)}`
+            : "turma";
         const id = [
             contexto.uid,
             estadoIA.ultimaResposta.escopo,
-            estadoIA.ultimaResposta.geradoEm.replace(/[^0-9]/g, "")
+            idEscopo,
+            chaveDiaDocumento(dataAvaliacao)
         ].join("-");
         await db.collection("analisesPedagogicas").doc(id).set({
             id,
             geradoEm: estadoIA.ultimaResposta.geradoEm,
             salvoEm: new Date().toISOString(),
+            dataAvaliacao,
+            dataReferencia: dataCurta(dataAvaliacao),
+            origem: estadoIA.ultimaResposta.origem || "openai",
             escopo: estadoIA.ultimaResposta.escopo,
             alunoAnonimo: estadoIA.ultimoPayload.alunoSelecionado || "",
-            alunoNome: estadoIA.ultimaResposta.escopo === "aluno" ? alunoSelecionadoNome() : "",
+            alunoNome,
             professorUid: contexto.uid,
             professorEmail: contexto.email,
             professorNome: contexto.nome,
@@ -760,6 +958,11 @@ function inicializar() {
     const escopo = elemento("iaEscopo");
     escopo.addEventListener("change", () => {
         elemento("iaAluno").value = "";
+        elemento("iaDataAvaliacao").value = "";
+        atualizarPainel();
+    });
+    elemento("iaAluno").addEventListener("change", () => {
+        elemento("iaDataAvaliacao").value = "";
         atualizarPainel();
     });
     elemento("iaGerar").addEventListener("click", gerarAnalise);
