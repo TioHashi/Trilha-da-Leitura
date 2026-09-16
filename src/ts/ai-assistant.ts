@@ -953,7 +953,7 @@ function renderizarHistorico(): void {
         </div>
         <div class="history-actions">
           <button type="button" class="history-open-btn" data-relatorio-id="${escapeHtml(item.id)}">${ativo ? "Relatório aberto" : "Abrir relatório"}</button>
-          <button type="button" class="history-print-btn" data-imprimir-relatorio-id="${escapeHtml(item.id)}">Imprimir relatório</button>
+          <button type="button" class="history-print-btn" data-imprimir-relatorio-id="${escapeHtml(item.id)}" aria-label="Imprimir relatório">Imprimir</button>
           <button type="button" class="history-delete-btn" data-excluir-relatorio-id="${escapeHtml(item.id)}">Excluir relatório</button>
         </div>
       </article>

@@ -473,8 +473,15 @@ input{
 }
 
 .history-print-btn{
-  border-color:#bbf7d0;
-  color:#166534;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  visibility:visible !important;
+  opacity:1 !important;
+  color:#fff !important;
+  background:#16a34a !important;
+  border:1px solid #15803d !important;
+  box-shadow:0 8px 18px rgba(22,163,74,.18);
 }
 
 .history-actions{
@@ -487,6 +494,7 @@ input{
 
 .history-actions button{
   min-width:128px;
+  flex:0 0 auto;
 }
 
 .history-delete-btn{
