@@ -1180,7 +1180,7 @@ function imprimirRelatorio(): void {
   document.getElementById("printReportFrame")?.remove();
 
   const cssDashboard = document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href
-    || "assets/css/dashboard.css?v=2026/07-10";
+    || "assets/css/dashboard.css?v=2026/09-10";
   const frame = document.createElement("iframe");
   frame.id = "printReportFrame";
   frame.title = "Impressão do relatório pedagógico";
