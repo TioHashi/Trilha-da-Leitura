@@ -68,6 +68,7 @@ test("avaliacao individual lista alunos vinculados ao professor", () => {
   const rules = readFileSync("firestore.rules", "utf8");
 
   assert.match(html, /<select id="nomeAluno" required>/);
+  assert.doesNotMatch(html, /Palavras corretas no texto/);
   assert.match(fonte, /carregarAlunosAvaliacao/);
   assert.match(fonte, /firebase\.firestore\(\)\.collection\("alunos"\)/);
   assert.match(fonte, /where\("professoresPermitidos", "array-contains", usuario\.uid\)/);

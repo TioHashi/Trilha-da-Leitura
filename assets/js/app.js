@@ -216,10 +216,11 @@ function calcularCompreensao(){
 function atualizarResultado(){
   const corretas = limitarNumero(document.getElementById("palavrasCorretas").value, 0, 60);
   const dificeis = limitarNumero(document.getElementById("dificeisCorretas").value, 0, 40);
-  const textoCorretas = limitarNumero(document.getElementById("palavrasTextoCorretas").value, 0, 100);
   const total = corretas + dificeis;
   const precisaoDigitada = document.getElementById("precisao").value.trim();
-  const precisao = precisaoDigitada === "" ? limitarNumero(textoCorretas, 0, 100) : limitarNumero(precisaoDigitada, 0, 100);
+  const precisao = limitarNumero(precisaoDigitada, 0, 100);
+  const textoCorretas = precisao;
+  document.getElementById("palavrasTextoCorretas").value = String(textoCorretas);
   const classificacao = classificarPerfil(corretas, dificeis, textoCorretas, precisao);
   document.getElementById("resultadoFinal").innerHTML = `
     <div class="resultado-linha"><span>Perfil leitor</span><strong>${classificacao.perfil}</strong></div>
@@ -227,7 +228,6 @@ function atualizarResultado(){
     <div class="resultado-linha"><span>Palavras conhecidas corretas</span><strong>${corretas}</strong></div>
     <div class="resultado-linha"><span>Palavras possivelmente desconhecidas corretas</span><strong>${dificeis}</strong></div>
     <div class="resultado-linha"><span>Total nas listas</span><strong>${total}</strong></div>
-    <div class="resultado-linha"><span>Palavras corretas no texto</span><strong>${textoCorretas}</strong></div>
     <div class="resultado-linha"><span>Precisão do texto</span><strong>${precisao}%</strong></div>
     <div class="resultado-linha"><span>Compreensão</span><strong>${acertosCompreensao}/2</strong></div>
     <div class="resultado-linha"><span>Tempo nas palavras conhecidas</span><strong>${formatarTempo(estado.conhecidas.gasto)}</strong></div>
@@ -281,7 +281,6 @@ async function salvarResultado(silencioso){
     const turma = document.getElementById("turmaAluno").value.trim();
     const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
     const dificeisValor = document.getElementById("dificeisCorretas").value.trim();
-    const textoValor = document.getElementById("palavrasTextoCorretas").value.trim();
     const precisaoValor = document.getElementById("precisao").value.trim();
     const estaNoResultado = document.getElementById("resultado").classList.contains("active");
     if(!escola || !turma || !nome){
@@ -296,8 +295,8 @@ async function salvarResultado(silencioso){
       if(!silencioso) mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de salvar.");
       return false;
     }
-    if(palavrasValor === "" || dificeisValor === "" || textoValor === "" || precisaoValor === ""){
-      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras conhecidas corretas, Palavras difíceis corretas, Palavras corretas no texto e Precisão (%) antes de salvar.");
+    if(palavrasValor === "" || dificeisValor === "" || precisaoValor === ""){
+      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras conhecidas corretas, Palavras difíceis corretas e Precisão (%) antes de salvar.");
       return false;
     }
 
