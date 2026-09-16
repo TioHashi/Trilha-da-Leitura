@@ -24,6 +24,7 @@ test("conteudo pedagogico possui banco ampliado sem duplicidades", () => {
 test("conteudo possui 200 narrativas simples com personagem animal", () => {
   const conteudo = carregarConteudo();
   assert.equal(conteudo.textos.length, 200);
+  assert.equal(new Set(conteudo.textos.map((item) => item.texto)).size, 200);
   for (const item of conteudo.textos) {
     const total = totalPalavras(item.texto);
     assert.equal(item.tipo, "narrativo");
