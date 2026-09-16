@@ -1237,7 +1237,7 @@ footer{
 @media print{
   @page{
     size:A4;
-    margin:12mm;
+    margin:16mm 18mm;
   }
 
   html,
@@ -1262,41 +1262,42 @@ footer{
   }
 
   .print-report-target{
-    position:absolute;
-    inset:0 auto auto 0;
+    position:static !important;
     display:block !important;
-    width:100% !important;
-    margin:0 !important;
+    width:88% !important;
+    max-width:170mm !important;
+    margin:0 auto !important;
     padding:0 !important;
     background:#fff !important;
+    transform:none !important;
   }
 
   .print-report-target .pedagogical-report{
     display:grid;
-    gap:10px;
+    gap:7px;
     width:100%;
     color:#172033;
   }
 
   .report-cover{
-    padding:16px !important;
+    padding:12px !important;
     border-radius:12px !important;
     box-shadow:none !important;
   }
 
   .report-cover h3{
-    font-size:20pt !important;
+    font-size:16pt !important;
   }
 
   .report-cover p,
   .report-cover time{
-    font-size:9.5pt !important;
+    font-size:8.5pt !important;
   }
 
   .report-meta,
   .report-indicators,
   .report-section-grid{
-    gap:7px !important;
+    gap:6px !important;
   }
 
   .report-meta{
@@ -1316,7 +1317,7 @@ footer{
   .report-indicators div{
     break-inside:avoid;
     page-break-inside:avoid;
-    padding:10px !important;
+    padding:8px !important;
     border-color:#bfdbfe !important;
     border-radius:10px !important;
     box-shadow:none !important;
@@ -1329,32 +1330,32 @@ footer{
   }
 
   .report-section h3{
-    margin:5px 0 6px !important;
-    font-size:12pt !important;
+    margin:4px 0 5px !important;
+    font-size:10.5pt !important;
   }
 
   .report-section p,
   .report-section li,
   .report-meta strong{
-    font-size:9.5pt !important;
-    line-height:1.3 !important;
+    font-size:8.6pt !important;
+    line-height:1.22 !important;
   }
 
   .report-indicators strong{
-    font-size:16pt !important;
+    font-size:13pt !important;
   }
 
   .report-kicker,
   .report-section-label,
   .report-meta span,
   .report-indicators span{
-    font-size:7.5pt !important;
+    font-size:6.8pt !important;
   }
 
   .human-review{
-    padding:9px !important;
+    padding:7px !important;
     border-radius:8px !important;
-    font-size:9pt !important;
+    font-size:8pt !important;
     background:#fffbeb !important;
   }
 
