@@ -9,7 +9,7 @@ test("todas as paginas principais usam o favicon do projeto", () => {
     const html = readFileSync(pagina, "utf8");
     assert.match(html, /<link rel="icon" type="image\/png" href="assets\/favicon\.png">/);
     if (pagina !== "imprimir-relatorio.html") {
-      assert.match(html, /Trilha da Leitura 2026\/09-15/);
+      assert.match(html, /Trilha da Leitura 2026\/09-05/);
     }
   }
 });

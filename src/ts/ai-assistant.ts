@@ -1182,7 +1182,7 @@ function imprimirRelatorio(): void {
   const dadosImpressao = {
     titulo: tituloRelatorioParaImpressao(relatorio),
     relatorioHtml: relatorio.outerHTML,
-    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-15"
+    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-05"
   };
 
   try {
