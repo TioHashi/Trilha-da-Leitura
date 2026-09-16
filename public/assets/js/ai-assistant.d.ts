@@ -166,6 +166,7 @@ declare function renderizarConteudoAnalise(alvo: HTMLElement, resposta: Resposta
     escola?: string;
     turma?: string;
     alunoNome?: string;
+    indicadores?: IndicadoresAnalise;
 }): void;
 declare function gerarAnalise(): Promise<void>;
 declare function chamarAssistenteIA(payload: {
