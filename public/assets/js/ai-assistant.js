@@ -767,6 +767,7 @@ function renderizarHistorico() {
         </div>
         <div class="history-actions">
           <button type="button" class="history-open-btn" data-relatorio-id="${escapeHtml(item.id)}">${ativo ? "Relatório aberto" : "Abrir relatório"}</button>
+          <button type="button" class="history-print-btn" data-imprimir-relatorio-id="${escapeHtml(item.id)}">Imprimir relatório</button>
           <button type="button" class="history-delete-btn" data-excluir-relatorio-id="${escapeHtml(item.id)}">Excluir relatório</button>
         </div>
       </article>
@@ -983,6 +984,10 @@ function imprimirRelatorio() {
     alvo.classList.add("print-report-target");
     window.setTimeout(() => window.print(), 50);
 }
+function imprimirRelatorioHistorico(id) {
+    abrirRelatorioHistorico(id);
+    window.setTimeout(() => imprimirRelatorio(), 150);
+}
 function nomeProfessor(nome, email) {
     const nomeLimpo = String(nome || "").trim();
     const emailLimpo = String(email || "").trim();
@@ -1073,6 +1078,11 @@ function inicializar() {
         const botaoAbrir = alvo.closest("[data-relatorio-id]");
         if (botaoAbrir?.dataset.relatorioId) {
             abrirRelatorioHistorico(botaoAbrir.dataset.relatorioId);
+            return;
+        }
+        const botaoImprimir = alvo.closest("[data-imprimir-relatorio-id]");
+        if (botaoImprimir?.dataset.imprimirRelatorioId) {
+            imprimirRelatorioHistorico(botaoImprimir.dataset.imprimirRelatorioId);
             return;
         }
         const botaoExcluir = alvo.closest("[data-excluir-relatorio-id]");

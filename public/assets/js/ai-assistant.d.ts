@@ -213,6 +213,7 @@ declare function salvarComparacaoSinteses(base: AnaliseSalva, atual: AnaliseSalv
 declare function compararSinteses(): Promise<void>;
 declare function abrirRelatorioHistorico(id: string, atualizarLista?: boolean): void;
 declare function imprimirRelatorio(): void;
+declare function imprimirRelatorioHistorico(id: string): void;
 declare function nomeProfessor(nome?: string, email?: string): string;
 declare function nomeAlunoRelatorio(nome?: string): string;
 declare function excluirRelatorioHistorico(id: string): Promise<void>;

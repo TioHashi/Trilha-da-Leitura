@@ -49,6 +49,7 @@ test("dashboard tem cadastro de alunos vinculado ao professor", () => {
   assert.match(html, /cadastroAlunoNome/);
   assert.match(html, /formTransferenciaAluno/);
   assert.match(html, /transferenciaAlunoId/);
+  assert.doesNotMatch(html, /transferenciaAlunoId" size=/);
   assert.match(html, /transferenciaEscolaDestino/);
   assert.match(html, /transferenciaTurmaDestino/);
   assert.match(fonte, /db\.collection\("alunos"\)/);
