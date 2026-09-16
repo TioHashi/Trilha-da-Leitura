@@ -1252,13 +1252,12 @@ footer{
     -webkit-print-color-adjust:exact;
   }
 
-  body *{
-    visibility:hidden !important;
+  body > :not(#printReportRoot){
+    display:none !important;
   }
 
-  .print-report-target,
-  .print-report-target *{
-    visibility:visible !important;
+  #printReportRoot{
+    display:block !important;
   }
 
   .print-report-target{

@@ -1169,19 +1169,26 @@ function abrirRelatorioHistorico(id: string, atualizarLista = true): void {
 function imprimirRelatorio(): void {
   const relatorioHistorico = elemento<HTMLElement>("iaRelatorioSalvo");
   const relatorioAtual = elemento<HTMLElement>("iaResultado");
-  const alvo = relatorioHistorico.querySelector(".pedagogical-report")
-    ? relatorioHistorico
-    : relatorioAtual.querySelector(".pedagogical-report")
-      ? relatorioAtual
-      : null;
+  const relatorio = relatorioHistorico.querySelector<HTMLElement>(".pedagogical-report")
+    || relatorioAtual.querySelector<HTMLElement>(".pedagogical-report");
 
-  if (!alvo) {
+  if (!relatorio) {
     setEstado("Gere ou abra um relatório antes de imprimir.", "erro");
     return;
   }
 
+  document.getElementById("printReportRoot")?.remove();
   document.querySelectorAll(".print-report-target").forEach((item) => item.classList.remove("print-report-target"));
-  alvo.classList.add("print-report-target");
+
+  const raizImpressao = document.createElement("main");
+  raizImpressao.id = "printReportRoot";
+  raizImpressao.setAttribute("aria-hidden", "true");
+  raizImpressao.appendChild(relatorio.cloneNode(true));
+  document.body.appendChild(raizImpressao);
+  raizImpressao.classList.add("print-report-target");
+
+  const limparRaiz = () => raizImpressao.remove();
+  window.addEventListener("afterprint", limparRaiz, { once: true });
   window.setTimeout(() => window.print(), 50);
 }
 
