@@ -478,9 +478,15 @@ input{
 }
 
 .history-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
   gap:8px;
+  min-width:min(100%, 430px);
+}
+
+.history-actions button{
+  min-width:128px;
 }
 
 .history-delete-btn{
