@@ -54,6 +54,7 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /Aluno avaliado/);
   assert.match(fonte, /Selecione o nome do aluno/);
   assert.match(fonte, /Nome do aluno não registrado/);
+  assert.match(fonte, /Análise individual -/);
   assert.doesNotMatch(fonte, /item\.alunoNome \|\| item\.alunoAnonimo/);
   assert.match(fonte, /Abrir relatório/);
   assert.match(fonte, /Excluir relatório/);

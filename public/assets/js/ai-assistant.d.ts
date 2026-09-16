@@ -201,6 +201,7 @@ declare function carregarHistoricoAnalises(): Promise<AnaliseSalva[]>;
 declare function salvarAnaliseAutomatica(): Promise<void>;
 declare function salvarAnalise(): Promise<void>;
 declare function renderizarHistorico(): void;
+declare function descricaoAnaliseHistorico(item: AnaliseSalva): string;
 declare function rotuloAnaliseSalva(item: AnaliseSalva): string;
 declare function atualizarComparacaoSinteses(): void;
 declare function diferencaTexto(atual: number, anterior: number, unidade?: string): string;

@@ -688,11 +688,12 @@ function renderizarHistorico() {
     alvo.innerHTML = estadoIA.historico.slice(0, 12).map((item) => {
         const data = new Date(item.geradoEm).toLocaleString("pt-BR");
         const ativo = estadoIA.relatorioAbertoId === item.id;
+        const descricao = descricaoAnaliseHistorico(item);
         return `
       <article class="history-card compact-history-card">
         <div>
           <h3>${escapeHtml(data)}</h3>
-          <p>${item.escopo === "turma" ? "Análise da turma" : "Análise individual"}</p>
+          <p>${escapeHtml(descricao)}</p>
         </div>
         <div class="history-actions">
           <button type="button" class="history-open-btn" data-relatorio-id="${escapeHtml(item.id)}">${ativo ? "Relatório aberto" : "Abrir relatório"}</button>
@@ -705,9 +706,15 @@ function renderizarHistorico() {
         abrirRelatorioHistorico(estadoIA.relatorioAbertoId, false);
     atualizarComparacaoSinteses();
 }
+function descricaoAnaliseHistorico(item) {
+    if (item.escopo === "turma")
+        return "Análise da turma";
+    const aluno = nomeAlunoRelatorio(item.alunoNome);
+    return `Análise individual - ${aluno}`;
+}
 function rotuloAnaliseSalva(item) {
     const data = new Date(item.geradoEm).toLocaleString("pt-BR");
-    const tipo = item.escopo === "turma" ? "Turma" : "Individual";
+    const tipo = item.escopo === "turma" ? "Turma" : `Individual - ${nomeAlunoRelatorio(item.alunoNome)}`;
     return `${data} - ${tipo}`;
 }
 function atualizarComparacaoSinteses() {
