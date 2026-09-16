@@ -1252,10 +1252,6 @@ footer{
     -webkit-print-color-adjust:exact;
   }
 
-  body > :not(#printReportRoot){
-    display:none !important;
-  }
-
   #printReportRoot{
     display:block !important;
   }
@@ -1263,7 +1259,7 @@ footer{
   .print-report-target{
     position:static !important;
     display:block !important;
-    width:88% !important;
+    width:80% !important;
     max-width:170mm !important;
     margin:0 auto !important;
     padding:0 !important;
