@@ -808,6 +808,45 @@ table{
   height:auto;
 }
 
+.results-table th:nth-child(1),
+.results-table td:nth-child(1){width:10.5%}
+
+.results-table th:nth-child(2),
+.results-table td:nth-child(2){width:14%}
+
+.results-table th:nth-child(3),
+.results-table td:nth-child(3){width:16%}
+
+.results-table th:nth-child(4),
+.results-table td:nth-child(4){width:6%}
+
+.results-table th:nth-child(5),
+.results-table td:nth-child(5),
+.results-table th:nth-child(6),
+.results-table td:nth-child(6),
+.results-table th:nth-child(7),
+.results-table td:nth-child(7),
+.results-table th:nth-child(8),
+.results-table td:nth-child(8),
+.results-table th:nth-child(9),
+.results-table td:nth-child(9),
+.results-table th:nth-child(10),
+.results-table td:nth-child(10),
+.results-table th:nth-child(11),
+.results-table td:nth-child(11){width:6.1%}
+
+.results-table th:nth-child(12),
+.results-table td:nth-child(12){
+  width:12.8%;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  line-height:1.08;
+}
+
+.results-table th:nth-child(13),
+.results-table td:nth-child(13){width:5%}
+
 th,
 td{
   height:auto;
