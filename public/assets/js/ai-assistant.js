@@ -242,7 +242,8 @@ function renderizarAnalise(resposta) {
         professorEmail: contexto.professorEmail,
         escola: contexto.escola,
         turma: contexto.turma,
-        alunoNome: contexto.alunoNome
+        alunoNome: contexto.alunoNome,
+        indicadores: estadoIA.ultimoPayload ? calcularIndicadores(estadoIA.ultimoPayload.registros) : undefined
     });
     estadoIA.ultimaResposta = resposta;
     elemento("iaCopiar").disabled = false;
@@ -251,61 +252,115 @@ function renderizarAnalise(resposta) {
 function renderizarConteudoAnalise(alvo, resposta, contexto) {
     const { analise } = resposta;
     const geradoEm = new Date(resposta.geradoEm).toLocaleString("pt-BR");
+    const indicadores = contexto.indicadores || calcularIndicadores([]);
+    const tituloEscopo = resposta.escopo === "aluno" ? "Relatório pedagógico individual" : "Relatório pedagógico da turma";
+    const subtituloEscopo = resposta.escopo === "aluno"
+        ? "Leitura, fluência e acompanhamento do estudante"
+        : "Leitura, fluência e acompanhamento coletivo";
+    const seloOrigem = resposta.origem === "local" ? "Relatório local" : "Assistente pedagógico";
     const blocoAluno = resposta.escopo === "aluno"
         ? `
-      <div>
+      <div class="report-id-card">
         <span>Aluno avaliado</span>
         <strong>${escapeHtml(contexto.alunoNome || "Aluno não informado")}</strong>
       </div>
     `
         : "";
     const html = `
-    <p class="report-date-line">Relatório gerado em ${escapeHtml(geradoEm)}</p>
-    <div class="report-meta">
-      <div>
-        <span>Professor</span>
-        <strong>${escapeHtml(nomeProfessor(contexto.professorNome, contexto.professorEmail))}</strong>
+    <article class="pedagogical-report">
+      <header class="report-cover">
+        <div>
+          <span class="report-kicker">${escapeHtml(seloOrigem)}</span>
+          <h3>${escapeHtml(tituloEscopo)}</h3>
+          <p>${escapeHtml(subtituloEscopo)}</p>
+        </div>
+        <time>${escapeHtml(geradoEm)}</time>
+      </header>
+
+      <div class="report-meta report-identity-grid">
+        <div class="report-id-card">
+          <span>Professor responsável</span>
+          <strong>${escapeHtml(nomeProfessor(contexto.professorNome, contexto.professorEmail))}</strong>
+        </div>
+        <div class="report-id-card">
+          <span>Unidade escolar</span>
+          <strong>${escapeHtml(contexto.escola || "Todas")}</strong>
+        </div>
+        <div class="report-id-card">
+          <span>Turma acompanhada</span>
+          <strong>${escapeHtml(contexto.turma || "Todas")}</strong>
+        </div>
+        ${blocoAluno}
       </div>
-      <div>
-        <span>Escola</span>
-        <strong>${escapeHtml(contexto.escola || "Todas")}</strong>
+
+      <section class="report-indicators" aria-label="Indicadores principais">
+        <div>
+          <span>Registros analisados</span>
+          <strong>${resposta.totalRegistrosAnalisados}</strong>
+        </div>
+        <div>
+          <span>Precisão média</span>
+          <strong>${indicadores.mediaPrecisao}%</strong>
+        </div>
+        <div>
+          <span>Palavras no texto</span>
+          <strong>${indicadores.mediaTotalPalavras}</strong>
+        </div>
+        <div>
+          <span>Compreensão média</span>
+          <strong>${indicadores.mediaCompreensao}/2</strong>
+        </div>
+      </section>
+
+      <section class="report-section report-summary">
+        <span class="report-section-label">Síntese pedagógica</span>
+        <h3>Resumo do desempenho</h3>
+        <p>${escapeHtml(analise.resumoDesempenho)}</p>
+      </section>
+
+      <div class="report-section-grid">
+        <section class="report-section">
+          <span class="report-section-label">Dados observados</span>
+          <h3>Evidências observadas</h3>
+          <ul>${listaHtml(analise.evidenciasObservadas)}</ul>
+        </section>
+        <section class="report-section">
+          <span class="report-section-label">Atenção pedagógica</span>
+          <h3>Pontos de atenção</h3>
+          <ul>${listaHtml(analise.pontosAtencao)}</ul>
+        </section>
       </div>
-      <div>
-        <span>Turma</span>
-        <strong>${escapeHtml(contexto.turma || "Todas")}</strong>
+
+      <section class="report-section report-recommendations">
+        <span class="report-section-label">Encaminhamentos</span>
+        <h3>Recomendações pedagógicas</h3>
+        <ul>${listaHtml(analise.recomendacoesPedagogicas)}</ul>
+      </section>
+
+      <section class="report-section report-plan">
+        <span class="report-section-label">Plano de ação</span>
+        <h3>Plano de intervenção sugerido</h3>
+        <ul>${listaHtml(analise.planoIntervencaoSugerido)}</ul>
+      </section>
+
+      <div class="report-section-grid">
+        <section class="report-section">
+          <span class="report-section-label">Monitoramento</span>
+          <h3>Sugestão de acompanhamento</h3>
+          <p>${escapeHtml(analise.sugestaoAcompanhamento)}</p>
+        </section>
+        <section class="report-section">
+          <span class="report-section-label">Cuidados de leitura</span>
+          <h3>Limitações da análise</h3>
+          <ul>${listaHtml(analise.limitacoesAnalise)}</ul>
+        </section>
       </div>
-      ${blocoAluno}
-    </div>
-    <section class="report-section">
-      <h3>Resumo do desempenho</h3>
-      <p>${escapeHtml(analise.resumoDesempenho)}</p>
-    </section>
-    <section class="report-section">
-      <h3>Evidências observadas</h3>
-      <ul>${listaHtml(analise.evidenciasObservadas)}</ul>
-    </section>
-    <section class="report-section">
-      <h3>Pontos de atenção</h3>
-      <ul>${listaHtml(analise.pontosAtencao)}</ul>
-    </section>
-    <section class="report-section">
-      <h3>Recomendações pedagógicas</h3>
-      <ul>${listaHtml(analise.recomendacoesPedagogicas)}</ul>
-    </section>
-    <section class="report-section">
-      <h3>Plano de intervenção sugerido</h3>
-      <ul>${listaHtml(analise.planoIntervencaoSugerido)}</ul>
-    </section>
-    <section class="report-section">
-      <h3>Sugestão de acompanhamento</h3>
-      <p>${escapeHtml(analise.sugestaoAcompanhamento)}</p>
-    </section>
-    <section class="report-section">
-      <h3>Limitações da análise</h3>
-      <ul>${listaHtml(analise.limitacoesAnalise)}</ul>
-    </section>
-    <p class="human-review">${escapeHtml(analise.avisoResponsabilidade || AVISO_REVISAO_HUMANA)}</p>
-    <p class="text-xs font-bold text-slate-500">Gerado em ${geradoEm}. Registros analisados: ${resposta.totalRegistrosAnalisados}.</p>
+
+      <div class="report-footer-note">
+        <p class="human-review">${escapeHtml(analise.avisoResponsabilidade || AVISO_REVISAO_HUMANA)}</p>
+        <p>Relatório gerado em ${escapeHtml(geradoEm)}. Registros analisados: ${resposta.totalRegistrosAnalisados}.</p>
+      </div>
+    </article>
   `;
     alvo.innerHTML = html;
     estadoIA.ultimaAnaliseTexto = [
@@ -882,13 +937,15 @@ function abrirRelatorioHistorico(id, atualizarLista = true) {
         geradoEm: item.geradoEm,
         escopo: item.escopo,
         totalRegistrosAnalisados: item.totalRegistrosAnalisados,
-        analise: item.analise
+        analise: item.analise,
+        origem: item.origem
     }, {
         professorNome: item.professorNome,
         professorEmail: item.professorEmail,
         escola: item.escola,
         turma: item.turma,
-        alunoNome: nomeAlunoRelatorio(item.alunoNome)
+        alunoNome: nomeAlunoRelatorio(item.alunoNome),
+        indicadores: item.indicadores
     });
     alvo.scrollIntoView({ behavior: "smooth", block: "start" });
     if (atualizarLista)

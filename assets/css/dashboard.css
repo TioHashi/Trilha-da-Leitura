@@ -497,6 +497,122 @@ input{
   gap:14px;
 }
 
+.pedagogical-report{
+  display:grid;
+  gap:16px;
+  color:#172033;
+}
+
+.report-cover{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:22px;
+  border-radius:20px;
+  color:#fff;
+  background:
+    linear-gradient(135deg, rgba(7,52,140,.97), rgba(11,77,204,.92)),
+    linear-gradient(90deg, #22c55e, #facc15);
+  box-shadow:0 16px 34px rgba(7,52,140,.18);
+}
+
+.report-cover h3{
+  margin:5px 0 6px;
+  font-size:clamp(1.35rem,2.4vw,2rem);
+  line-height:1.05;
+}
+
+.report-cover p,
+.report-cover time{
+  margin:0;
+  color:#dbeafe;
+  font-weight:900;
+  line-height:1.3;
+}
+
+.report-cover time{
+  flex:0 0 auto;
+  padding:9px 12px;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  font-size:.86rem;
+  text-align:center;
+}
+
+.report-kicker,
+.report-section-label{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  align-items:center;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:900;
+  line-height:1;
+  text-transform:uppercase;
+}
+
+.report-kicker{
+  color:#07348c;
+  background:#facc15;
+}
+
+.report-identity-grid{
+  margin:0;
+}
+
+.report-id-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.report-id-card::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:4px;
+  background:linear-gradient(180deg, var(--blue), var(--green));
+}
+
+.report-indicators{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+
+.report-indicators div{
+  padding:15px;
+  border:1px solid #bfdbfe;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 10px 26px rgba(37,99,235,.08);
+}
+
+.report-indicators span{
+  display:block;
+  color:#64748b;
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.report-indicators strong{
+  display:block;
+  margin-top:6px;
+  color:var(--blue-dark);
+  font-size:clamp(1.35rem,2.4vw,2rem);
+  line-height:1;
+}
+
+.report-section-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
 .report-date-line{
   margin:0;
   padding:12px 14px;
@@ -517,10 +633,11 @@ input{
 
 .report-meta div,
 .report-section{
-  padding:13px;
+  padding:16px;
   border:1px solid var(--line);
-  border-radius:14px;
-  background:#f8fbff;
+  border-radius:16px;
+  background:linear-gradient(180deg, #fff, #f8fbff);
+  box-shadow:0 10px 26px rgba(37,99,235,.06);
 }
 
 .report-meta span{
@@ -540,9 +657,14 @@ input{
 }
 
 .report-section h3{
-  margin:0 0 8px;
+  margin:7px 0 10px;
   color:var(--blue-dark);
-  font-size:1.02rem;
+  font-size:1.08rem;
+}
+
+.report-section-label{
+  color:#075985;
+  background:#e0f2fe;
 }
 
 .report-section p,
@@ -555,6 +677,41 @@ input{
 .report-section ul{
   margin:0;
   padding-left:20px;
+}
+
+.report-section li + li{
+  margin-top:6px;
+}
+
+.report-summary{
+  border-color:#bbf7d0;
+  background:linear-gradient(180deg, #f0fdf4, #fff);
+}
+
+.report-recommendations{
+  border-color:#bfdbfe;
+}
+
+.report-plan{
+  border-color:#fde68a;
+  background:linear-gradient(180deg, #fffbeb, #fff);
+}
+
+.report-footer-note{
+  display:grid;
+  gap:8px;
+}
+
+.report-footer-note .human-review{
+  margin:0;
+}
+
+.report-footer-note > p:last-child{
+  margin:0;
+  color:#64748b;
+  font-size:.82rem;
+  font-weight:900;
+  text-align:right;
 }
 
 .history-panel{
@@ -992,7 +1149,11 @@ td{
   .analysis-form-grid,
   .compare-form-grid,
   .comparison-grid,
+  .report-indicators,
+  .report-section-grid,
   .history-list{grid-template-columns:1fr}
+  .report-cover{flex-direction:column}
+  .report-cover time{width:100%}
   .history-card{align-items:stretch;flex-direction:column}
   .profile-chart{align-items:flex-start;flex-direction:column}
   .donut{width:140px}
