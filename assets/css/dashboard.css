@@ -1246,6 +1246,7 @@ footer{
     min-height:auto;
     margin:0;
     padding:0;
+    visibility:visible !important;
     color:#172033;
     background:#fff !important;
     print-color-adjust:exact;
