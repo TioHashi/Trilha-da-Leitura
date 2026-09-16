@@ -47,6 +47,7 @@ test("dashboard tem cadastro de alunos vinculado ao professor", () => {
 
   assert.match(html, /formCadastroAluno/);
   assert.match(html, /cadastroAlunoNome/);
+  assert.match(html, /id="painelTransferenciaAluno"[^>]+hidden/);
   assert.match(html, /formTransferenciaAluno/);
   assert.match(html, /transferenciaAlunoId/);
   assert.doesNotMatch(html, /transferenciaAlunoId" size=/);
@@ -56,6 +57,8 @@ test("dashboard tem cadastro de alunos vinculado ao professor", () => {
   assert.match(fonte, /professorUid:vinculoUsuario\.uid/);
   assert.match(fonte, /where\("professoresPermitidos", "array-contains", vinculoUsuario\.uid\)/);
   assert.match(fonte, /configurarTransferenciaAlunos/);
+  assert.match(fonte, /painel\.hidden = !vinculoUsuario\.administrador/);
+  assert.match(fonte, /if\(!vinculoUsuario\.administrador\) return/);
   assert.match(fonte, /transferirAlunoDashboard/);
   assert.match(fonte, /Somente administrador pode transferir alunos/);
   assert.match(rules, /match \/alunos\/\{id\}/);

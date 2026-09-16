@@ -234,13 +234,17 @@ function configurarCadastroAdministrativo(){
 }
 
 function configurarTransferenciaAlunos(){
+  const painel = document.getElementById("painelTransferenciaAluno");
   const form = document.getElementById("formTransferenciaAluno");
   const contexto = document.getElementById("transferenciaAlunoContexto");
   const alunoSelect = document.getElementById("transferenciaAlunoId");
   const escolaSelect = document.getElementById("transferenciaEscolaDestino");
   const turmaSelect = document.getElementById("transferenciaTurmaDestino");
   const botao = form ? form.querySelector("button[type='submit']") : null;
-  if(!form || !contexto || !alunoSelect || !escolaSelect || !turmaSelect || !botao) return;
+  if(!painel || !form || !contexto || !alunoSelect || !escolaSelect || !turmaSelect || !botao) return;
+
+  painel.hidden = !vinculoUsuario.administrador;
+  if(!vinculoUsuario.administrador) return;
 
   if(!form.dataset.configurado){
     form.addEventListener("submit", transferirAlunoDashboard);
@@ -252,12 +256,10 @@ function configurarTransferenciaAlunos(){
 
   const {escola, turma} = filtrosAtivosDashboard();
   const temOrigem = Boolean(escola && turma);
-  const podeTransferir = vinculoUsuario.administrador && temOrigem;
-  contexto.textContent = vinculoUsuario.administrador
-    ? (temOrigem
-      ? `Alunos listados a partir do filtro atual: ${escola} - ${turma}.`
-      : "Administrador: selecione uma escola e uma turma nos filtros para listar os alunos.")
-    : "Transferência entre escolas ou turmas é uma ação administrativa. O professor deve solicitar ao administrador.";
+  const podeTransferir = temOrigem;
+  contexto.textContent = temOrigem
+    ? `Alunos listados a partir do filtro atual: ${escola} - ${turma}.`
+    : "Administrador: selecione uma escola e uma turma nos filtros para listar os alunos.";
 
   const temAlunos = Boolean(alunoSelect.options.length && alunoSelect.options[0]?.value !== "");
   alunoSelect.disabled = !podeTransferir || !temAlunos;
