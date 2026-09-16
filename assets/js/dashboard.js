@@ -49,6 +49,7 @@ async function carregarResultados(){
     vinculoUsuario = await obterVinculoUsuario(usuario);
     aplicarVinculoNosFiltros();
     configurarCadastroAlunos();
+    configurarTransferenciaAlunos();
     configurarCadastroAdministrativo();
 
     if(!vinculoUsuario.administrador && (!vinculoUsuario.escola || !vinculoUsuario.turma)){
@@ -74,6 +75,7 @@ async function carregarResultados(){
       preencherTurmas();
       aplicarVinculoNosFiltros();
       configurarCadastroAlunos();
+      configurarTransferenciaAlunos();
       configurarCadastroAdministrativo();
       carregarAlunosCadastrados();
       aplicarFiltros();
@@ -179,6 +181,7 @@ function aplicarFiltros(){
   renderizarTurmas();
   renderizarTabela();
   atualizarTotalAlunosCadastrados();
+  configurarTransferenciaAlunos();
   if(window.TrilhaIA) window.TrilhaIA.atualizarPainel();
 }
 
@@ -228,6 +231,132 @@ function configurarCadastroAdministrativo(){
     form.dataset.configurado = "true";
   }
   atualizarCamposCadastroAcesso();
+}
+
+function configurarTransferenciaAlunos(){
+  const form = document.getElementById("formTransferenciaAluno");
+  const contexto = document.getElementById("transferenciaAlunoContexto");
+  const alunoSelect = document.getElementById("transferenciaAlunoId");
+  const escolaSelect = document.getElementById("transferenciaEscolaDestino");
+  const turmaSelect = document.getElementById("transferenciaTurmaDestino");
+  const botao = form ? form.querySelector("button[type='submit']") : null;
+  if(!form || !contexto || !alunoSelect || !escolaSelect || !turmaSelect || !botao) return;
+
+  if(!form.dataset.configurado){
+    form.addEventListener("submit", transferirAlunoDashboard);
+    form.dataset.configurado = "true";
+  }
+
+  preencherDestinoTransferencia(escolaSelect, turmaSelect);
+  preencherAlunosTransferencia(alunoSelect);
+
+  const {escola, turma} = filtrosAtivosDashboard();
+  const temOrigem = Boolean(escola && turma);
+  const podeTransferir = vinculoUsuario.administrador && temOrigem;
+  contexto.textContent = vinculoUsuario.administrador
+    ? (temOrigem
+      ? `Alunos listados a partir do filtro atual: ${escola} - ${turma}.`
+      : "Administrador: selecione uma escola e uma turma nos filtros para listar os alunos.")
+    : "Transferência entre escolas ou turmas é uma ação administrativa. O professor deve solicitar ao administrador.";
+
+  const temAlunos = Boolean(alunoSelect.options.length && alunoSelect.options[0]?.value !== "");
+  alunoSelect.disabled = !podeTransferir || !temAlunos;
+  escolaSelect.disabled = !podeTransferir;
+  turmaSelect.disabled = !podeTransferir;
+  botao.disabled = !podeTransferir || !temAlunos;
+}
+
+function preencherDestinoTransferencia(escolaSelect, turmaSelect){
+  const escolaAtual = escolaSelect.value;
+  const turmaAtual = turmaSelect.value;
+  const escolas = [...new Set([
+    ...escolasPadrao,
+    ...todosResultados.map(item => escolaMaiuscula(item.escola)).filter(Boolean),
+    ...alunosCadastrados.map(item => escolaMaiuscula(item.escola)).filter(Boolean)
+  ])].sort((a,b) => a.localeCompare(b, "pt-BR"));
+  const turmas = [...new Set([
+    ...turmasPadrao,
+    ...todosResultados.map(item => item.turma).filter(Boolean),
+    ...alunosCadastrados.map(item => item.turma).filter(Boolean)
+  ])].sort((a,b) => a.localeCompare(b, "pt-BR", {numeric:true, sensitivity:"base"}));
+
+  escolaSelect.innerHTML = `<option value="">Selecione a escola</option>` +
+    escolas.map(escola => `<option value="${escapeHtml(escola)}">${escapeHtml(escola)}</option>`).join("");
+  turmaSelect.innerHTML = `<option value="">Selecione a turma</option>` +
+    turmas.map(turma => `<option value="${escapeHtml(turma)}">${escapeHtml(turma)}</option>`).join("");
+
+  if(escolas.includes(escolaAtual)) escolaSelect.value = escolaAtual;
+  if(turmas.includes(turmaAtual)) turmaSelect.value = turmaAtual;
+}
+
+function preencherAlunosTransferencia(select){
+  const atual = select.value;
+  const {escola, turma, busca} = filtrosAtivosDashboard();
+  const alunos = alunosCadastrados
+    .filter(aluno => aluno.ativo !== false)
+    .filter(aluno => !escola || escolaMaiuscula(aluno.escola) === escola)
+    .filter(aluno => !turma || aluno.turma === turma)
+    .filter(aluno => !busca || normalizar(aluno.nome || "").includes(busca))
+    .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR", {sensitivity:"base"}));
+
+  if(!alunos.length){
+    select.innerHTML = `<option value="">Nenhum aluno cadastrado na turma filtrada</option>`;
+    return;
+  }
+
+  select.innerHTML = alunos.map(aluno => {
+    const detalhe = `${escolaMaiuscula(aluno.escola)} • ${aluno.turma || "Sem turma"}`;
+    return `<option value="${escapeHtml(aluno.id)}">${escapeHtml(aluno.nome || "Aluno sem nome")} — ${escapeHtml(detalhe)}</option>`;
+  }).join("");
+  if(alunos.some(aluno => aluno.id === atual)) select.value = atual;
+}
+
+async function transferirAlunoDashboard(event){
+  event.preventDefault();
+  if(!vinculoUsuario.administrador){
+    atualizarStatusTransferenciaAluno("Somente administrador pode transferir alunos entre escolas ou turmas.");
+    return;
+  }
+
+  const alunoId = document.getElementById("transferenciaAlunoId")?.value || "";
+  const escolaDestino = escolaMaiuscula(document.getElementById("transferenciaEscolaDestino")?.value || "");
+  const turmaDestino = document.getElementById("transferenciaTurmaDestino")?.value || "";
+  const aluno = alunosCadastrados.find(item => item.id === alunoId);
+
+  if(!aluno){
+    atualizarStatusTransferenciaAluno("Selecione um aluno da turma.");
+    return;
+  }
+  if(!escolaDestino || !turmaDestino){
+    atualizarStatusTransferenciaAluno("Selecione a escola e a turma de destino.");
+    return;
+  }
+  if(escolaMaiuscula(aluno.escola) === escolaDestino && aluno.turma === turmaDestino){
+    atualizarStatusTransferenciaAluno("O aluno já está vinculado a essa escola e turma.");
+    return;
+  }
+
+  const confirmar = window.confirm(`Transferir ${aluno.nome} para ${escolaDestino} - ${turmaDestino}?`);
+  if(!confirmar) return;
+
+  try{
+    const db = await obterFirestoreDashboard();
+    await db.collection("alunos").doc(aluno.id).set({
+      escola:escolaDestino,
+      serie:serieDaTurma(turmaDestino),
+      turma:turmaDestino,
+      atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+    atualizarStatusTransferenciaAluno(`${aluno.nome} foi transferido(a) para ${escolaDestino} - ${turmaDestino}.`);
+    document.getElementById("transferenciaAlunoId").value = "";
+  }catch(error){
+    atualizarStatusTransferenciaAluno(`Não foi possível transferir o aluno. ${error.message || "Verifique as permissões."}`);
+  }
+}
+
+function atualizarStatusTransferenciaAluno(mensagem){
+  const status = document.getElementById("transferenciaAlunoStatus");
+  if(status) status.textContent = mensagem;
 }
 
 function preencherSelectBasico(select, opcoes, rotuloInicial){

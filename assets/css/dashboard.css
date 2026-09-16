@@ -249,6 +249,27 @@ input{
   align-items:end;
 }
 
+.student-transfer-form{
+  display:grid;
+  grid-template-columns:minmax(260px,1.4fr) minmax(190px,1fr) minmax(160px,.8fr) auto;
+  gap:12px;
+  align-items:end;
+}
+
+.student-transfer-list{
+  grid-row:span 2;
+}
+
+.student-transfer-list select{
+  min-height:174px;
+  padding:8px;
+}
+
+.student-transfer-list option{
+  padding:7px 8px;
+  border-radius:8px;
+}
+
 .admin-register-form{
   grid-template-columns:repeat(3,minmax(180px,1fr));
 }
@@ -1144,6 +1165,7 @@ td{
   .dashboard-actions{width:100%;justify-content:stretch}
   .filters,
   .student-register-form,
+  .student-transfer-form,
   .admin-register-form,
   .stats-grid,
   .chart-layout,

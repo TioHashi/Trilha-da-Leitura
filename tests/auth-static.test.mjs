@@ -47,9 +47,16 @@ test("dashboard tem cadastro de alunos vinculado ao professor", () => {
 
   assert.match(html, /formCadastroAluno/);
   assert.match(html, /cadastroAlunoNome/);
+  assert.match(html, /formTransferenciaAluno/);
+  assert.match(html, /transferenciaAlunoId/);
+  assert.match(html, /transferenciaEscolaDestino/);
+  assert.match(html, /transferenciaTurmaDestino/);
   assert.match(fonte, /db\.collection\("alunos"\)/);
   assert.match(fonte, /professorUid:vinculoUsuario\.uid/);
   assert.match(fonte, /where\("professoresPermitidos", "array-contains", vinculoUsuario\.uid\)/);
+  assert.match(fonte, /configurarTransferenciaAlunos/);
+  assert.match(fonte, /transferirAlunoDashboard/);
+  assert.match(fonte, /Somente administrador pode transferir alunos/);
   assert.match(rules, /match \/alunos\/\{id\}/);
   assert.match(rules, /ownsStudent/);
 });

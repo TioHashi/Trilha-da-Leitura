@@ -78,6 +78,40 @@
       <p id="cadastroAlunoStatus" class="student-register-status" aria-live="polite"></p>
     </section>
 
+    <section class="panel student-register-panel transfer-student-panel" aria-labelledby="transferenciaAlunoTitulo">
+      <div class="panel-head vertical-head">
+        <div>
+          <h2 id="transferenciaAlunoTitulo">Transferir aluno</h2>
+          <p id="transferenciaAlunoContexto">Selecione uma turma para carregar os alunos disponíveis.</p>
+        </div>
+        <span>Movimentação de cadastro</span>
+      </div>
+
+      <form id="formTransferenciaAluno" class="student-transfer-form">
+        <label class="student-transfer-list">
+          Aluno da turma
+          <select id="transferenciaAlunoId" size="7" required>
+            <option value="">Carregando alunos...</option>
+          </select>
+        </label>
+        <label>
+          Escola de destino
+          <select id="transferenciaEscolaDestino" required>
+            <option value="">Selecione a escola</option>
+          </select>
+        </label>
+        <label>
+          Turma de destino
+          <select id="transferenciaTurmaDestino" required>
+            <option value="">Selecione a turma</option>
+          </select>
+        </label>
+        <button type="submit" class="student-save-btn">Transferir aluno</button>
+      </form>
+
+      <p id="transferenciaAlunoStatus" class="student-register-status" aria-live="polite"></p>
+    </section>
+
     <section id="adminCadastroAcessos" class="panel student-register-panel admin-register-panel" aria-labelledby="adminCadastroAcessoTitulo" hidden>
       <div class="panel-head vertical-head">
         <div>
@@ -207,6 +241,6 @@
   <script>
     window.TrilhaAuth.initProtectedPage();
   </script>
-  <script src="assets/js/dashboard.js?v=20260609-5"></script>
+  <script src="assets/js/dashboard.js?v=20260916-1"></script>
 </body>
 </html>
