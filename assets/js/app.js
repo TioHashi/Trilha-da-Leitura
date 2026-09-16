@@ -1,0 +1,621 @@
+const bancoConteudo = window.TrilhaConteudo || {palavrasConhecidas:[], palavrasDificeis:[], textos:[]};
+let palavrasConhecidasAtuais = [];
+let palavrasDificeisAtuais = [];
+let textoAtual = null;
+
+const estado = {
+  conhecidas:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barConhecidas", spark:"sparkConhecidas", label:"tempoConhecidas", botao:"pauseConhecidas", lista:"listaConhecidas"},
+  dificeis:{tempo:60, gasto:0, intervalo:null, pausado:false, bar:"barDificeis", spark:"sparkDificeis", label:"tempoDificeis", botao:"pauseDificeis", lista:"listaDificeis"}
+};
+
+let acertosCompreensao = 0;
+let acaoConfirmada = null;
+let registroAtualId = null;
+let resultadoSalvo = false;
+const circunferencia = 283;
+let vinculoAvaliacao = {administrador:false, escola:"", turma:""};
+let alunosAvaliacao = [];
+let unsubscribeAlunosAvaliacao = null;
+
+function pagina(id){
+  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+  ajustarGrades();
+}
+
+function montarLista(lista, alvo, classeExtra){
+  document.getElementById(alvo).innerHTML = lista.map(palavra => {
+    return `<div class="word ${classeExtra || ""}">${caixaAlta(palavra)}</div>`;
+  }).join("");
+}
+
+function embaralharItens(lista){
+  const copia = [...lista];
+  for(let i = copia.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+function chaveItemCiclo(item){
+  if(item && typeof item === "object") return item.id || item.texto || JSON.stringify(item);
+  return String(item);
+}
+
+function sortearItens(lista, quantidade, chaveCiclo){
+  const fonte = Array.isArray(lista) ? lista.filter(Boolean) : [];
+  if(!chaveCiclo) return embaralharItens(fonte).slice(0, quantidade);
+  const chave = `trilha-ciclo-${chaveCiclo}`;
+  const mapa = new Map(fonte.map(item => [chaveItemCiclo(item), item]));
+  let fila = [];
+  try{
+    fila = JSON.parse(localStorage.getItem(chave) || "[]");
+  }catch{
+    fila = [];
+  }
+  fila = fila.filter(item => mapa.has(item));
+  const escolhidos = [];
+  while(escolhidos.length < quantidade && fonte.length){
+    if(!fila.length) fila = embaralharItens([...mapa.keys()]);
+    const id = fila.shift();
+    const item = mapa.get(id);
+    if(item && !escolhidos.some(escolhido => chaveItemCiclo(escolhido) === id)) escolhidos.push(item);
+  }
+  localStorage.setItem(chave, JSON.stringify(fila));
+  return escolhidos;
+}
+
+function prepararConteudoDaTrilha(){
+  palavrasConhecidasAtuais = sortearItens(bancoConteudo.palavrasConhecidas, 60, "palavras-conhecidas");
+  palavrasDificeisAtuais = sortearItens(bancoConteudo.palavrasDificeis, 40, "palavras-possivelmente-desconhecidas");
+  textoAtual = sortearItens(bancoConteudo.textos, 1, "textos-narrativos")[0] || null;
+  montarTextoAtual();
+}
+
+function montarTextoAtual(){
+  if(!textoAtual) return;
+  document.getElementById("textoLeitura").textContent = caixaAlta(textoAtual.texto);
+  document.getElementById("perguntasTexto").innerHTML = textoAtual.perguntas.map((questao, indice) => {
+    const nome = `q${indice + 1}`;
+    const alternativas = questao.alternativas.map(alternativa => {
+      return `<label class="option"><input type="radio" name="${nome}" value="${alternativa.correta ? "1" : "0"}" onchange="marcarResultadoAlterado()"> ${caixaAlta(alternativa.texto)}</label>`;
+    }).join("");
+    return `<div class="question"><p>${indice + 1}. ${caixaAlta(questao.pergunta)}</p>${alternativas}</div>`;
+  }).join("");
+}
+
+function iniciarTrilha(){
+  const nome = document.getElementById("nomeAluno").value.trim();
+  const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
+  const turma = document.getElementById("turmaAluno").value.trim();
+  if(!escola || !turma || !nome){
+    const campo = !escola ? "escola do aluno" : (!turma ? "turma do aluno" : "nome do aluno");
+    mostrarModal("Atenção", `Preencha o ${campo} para iniciar.`);
+    document.getElementById(!escola ? "escolaAluno" : (!turma ? "turmaAluno" : "nomeAluno")).focus();
+    return;
+  }
+  registroAtualId = criarIdRegistro();
+  resultadoSalvo = false;
+  prepararConteudoDaTrilha();
+  estado.conhecidas.gasto = 0;
+  estado.dificeis.gasto = 0;
+  montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
+  pagina("conhecidas");
+  iniciarTimer("conhecidas");
+}
+
+function iniciarTimer(tipo){
+  const item = estado[tipo];
+  clearInterval(item.intervalo);
+  item.tempo = 60;
+  item.gasto = 0;
+  item.pausado = false;
+  atualizarBotaoPausa(tipo);
+  atualizarTimerVisual(tipo);
+  item.intervalo = setInterval(() => {
+    if(item.pausado) return;
+    item.tempo = Math.max(0, item.tempo - 1);
+    item.gasto = 60 - item.tempo;
+    atualizarTimerVisual(tipo);
+    if(item.tempo === 0){
+      clearInterval(item.intervalo);
+      item.intervalo = null;
+      item.gasto = 60;
+      mostrarModal("PARE", "");
+    }
+  }, 1000);
+}
+
+function atualizarTimerVisual(tipo){
+  const item = estado[tipo];
+  const tempo = Math.max(0, item.tempo);
+  const barra = document.getElementById(item.bar);
+  const faisca = document.getElementById(item.spark);
+  document.getElementById(item.label).textContent = tempo;
+  barra.style.strokeDasharray = `${(tempo / 60) * circunferencia} ${circunferencia}`;
+  if(faisca){
+    const angulo = -90 + ((60 - tempo) / 60) * 360;
+    faisca.style.setProperty("--fuse-angle", `${angulo}deg`);
+  }
+  barra.classList.remove("green","yellow","red");
+  if(tempo <= 15){
+    barra.classList.add("red");
+  }else if(tempo <= 30){
+    barra.classList.add("yellow");
+  }else{
+    barra.classList.add("green");
+  }
+}
+
+function alternarPausa(tipo){
+  const item = estado[tipo];
+  if(item.tempo <= 0) return;
+  item.pausado = !item.pausado;
+  atualizarBotaoPausa(tipo);
+}
+
+function atualizarBotaoPausa(tipo){
+  const item = estado[tipo];
+  const botao = document.getElementById(item.botao);
+  botao.textContent = item.pausado ? "Continuar" : "Pausar";
+  botao.className = item.pausado ? "btn-continue" : "btn-pause";
+}
+
+function abrirDificeis(){
+  resultadoSalvo = false;
+  finalizarTempo("conhecidas");
+  montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
+  pagina("dificeis");
+  iniciarTimer("dificeis");
+}
+
+function abrirTexto(){
+  resultadoSalvo = false;
+  finalizarTempo("dificeis");
+  montarTextoAtual();
+  pagina("texto");
+}
+
+function validarEAbrirResultado(){
+  if(!respostasCompreensaoPreenchidas()){
+    mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de ver o resultado.");
+    const primeiraPergunta = document.querySelector("#perguntasTexto .question");
+    if(primeiraPergunta) primeiraPergunta.scrollIntoView({behavior:"smooth", block:"center"});
+    return;
+  }
+  abrirResultado();
+}
+
+function abrirResultado(){
+  acertosCompreensao = calcularCompreensao();
+  resultadoSalvo = false;
+  pagina("resultado");
+  atualizarResultado();
+}
+
+function respostasCompreensaoPreenchidas(){
+  const totalPerguntas = textoAtual && Array.isArray(textoAtual.perguntas) ? textoAtual.perguntas.length : 2;
+  for(let indice = 1; indice <= totalPerguntas; indice += 1){
+    if(!document.querySelector(`input[name="q${indice}"]:checked`)) return false;
+  }
+  return true;
+}
+
+function calcularCompreensao(){
+  let total = 0;
+  const totalPerguntas = textoAtual && Array.isArray(textoAtual.perguntas) ? textoAtual.perguntas.length : 2;
+  Array.from({length:totalPerguntas}, (_, indice) => `q${indice + 1}`).forEach(nome => {
+    const marcada = document.querySelector(`input[name="${nome}"]:checked`);
+    if(marcada && marcada.value === "1") total += 1;
+  });
+  return total;
+}
+
+function atualizarResultado(){
+  const corretas = limitarNumero(document.getElementById("palavrasCorretas").value, 0, 60);
+  const dificeis = limitarNumero(document.getElementById("dificeisCorretas").value, 0, 40);
+  const textoCorretas = limitarNumero(document.getElementById("palavrasTextoCorretas").value, 0, 100);
+  const total = corretas + dificeis;
+  const precisaoDigitada = document.getElementById("precisao").value.trim();
+  const precisao = precisaoDigitada === "" ? limitarNumero(textoCorretas, 0, 100) : limitarNumero(precisaoDigitada, 0, 100);
+  const classificacao = classificarPerfil(corretas, dificeis, textoCorretas, precisao);
+  document.getElementById("resultadoFinal").innerHTML = `
+    <div class="resultado-linha"><span>Perfil leitor</span><strong>${classificacao.perfil}</strong></div>
+    <div class="resultado-linha"><span>Critério aplicado</span><strong>${classificacao.criterio}</strong></div>
+    <div class="resultado-linha"><span>Palavras conhecidas corretas</span><strong>${corretas}</strong></div>
+    <div class="resultado-linha"><span>Palavras possivelmente desconhecidas corretas</span><strong>${dificeis}</strong></div>
+    <div class="resultado-linha"><span>Total nas listas</span><strong>${total}</strong></div>
+    <div class="resultado-linha"><span>Palavras corretas no texto</span><strong>${textoCorretas}</strong></div>
+    <div class="resultado-linha"><span>Precisão do texto</span><strong>${precisao}%</strong></div>
+    <div class="resultado-linha"><span>Compreensão</span><strong>${acertosCompreensao}/2</strong></div>
+    <div class="resultado-linha"><span>Tempo nas palavras conhecidas</span><strong>${formatarTempo(estado.conhecidas.gasto)}</strong></div>
+    <div class="resultado-linha"><span>Tempo nas palavras difíceis</span><strong>${formatarTempo(estado.dificeis.gasto)}</strong></div>
+  `;
+  return {corretas, dificeis, textoCorretas, precisao, total, perfil:classificacao.perfil, criterio:classificacao.criterio};
+}
+
+function marcarResultadoAlterado(){
+  resultadoSalvo = false;
+  atualizarResultado();
+}
+
+function limitarNumero(valor, minimo, maximo){
+  const numero = Number(valor);
+  if(!Number.isFinite(numero)) return 0;
+  return Math.min(maximo, Math.max(minimo, Math.round(numero)));
+}
+
+function classificarPerfil(conhecidasCorretas, dificeisCorretas, textoCorretas, precisao){
+  const observacao = document.getElementById("observacaoPreLeitor").value;
+
+  if(textoCorretas > 65 && precisao > 90){
+    return {
+      perfil:"Leitor Fluente",
+      criterio:"Leu mais de 65 palavras corretas no texto narrativo, com precisão superior a 90%."
+    };
+  }
+
+  if(conhecidasCorretas >= 11 && dificeisCorretas >= 6){
+    return {
+      perfil:"Leitor Iniciante",
+      criterio:"Leu 11 ou mais palavras conhecidas e 6 ou mais palavras possivelmente desconhecidas."
+    };
+  }
+
+  const niveis = {
+    nivel1:["Pré-leitor - Nível 1","Não realizou a leitura de palavras ou leu letras, sílabas ou palavras fora do item."],
+    nivel2:["Pré-leitor - Nível 2","Nomeou letras isoladas ao tentar ler as palavras do item."],
+    nivel3:["Pré-leitor - Nível 3","Silabou ao realizar a leitura das palavras do item."],
+    nivel4:["Pré-leitor - Nível 4","Leu corretamente até 10 palavras conhecidas e até 5 palavras possivelmente desconhecidas."]
+  };
+  const chaveNivel = observacao === "auto" ? (conhecidasCorretas === 0 && dificeisCorretas === 0 ? "nivel1" : "nivel4") : observacao;
+  return {perfil:niveis[chaveNivel][0], criterio:niveis[chaveNivel][1]};
+}
+
+async function salvarResultado(silencioso){
+  try{
+    const nome = document.getElementById("nomeAluno").value.trim();
+    const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
+    const turma = document.getElementById("turmaAluno").value.trim();
+    const palavrasValor = document.getElementById("palavrasCorretas").value.trim();
+    const dificeisValor = document.getElementById("dificeisCorretas").value.trim();
+    const textoValor = document.getElementById("palavrasTextoCorretas").value.trim();
+    const precisaoValor = document.getElementById("precisao").value.trim();
+    const estaNoResultado = document.getElementById("resultado").classList.contains("active");
+    if(!escola || !turma || !nome){
+      if(!silencioso) mostrarModal("Atenção", "Escola, turma e nome são obrigatórios para salvar o resultado.");
+      return false;
+    }
+    if(!estaNoResultado){
+      if(!silencioso) mostrarModal("Atenção", "Conclua a trilha até a página de resultado antes de salvar.");
+      return false;
+    }
+    if(!respostasCompreensaoPreenchidas()){
+      if(!silencioso) mostrarModal("Atenção", "Responda as duas perguntas de compreensão antes de salvar.");
+      return false;
+    }
+    if(palavrasValor === "" || dificeisValor === "" || textoValor === "" || precisaoValor === ""){
+      if(!silencioso) mostrarModal("Atenção", "Preencha Palavras conhecidas corretas, Palavras difíceis corretas, Palavras corretas no texto e Precisão (%) antes de salvar.");
+      return false;
+    }
+
+    const resultado = atualizarResultado();
+    if(resultado.total === 0 && resultado.precisao === 0 && acertosCompreensao === 0){
+      if(!silencioso) mostrarModal("Atenção", "Preencha o resultado do aluno antes de salvar.");
+      return false;
+    }
+    if(!registroAtualId) registroAtualId = criarIdRegistro();
+    await TrilhaDB.salvar({
+      id:registroAtualId,
+      salvoEm:new Date().toISOString(),
+      data:new Date().toLocaleString("pt-BR"),
+      nome,
+      escola,
+      turma,
+      palavrasCorretas:resultado.corretas,
+      dificeisCorretas:resultado.dificeis,
+      palavrasTextoCorretas:resultado.textoCorretas,
+      total:resultado.total,
+      precisao:resultado.precisao,
+      compreensao:acertosCompreensao,
+      tempoConhecidasSegundos:estado.conhecidas.gasto,
+      tempoDificeisSegundos:estado.dificeis.gasto,
+      tempoTotalSegundos:estado.conhecidas.gasto + estado.dificeis.gasto,
+      tempoConhecidas:formatarTempo(estado.conhecidas.gasto),
+      tempoDificeis:formatarTempo(estado.dificeis.gasto),
+      tempoTotal:formatarTempo(estado.conhecidas.gasto + estado.dificeis.gasto),
+      perfil:resultado.perfil,
+      criterio:resultado.criterio,
+      textoLido:textoAtual ? textoAtual.texto : ""
+    });
+    resultadoSalvo = true;
+    if(!silencioso) mostrarModal("Salvo", "Dados salvos.");
+    return true;
+  }catch(error){
+    console.error("Erro ao salvar resultado:", error);
+    if(!silencioso){
+      mostrarModal("Erro", `Não foi possível salvar o resultado. ${error && error.message ? error.message : ""}`);
+    }
+    return false;
+  }
+}
+
+async function novoAluno(){
+  const estaNoResultado = document.getElementById("resultado").classList.contains("active");
+  if(!estaNoResultado){
+    mostrarConfirmacao(
+      "Novo aluno",
+      "A trilha atual não foi concluída. Deseja descartar esses dados e iniciar um novo aluno?",
+      limparParaNovoAluno,
+      "Descartar"
+    );
+    return;
+  }
+
+  if(resultadoSalvo){
+    limparParaNovoAluno();
+    return;
+  }
+
+  mostrarConfirmacao(
+    "Novo aluno",
+    "Os dados deste aluno ainda não foram salvos. Deseja salvar e iniciar um novo aluno?",
+    async () => {
+      const salvou = await salvarResultado(true);
+      if(salvou) limparParaNovoAluno();
+    },
+    "Salvar e continuar"
+  );
+}
+
+function limparParaNovoAluno(){
+  registroAtualId = null;
+  resultadoSalvo = false;
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  if(campoEscola && !campoEscola.disabled) campoEscola.value = "";
+  document.getElementById("nomeAluno").value = "";
+  if(campoTurma && !campoTurma.disabled) campoTurma.value = "";
+  document.getElementById("palavrasCorretas").value = "";
+  document.getElementById("dificeisCorretas").value = "";
+  document.getElementById("palavrasTextoCorretas").value = "";
+  document.getElementById("precisao").value = "";
+  document.getElementById("observacaoPreLeitor").value = "auto";
+  document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
+  acertosCompreensao = 0;
+  estado.conhecidas.gasto = 0;
+  estado.dificeis.gasto = 0;
+  clearInterval(estado.conhecidas.intervalo);
+  clearInterval(estado.dificeis.intervalo);
+  atualizarResultado();
+  aplicarVinculoAvaliacao();
+  pagina("inicio");
+}
+
+function mostrarModal(titulo, mensagem){
+  acaoConfirmada = null;
+  document.getElementById("tituloModal").textContent = titulo;
+  document.getElementById("mensagemModal").textContent = mensagem;
+  document.getElementById("cancelarModal").style.display = "none";
+  document.getElementById("confirmarModal").textContent = "OK";
+  document.getElementById("alertaModal").classList.add("show");
+}
+
+function mostrarConfirmacao(titulo, mensagem, acao, textoConfirmar){
+  acaoConfirmada = acao;
+  document.getElementById("tituloModal").textContent = titulo;
+  document.getElementById("mensagemModal").textContent = mensagem;
+  document.getElementById("cancelarModal").style.display = "block";
+  document.getElementById("confirmarModal").textContent = textoConfirmar || "Continuar";
+  document.getElementById("alertaModal").classList.add("show");
+}
+
+function confirmarModal(){
+  const acao = acaoConfirmada;
+  fecharModal();
+  if(acao) acao();
+}
+
+function fecharModal(){
+  acaoConfirmada = null;
+  document.getElementById("alertaModal").classList.remove("show");
+}
+
+function finalizarTempo(tipo){
+  const item = estado[tipo];
+  clearInterval(item.intervalo);
+  item.intervalo = null;
+  item.gasto = item.tempo <= 0 ? 60 : Math.min(60, Math.max(0, 60 - item.tempo));
+}
+
+function formatarTempo(segundos){
+  const total = Math.min(120, Math.max(0, Math.round(segundos || 0)));
+  const minutos = Math.floor(total / 60);
+  const resto = total % 60;
+  if(minutos === 0) return `${resto}s`;
+  return `${minutos}min ${String(resto).padStart(2,"0")}s`;
+}
+
+function criarIdRegistro(){
+  return `avaliacao-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+function escolaMaiuscula(valor){
+  return String(valor || "").toLocaleUpperCase("pt-BR");
+}
+
+async function aplicarVinculoAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno || !window.TrilhaAuth) return;
+
+  try{
+    const usuario = await window.TrilhaAuth.currentUser();
+    if(!usuario || typeof usuario.getIdTokenResult !== "function") return;
+    const token = await usuario.getIdTokenResult();
+    const claims = token.claims || {};
+    const role = String(claims.role || claims.papel || "");
+    vinculoAvaliacao = {
+      administrador: role === "admin" || role === "administrador",
+      escola: escolaMaiuscula(claims.escola || ""),
+      turma: String(claims.turma || "")
+    };
+
+    configurarSelecaoAlunoAvaliacao();
+    if(vinculoAvaliacao.administrador){
+      carregarAlunosAvaliacao();
+      return;
+    }
+    if(vinculoAvaliacao.escola){
+      campoEscola.innerHTML = `<option value="${escapeHtmlAvaliacao(vinculoAvaliacao.escola)}">${escapeHtmlAvaliacao(vinculoAvaliacao.escola)}</option>`;
+      campoEscola.value = vinculoAvaliacao.escola;
+      campoEscola.disabled = true;
+      campoEscola.setAttribute("aria-readonly", "true");
+    }
+    if(vinculoAvaliacao.turma){
+      campoTurma.innerHTML = `<option value="${escapeHtmlAvaliacao(vinculoAvaliacao.turma)}">${escapeHtmlAvaliacao(vinculoAvaliacao.turma)}</option>`;
+      campoTurma.value = vinculoAvaliacao.turma;
+      campoTurma.disabled = true;
+      campoTurma.setAttribute("aria-readonly", "true");
+    }
+    carregarAlunosAvaliacao();
+  }catch(error){
+    console.warn("Não foi possível aplicar o vínculo do professor na avaliação.", error);
+  }
+}
+
+function configurarSelecaoAlunoAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno) return;
+  if(campoAluno.dataset.configurado === "true") return;
+
+  campoAluno.dataset.configurado = "true";
+  campoAluno.innerHTML = `<option value="">Selecione o aluno</option>`;
+  campoAluno.addEventListener("change", marcarResultadoAlterado);
+  campoEscola.addEventListener("change", carregarAlunosAvaliacao);
+  campoTurma.addEventListener("change", carregarAlunosAvaliacao);
+}
+
+async function carregarAlunosAvaliacao(){
+  const campoEscola = document.getElementById("escolaAluno");
+  const campoTurma = document.getElementById("turmaAluno");
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoEscola || !campoTurma || !campoAluno || !window.TrilhaAuth || !window.firebase) return;
+
+  const escola = escolaMaiuscula(campoEscola.value);
+  const turma = campoTurma.value;
+  if(!escola || !turma){
+    alunosAvaliacao = [];
+    preencherAlunosAvaliacao();
+    return;
+  }
+
+  try{
+    const usuario = await window.TrilhaAuth.currentUser();
+    if(!usuario) return;
+    if(unsubscribeAlunosAvaliacao) unsubscribeAlunosAvaliacao();
+
+    campoAluno.disabled = true;
+    campoAluno.innerHTML = `<option value="">Carregando alunos...</option>`;
+
+    let consulta = firebase.firestore().collection("alunos")
+      .where("escola", "==", escola)
+      .where("turma", "==", turma);
+
+    if(!vinculoAvaliacao.administrador){
+      consulta = consulta.where("professoresPermitidos", "array-contains", usuario.uid);
+    }
+
+    unsubscribeAlunosAvaliacao = consulta.onSnapshot(snapshot => {
+      alunosAvaliacao = snapshot.docs
+        .map(doc => ({id:doc.id, ...doc.data()}))
+        .filter(aluno => aluno.ativo !== false && aluno.nome)
+        .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR", {sensitivity:"base"}));
+      preencherAlunosAvaliacao();
+    }, error => {
+      console.warn("Não foi possível carregar alunos para avaliação.", error);
+      alunosAvaliacao = [];
+      campoAluno.disabled = false;
+      campoAluno.innerHTML = `<option value="">Não foi possível carregar os alunos</option>`;
+    });
+  }catch(error){
+    console.warn("Não foi possível consultar alunos para avaliação.", error);
+  }
+}
+
+function preencherAlunosAvaliacao(){
+  const campoAluno = document.getElementById("nomeAluno");
+  if(!campoAluno) return;
+  const valorAtual = campoAluno.value;
+  const opcoes = alunosAvaliacao.map(aluno => `<option value="${escapeHtmlAvaliacao(aluno.nome)}">${escapeHtmlAvaliacao(aluno.nome)}</option>`).join("");
+  campoAluno.innerHTML = `<option value=""></option>${opcoes}`;
+  campoAluno.disabled = false;
+  if(valorAtual && alunosAvaliacao.some(aluno => aluno.nome === valorAtual)){
+    campoAluno.value = valorAtual;
+  }else{
+    campoAluno.value = "";
+  }
+}
+
+function escapeHtmlAvaliacao(valor){
+  return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[caractere]);
+}
+
+function caixaAlta(valor){
+  return String(valor || "").toLocaleUpperCase("pt-BR");
+}
+
+function ajustarGrades(){
+  ajustarGrade("listaConhecidas");
+  ajustarGrade("listaDificeis");
+}
+
+function ajustarGrade(id){
+  const grade = document.getElementById(id);
+  if(!grade || !grade.children.length || !grade.closest(".page.active")) return;
+
+  const quantidade = grade.children.length;
+  const largura = Math.max(grade.clientWidth, 1);
+  const altura = Math.max(grade.clientHeight, 1);
+  const palavras = Array.from(grade.children).map(item => item.textContent.trim());
+  const maiorPalavra = Math.max(...palavras.map(palavra => palavra.length));
+  const larguraMediaLetra = 0.58;
+  let melhor = {colunas:1, fonte:7, gap:4};
+  const maxColunas = Math.min(12, quantidade);
+
+  for(let colunas = 2; colunas <= maxColunas; colunas += 1){
+    const linhas = Math.ceil(quantidade / colunas);
+    const gap = largura < 480 ? 4 : 6;
+    const celulaLargura = (largura - gap * (colunas - 1)) / colunas;
+    const celulaAltura = (altura - gap * (linhas - 1)) / linhas;
+    const fontePorAltura = celulaAltura * 0.42;
+    const fontePorLargura = (celulaLargura - 8) / (maiorPalavra * larguraMediaLetra);
+    const fonte = Math.min(18, fontePorAltura, fontePorLargura);
+    if(fonte > melhor.fonte){
+      melhor = {colunas, fonte, gap};
+    }
+  }
+
+  grade.style.setProperty("--word-cols", melhor.colunas);
+  grade.style.setProperty("--word-font", `${Math.max(6.5, melhor.fonte).toFixed(2)}px`);
+  grade.style.setProperty("--word-gap", `${melhor.gap}px`);
+}
+
+prepararConteudoDaTrilha();
+montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
+montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
+atualizarResultado();
+aplicarVinculoAvaliacao();
+window.addEventListener("resize", ajustarGrades);
+window.addEventListener("orientationchange", () => setTimeout(ajustarGrades, 250));

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trilha da Leitura</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <main>
+    <div class="auth-bar" aria-label="Sessão do usuário">
+      <span data-auth-status aria-live="polite">Verificando sessão...</span>
+      <a href="trilha-turma.html">Iniciar Trilha Turma</a>
+      <a href="dashboard.html">Dashboard</a>
+      <button type="button" onclick="window.TrilhaAuth.signOut()">Sair</button>
+    </div>
+
+    <section id="inicio" class="page active">
+      <div class="topo">
+        <div class="brand-banner" aria-label="Trilha da Leitura - Fluência Leitora">
+          <span class="trail-dot dot-a" aria-hidden="true"></span>
+          <span class="trail-dot dot-b" aria-hidden="true"></span>
+          <span class="trail-dot dot-c" aria-hidden="true"></span>
+          <div class="book-mark" aria-hidden="true">
+            <span class="spark spark-one"></span>
+            <span class="spark spark-two"></span>
+            <svg viewBox="0 0 180 132" role="img">
+              <path class="page-left" d="M86 111C66 89 36 78 13 77V19c25 3 55 21 73 43v49Z"></path>
+              <path class="page-right" d="M94 111c20-22 50-33 73-34V19c-25 3-55 21-73 43v49Z"></path>
+              <path class="book-base" d="M16 88c27 1 54 14 72 35 2 2 4 2 6 0 18-21 45-34 72-35"></path>
+              <path class="book-line left" d="M27 32v46c20 5 39 14 58 31"></path>
+              <path class="book-line right" d="M154 32v46c-20 5-39 14-58 31"></path>
+              <path class="book-spine" d="M90 61v52"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <strong>Trilha da Leitura</strong>
+            <span>- Fluência Leitora</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inicio-card">
+        <label for="escolaAluno">Escola</label>
+        <select id="escolaAluno" required>
+          <option value="">Selecione a escola</option>
+          <option value="E.M.E.F. CILIRA VIEIRA DE SOUZA">E.M.E.F. CILIRA VIEIRA DE SOUZA</option>
+          <option value="E.M.E.F. XV DE NOVEMBRO">E.M.E.F. XV DE NOVEMBRO</option>
+          <option value="E.M.E.F. BREJO GRANDE DO ARAGUAIA">E.M.E.F. BREJO GRANDE DO ARAGUAIA</option>
+          <option value="E.M.E.I.F. SILVANA MOURA">E.M.E.I.F. SILVANA MOURA</option>
+          <option value="E.M.E.I.F. PADRE CICERO">E.M.E.I.F. PADRE CICERO</option>
+          <option value="E.M.E.I.F. SÃO JOSÉ">E.M.E.I.F. SÃO JOSÉ</option>
+          <option value="E.M.E.I.F. INDÍGENA SAWARAPI SURUI">E.M.E.I.F. INDÍGENA SAWARAPI SURUI</option>
+          <option value="E.M.E.I.F. NOSSA SENHORA DA PENHA">E.M.E.I.F. NOSSA SENHORA DA PENHA</option>
+          <option value="E.M.E.I.F. JOVENTINA">E.M.E.I.F. JOVENTINA</option>
+        </select>
+
+        <label for="turmaAluno">Turma</label>
+        <select id="turmaAluno" required>
+          <option value="">Selecione a turma</option>
+          <option value="2 ANO A">2 ANO A</option>
+          <option value="2 ANO B">2 ANO B</option>
+        </select>
+
+        <label for="nomeAluno">Aluno</label>
+        <select id="nomeAluno" required>
+          <option value="">Selecione o aluno</option>
+        </select>
+
+        <div class="start-actions">
+          <button class="btn-primary start-button" type="button" onclick="iniciarTrilha()">Iniciar Trilha</button>
+          <a class="btn-dashboard start-button" href="trilha-turma.html">Iniciar Trilha Turma</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="conhecidas" class="page word-page">
+      <h2>Página 1 - Palavras Conhecidas</h2>
+
+      <div class="timer-area">
+        <div class="timer" aria-live="polite">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+            <circle id="barConhecidas" class="timer-bar green" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div id="sparkConhecidas" class="fuse-spark" aria-hidden="true"><span></span></div>
+          <div class="timer-label">
+            <strong id="tempoConhecidas">60</strong>
+            <span>segundos</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaConhecidas" class="word-grid"></div>
+
+      <div class="controls">
+        <button id="pauseConhecidas" class="btn-pause" type="button" onclick="alternarPausa('conhecidas')">Pausar</button>
+        <button class="btn-next" type="button" onclick="abrirDificeis()">Próximo</button>
+      </div>
+    </section>
+
+    <section id="dificeis" class="page word-page">
+      <h2>Página 2 - Palavras Possivelmente Desconhecidas</h2>
+
+      <div class="timer-area">
+        <div class="timer" aria-live="polite">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+            <circle id="barDificeis" class="timer-bar green" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div id="sparkDificeis" class="fuse-spark" aria-hidden="true"><span></span></div>
+          <div class="timer-label">
+            <strong id="tempoDificeis">60</strong>
+            <span>segundos</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="listaDificeis" class="word-grid"></div>
+
+      <div class="controls">
+        <button id="pauseDificeis" class="btn-pause" type="button" onclick="alternarPausa('dificeis')">Pausar</button>
+        <button class="btn-next" type="button" onclick="abrirTexto()">Texto</button>
+      </div>
+    </section>
+
+    <section id="texto" class="page">
+      <h2>Página 3 - Texto e Compreensão</h2>
+
+      <article id="textoLeitura" class="story"></article>
+
+      <div id="perguntasTexto" class="questions"></div>
+
+      <div class="controls">
+        <button class="btn-result" type="button" onclick="validarEAbrirResultado()">Resultado</button>
+      </div>
+    </section>
+
+    <section id="resultado" class="page">
+      <h2>Página 4 - Resultado</h2>
+
+      <div class="result-grid">
+        <div>
+          <label for="palavrasCorretas">Palavras conhecidas corretas</label>
+          <input id="palavrasCorretas" type="number" min="0" max="60" inputmode="numeric" oninput="marcarResultadoAlterado()">
+        </div>
+
+        <div>
+          <label for="dificeisCorretas">Palavras difíceis corretas</label>
+          <input id="dificeisCorretas" type="number" min="0" max="40" inputmode="numeric" oninput="marcarResultadoAlterado()">
+        </div>
+
+        <div>
+          <label for="palavrasTextoCorretas">Palavras corretas no texto</label>
+          <input id="palavrasTextoCorretas" type="number" min="0" max="100" inputmode="numeric" oninput="marcarResultadoAlterado()">
+        </div>
+
+        <div>
+          <label for="precisao">Precisão do texto (%)</label>
+          <input id="precisao" type="number" min="0" max="100" inputmode="decimal" placeholder="Digite a precisão do texto" oninput="marcarResultadoAlterado()">
+        </div>
+
+        <div>
+          <label for="observacaoPreLeitor">Observação se pré-leitor</label>
+          <select id="observacaoPreLeitor" onchange="marcarResultadoAlterado()">
+            <option value="auto">Automática pelos acertos</option>
+            <option value="nivel1">Nível 1 - Não leu palavras do item</option>
+            <option value="nivel2">Nível 2 - Nomeou letras isoladas</option>
+            <option value="nivel3">Nível 3 - Silabou as palavras</option>
+            <option value="nivel4">Nível 4 - Leu até 10 palavras e até 5 difíceis</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="resultadoFinal" class="resultado-box" aria-live="polite"></div>
+
+      <div class="controls">
+        <button class="btn-primary" type="button" onclick="salvarResultado()">Salvar resultado</button>
+        <button class="btn-next" type="button" onclick="novoAluno()">Novo aluno</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="alertaModal" class="alerta" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="alerta-card">
+      <h3 id="tituloModal">PARE</h3>
+      <p id="mensagemModal"></p>
+      <div class="modal-actions">
+        <button id="cancelarModal" class="btn-next" type="button" onclick="fecharModal()">Cancelar</button>
+        <button id="confirmarModal" type="button" onclick="confirmarModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="public/assets/js/auth.js?v=20260609-2"></script>
+  <script>
+    window.TrilhaAuth.initProtectedPage();
+  </script>
+  <script src="assets/js/database.js"></script>
+  <script src="assets/js/conteudo.js?v=20260609-2"></script>
+  <script src="assets/js/app.js?v=20260609-2"></script>
+</body>
+</html>

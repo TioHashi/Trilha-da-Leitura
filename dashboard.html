@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Trilha da Leitura</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="public/assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+  <main class="dashboard-shell">
+    <header class="dashboard-hero dashboard-hero-dashboard">
+      <div>
+        <p class="eyebrow">Trilha da Leitura</p>
+        <h1>Dashboard de Resultados</h1>
+        <p class="hero-copy">Acompanhamento das Avaliações</p>
+        <p id="statusDashboard" class="dashboard-status" aria-live="polite"></p>
+      </div>
+      <div class="dashboard-actions">
+        <span data-auth-status aria-live="polite">Verificando sessão...</span>
+        <a class="analysis-cta" href="analises.html">
+          <span>Histórico e IA</span>
+          <strong>Abrir análises pedagógicas</strong>
+        </a>
+        <button type="button" class="refresh-btn" onclick="carregarResultados()">Atualizar</button>
+        <button type="button" class="logout-btn" onclick="window.TrilhaAuth.signOut()">Sair</button>
+      </div>
+    </header>
+
+    <section class="filters" aria-label="Filtros do dashboard">
+      <label>
+        Escola
+        <select id="filtroEscola" onchange="aplicarFiltros()">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>
+        Turma
+        <select id="filtroTurma" onchange="aplicarFiltros()">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>
+        Perfil
+        <select id="filtroPerfil" onchange="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="Pré-leitor">Pré-leitor</option>
+          <option value="Leitor Iniciante">Leitor Iniciante</option>
+          <option value="Leitor Fluente">Leitor Fluente</option>
+          <option value="Não Analisado">Não Analisado</option>
+        </select>
+      </label>
+      <label class="search-filter">
+        Buscar aluno
+        <input id="filtroBusca" type="search" placeholder="Nome do aluno" oninput="aplicarFiltros()">
+      </label>
+    </section>
+
+    <section class="panel student-register-panel" aria-labelledby="cadastroAlunoTitulo">
+      <div class="panel-head vertical-head">
+        <div>
+          <h2 id="cadastroAlunoTitulo">Cadastro de alunos da turma</h2>
+          <p id="cadastroAlunoContexto">Carregando vínculo do professor...</p>
+        </div>
+        <span id="totalAlunosCadastrados">0 alunos cadastrados</span>
+      </div>
+
+      <form id="formCadastroAluno" class="student-register-form">
+        <label>
+          Nome do aluno
+          <input id="cadastroAlunoNome" type="text" autocomplete="off" placeholder="Digite o nome completo" required>
+        </label>
+        <button type="submit" class="student-save-btn">Cadastrar aluno</button>
+      </form>
+
+      <p id="cadastroAlunoStatus" class="student-register-status" aria-live="polite"></p>
+    </section>
+
+    <section id="adminCadastroAcessos" class="panel student-register-panel admin-register-panel" aria-labelledby="adminCadastroAcessoTitulo" hidden>
+      <div class="panel-head vertical-head">
+        <div>
+          <h2 id="adminCadastroAcessoTitulo">Cadastro administrativo de acessos</h2>
+          <p>Crie logins locais no Firebase Emulator Suite com os vínculos necessários para professor ou administrador.</p>
+        </div>
+        <span>Área do administrador</span>
+      </div>
+
+      <form id="formAdminCadastroAcesso" class="student-register-form admin-register-form">
+        <label>
+          Nome
+          <input id="adminAcessoNome" type="text" autocomplete="name" placeholder="Nome do professor ou administrador" required>
+        </label>
+        <label>
+          E-mail
+          <input id="adminAcessoEmail" type="email" autocomplete="email" placeholder="usuario@trilhaleitura.local" required>
+        </label>
+        <label>
+          Senha
+          <input id="adminAcessoSenha" type="text" autocomplete="off" placeholder="Ex.: 123456" minlength="6" required>
+        </label>
+        <label>
+          Perfil
+          <select id="adminAcessoPapel" required>
+            <option value="professor">Professor</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </label>
+        <label>
+          Escola
+          <select id="adminAcessoEscola">
+            <option value="">Selecione a escola</option>
+          </select>
+        </label>
+        <label>
+          Turma
+          <select id="adminAcessoTurma">
+            <option value="">Selecione a turma</option>
+          </select>
+        </label>
+        <button type="submit" class="student-save-btn">Criar acesso local</button>
+      </form>
+
+      <p id="adminCadastroAcessoStatus" class="student-register-status" aria-live="polite"></p>
+    </section>
+
+    <section class="stats-grid" aria-label="Indicadores principais">
+      <article class="stat-card">
+        <span>Alunos cadastrados</span>
+        <strong id="totalAvaliacoes">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Precisão média</span>
+        <strong id="mediaPrecisao">0%</strong>
+      </article>
+      <article class="stat-card">
+        <span>Média de palavras no texto</span>
+        <strong id="mediaPalavras">0</strong>
+      </article>
+      <article class="stat-card">
+        <span>Compreensão média</span>
+        <strong id="mediaCompreensao">0/2</strong>
+      </article>
+    </section>
+
+    <section class="chart-layout">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Distribuição por perfil</h2>
+          <span id="perfilResumo">0 registros</span>
+        </div>
+        <div class="profile-chart">
+          <div class="donut" id="perfilDonut"></div>
+          <div class="legend" id="perfilLegenda"></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Turmas</h2>
+          <span>Quantidade por turma</span>
+        </div>
+        <div id="graficoTurmas" class="bar-list"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Resultados dos alunos</h2>
+        <button type="button" class="export-btn" onclick="exportarTabela()">Exportar CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><button type="button" class="sort-btn" data-sort="data" onclick="ordenarTabela('data')">Data <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="nome" onclick="ordenarTabela('nome')">Aluno <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="escola" onclick="ordenarTabela('escola')">Escola <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="turma" onclick="ordenarTabela('turma')">Turma <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="palavrasCorretas" onclick="ordenarTabela('palavrasCorretas')">Conhecidas <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="dificeisCorretas" onclick="ordenarTabela('dificeisCorretas')">Difíceis <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="total" onclick="ordenarTabela('total')">Listas <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="palavrasTextoCorretas" onclick="ordenarTabela('palavrasTextoCorretas')">Texto <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="precisao" onclick="ordenarTabela('precisao')">Precisão <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="compreensao" onclick="ordenarTabela('compreensao')">Compreensão <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="tempoTotalSegundos" onclick="ordenarTabela('tempoTotalSegundos')">Tempo <span></span></button></th>
+              <th><button type="button" class="sort-btn" data-sort="perfil" onclick="ordenarTabela('perfil')">Perfil <span></span></button></th>
+              <th>Excluir</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaResultados">
+            <tr><td colspan="13">Carregando resultados...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>© Antonio Fanoel Costa Cabral • Trilha da Leitura v1.0</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="public/assets/js/auth.js?v=20260609-2"></script>
+  <script>
+    window.TrilhaAuth.initProtectedPage();
+  </script>
+  <script src="assets/js/dashboard.js?v=20260609-5"></script>
+</body>
+</html>
