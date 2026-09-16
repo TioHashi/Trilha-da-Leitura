@@ -624,31 +624,18 @@ function renderizarHistorico(): void {
   if (!estadoIA.historico.length) {
     alvo.innerHTML = `<p class="text-sm font-bold text-slate-600">Nenhuma análise salva ainda.</p>`;
     elemento<HTMLElement>("iaRelatorioSalvo").innerHTML = `<p class="empty">Nenhum relatório do histórico aberto.</p>`;
+    atualizarComparacaoSinteses();
     return;
   }
 
   alvo.innerHTML = estadoIA.historico.slice(0, 12).map((item) => {
     const data = new Date(item.geradoEm).toLocaleString("pt-BR");
-    const indicadores = item.indicadores || calcularIndicadores([]);
-    const professor = nomeProfessor(item.professorNome, item.professorEmail);
     const ativo = estadoIA.relatorioAbertoId === item.id;
     return `
-      <article class="history-card">
-        <h3>${item.escopo === "turma" ? "Relatório da turma" : "Relatório individual"}</h3>
-        <p class="history-date">Gerado em ${escapeHtml(data)}</p>
-        <p><strong>Professor:</strong> ${escapeHtml(professor)}</p>
-        <p><strong>Escola:</strong> ${escapeHtml(item.escola || "Sem escola informada")}</p>
-        <p><strong>Turma:</strong> ${escapeHtml(item.turma || "Sem turma informada")}</p>
-        ${item.escopo === "aluno" ? `<p><strong>Aluno avaliado:</strong> ${escapeHtml(nomeAlunoRelatorio(item.alunoNome))}</p>` : ""}
-        <p>${escapeHtml(item.analise?.resumoDesempenho || "Resumo indisponível.")}</p>
-        <div class="history-tags">
-          <span>${item.totalRegistrosAnalisados} registro(s)</span>
-          <span>Precisão ${indicadores.mediaPrecisao}%</span>
-        </div>
-        <div class="history-indicators">
-          <span>Pré ${indicadores.preLeitores}</span>
-          <span>Iniciante ${indicadores.leitoresIniciantes}</span>
-          <span>Fluente ${indicadores.leitoresFluentes}</span>
+      <article class="history-card compact-history-card">
+        <div>
+          <h3>${escapeHtml(data)}</h3>
+          <p>${item.escopo === "turma" ? "Análise da turma" : "Análise individual"}</p>
         </div>
         <div class="history-actions">
           <button type="button" class="history-open-btn" data-relatorio-id="${escapeHtml(item.id)}">${ativo ? "Relatório aberto" : "Abrir relatório"}</button>
@@ -659,6 +646,106 @@ function renderizarHistorico(): void {
   }).join("");
 
   if (estadoIA.relatorioAbertoId) abrirRelatorioHistorico(estadoIA.relatorioAbertoId, false);
+  atualizarComparacaoSinteses();
+}
+
+function rotuloAnaliseSalva(item: AnaliseSalva): string {
+  const data = new Date(item.geradoEm).toLocaleString("pt-BR");
+  const tipo = item.escopo === "turma" ? "Turma" : "Individual";
+  return `${data} - ${tipo}`;
+}
+
+function atualizarComparacaoSinteses(): void {
+  const seletorBase = document.getElementById("iaCompararBase") as HTMLSelectElement | null;
+  const seletorAtual = document.getElementById("iaCompararAtual") as HTMLSelectElement | null;
+  const resultado = document.getElementById("iaComparacaoResultado") as HTMLElement | null;
+  if (!seletorBase || !seletorAtual || !resultado) return;
+
+  const opcoes = estadoIA.historico.slice(0, 12);
+  const valorBase = seletorBase.value;
+  const valorAtual = seletorAtual.value;
+  const htmlOpcoes = `<option value="">Selecione um relatório</option>` + opcoes
+    .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(rotuloAnaliseSalva(item))}</option>`)
+    .join("");
+
+  seletorBase.innerHTML = htmlOpcoes;
+  seletorAtual.innerHTML = htmlOpcoes;
+
+  if (valorBase && opcoes.some((item) => item.id === valorBase)) seletorBase.value = valorBase;
+  if (valorAtual && opcoes.some((item) => item.id === valorAtual)) seletorAtual.value = valorAtual;
+
+  const analiseMaisRecente = opcoes[0];
+  const analiseAnterior = opcoes[1];
+  if (!seletorBase.value && analiseAnterior) seletorBase.value = analiseAnterior.id;
+  if (!seletorAtual.value && analiseMaisRecente) seletorAtual.value = analiseMaisRecente.id;
+
+  if (opcoes.length < 2) {
+    resultado.innerHTML = `<p class="empty">Salve pelo menos dois relatórios para comparar sínteses.</p>`;
+  }
+}
+
+function diferencaTexto(atual: number, anterior: number, unidade = ""): string {
+  const diferenca = atual - anterior;
+  if (diferenca > 0) return `subiu ${diferenca}${unidade}`;
+  if (diferenca < 0) return `caiu ${Math.abs(diferenca)}${unidade}`;
+  return `permaneceu em ${atual}${unidade}`;
+}
+
+function compararSinteses(): void {
+  const seletorBase = elemento<HTMLSelectElement>("iaCompararBase");
+  const seletorAtual = elemento<HTMLSelectElement>("iaCompararAtual");
+  const resultado = elemento<HTMLElement>("iaComparacaoResultado");
+  const base = estadoIA.historico.find((item) => item.id === seletorBase.value);
+  const atual = estadoIA.historico.find((item) => item.id === seletorAtual.value);
+
+  if (!base || !atual) {
+    resultado.innerHTML = `<p class="empty">Selecione dois relatórios para comparar.</p>`;
+    return;
+  }
+
+  if (base.id === atual.id) {
+    resultado.innerHTML = `<p class="empty">Escolha relatórios diferentes para comparar as sínteses.</p>`;
+    return;
+  }
+
+  const indBase = base.indicadores || calcularIndicadores([]);
+  const indAtual = atual.indicadores || calcularIndicadores([]);
+  const dataBase = new Date(base.geradoEm).toLocaleString("pt-BR");
+  const dataAtual = new Date(atual.geradoEm).toLocaleString("pt-BR");
+
+  resultado.innerHTML = `
+    <div class="comparison-summary">
+      <h3>Comparação entre relatórios</h3>
+      <p><strong>Anterior:</strong> ${escapeHtml(dataBase)}</p>
+      <p><strong>Mais recente:</strong> ${escapeHtml(dataAtual)}</p>
+    </div>
+    <div class="comparison-grid">
+      <article>
+        <span>Precisão média</span>
+        <strong>${indBase.mediaPrecisao}% → ${indAtual.mediaPrecisao}%</strong>
+        <p>${escapeHtml(diferencaTexto(indAtual.mediaPrecisao, indBase.mediaPrecisao, "%"))}</p>
+      </article>
+      <article>
+        <span>Palavras no texto</span>
+        <strong>${indBase.mediaTotalPalavras} → ${indAtual.mediaTotalPalavras}</strong>
+        <p>${escapeHtml(diferencaTexto(indAtual.mediaTotalPalavras, indBase.mediaTotalPalavras))}</p>
+      </article>
+      <article>
+        <span>Compreensão média</span>
+        <strong>${indBase.mediaCompreensao}/2 → ${indAtual.mediaCompreensao}/2</strong>
+        <p>${escapeHtml(diferencaTexto(indAtual.mediaCompreensao, indBase.mediaCompreensao))}</p>
+      </article>
+    </div>
+    <section class="report-section">
+      <h3>Síntese anterior</h3>
+      <p>${escapeHtml(base.analise?.resumoDesempenho || base.resumoDesempenho || "Resumo indisponível.")}</p>
+    </section>
+    <section class="report-section">
+      <h3>Síntese mais recente</h3>
+      <p>${escapeHtml(atual.analise?.resumoDesempenho || atual.resumoDesempenho || "Resumo indisponível.")}</p>
+    </section>
+    <p class="human-review">Esta comparação é um apoio visual entre relatórios salvos. A interpretação final deve ser feita pelo professor.</p>
+  `;
 }
 
 function abrirRelatorioHistorico(id: string, atualizarLista = true): void {
@@ -771,6 +858,7 @@ function inicializar(): void {
   elemento<HTMLButtonElement>("iaGerar").addEventListener("click", gerarAnalise);
   elemento<HTMLButtonElement>("iaGerarNovamente").addEventListener("click", gerarAnalise);
   elemento<HTMLButtonElement>("iaCopiar").addEventListener("click", copiarAnalise);
+  elemento<HTMLButtonElement>("iaCompararSinteses").addEventListener("click", compararSinteses);
   elemento<HTMLElement>("iaHistorico").addEventListener("click", (event) => {
     const alvo = event.target as HTMLElement;
     const botaoAbrir = alvo.closest("[data-relatorio-id]") as HTMLButtonElement | null;

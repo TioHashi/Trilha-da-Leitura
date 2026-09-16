@@ -484,6 +484,10 @@ input{
   grid-column:1 / -1;
 }
 
+.synthesis-compare-panel{
+  grid-column:1 / -1;
+}
+
 .report-content{
   display:grid;
   gap:14px;
@@ -555,12 +559,14 @@ input{
 
 .history-list{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
+  grid-template-columns:1fr;
+  gap:10px;
 }
 
 .history-card{
-  display:grid;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   gap:10px;
   padding:14px;
   border:1px solid var(--line);
@@ -572,6 +578,14 @@ input{
   margin:0;
   color:var(--blue-dark);
   font-size:1rem;
+}
+
+.compact-history-card h3{
+  font-size:.98rem;
+}
+
+.compact-history-card p{
+  margin-top:4px;
 }
 
 .history-date{
@@ -623,6 +637,88 @@ input{
   font-size:.78rem;
   font-weight:900;
   text-align:center;
+}
+
+.compare-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr auto;
+  align-items:end;
+  gap:12px;
+}
+
+.compare-form-grid label{
+  display:grid;
+  gap:7px;
+  color:#1e3a8a;
+  font-weight:900;
+}
+
+.compare-form-grid select{
+  min-height:46px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:0 12px;
+  color:#0f172a;
+  background:#fff;
+  font-weight:800;
+}
+
+.comparison-result{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+}
+
+.comparison-summary{
+  padding:13px;
+  border:1px solid #bfdbfe;
+  border-radius:14px;
+  background:#eff6ff;
+}
+
+.comparison-summary h3{
+  margin:0 0 8px;
+  color:#07348c;
+}
+
+.comparison-summary p{
+  margin:2px 0;
+  color:#334155;
+  font-weight:800;
+}
+
+.comparison-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.comparison-grid article{
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f8fbff;
+}
+
+.comparison-grid span{
+  display:block;
+  color:#64748b;
+  font-size:.76rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.comparison-grid strong{
+  display:block;
+  margin:5px 0;
+  color:#0f2f86;
+  font-size:1.1rem;
+}
+
+.comparison-grid p{
+  margin:0;
+  color:#334155;
+  font-weight:800;
 }
 
 .profile-chart{
@@ -851,7 +947,10 @@ td{
   .analysis-guide,
   .analysis-workspace,
   .analysis-form-grid,
+  .compare-form-grid,
+  .comparison-grid,
   .history-list{grid-template-columns:1fr}
+  .history-card{align-items:stretch;flex-direction:column}
   .profile-chart{align-items:flex-start;flex-direction:column}
   .donut{width:140px}
   .report-meta{grid-template-columns:1fr}

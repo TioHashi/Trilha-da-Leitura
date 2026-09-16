@@ -197,6 +197,33 @@
           <p class="empty">Nenhum relatório do histórico aberto.</p>
         </div>
       </article>
+
+      <article class="panel synthesis-compare-panel" aria-labelledby="iaComparacaoTitulo">
+        <div class="panel-head vertical-head">
+          <div>
+            <h2 id="iaComparacaoTitulo">Comparar sínteses salvas</h2>
+            <p>Selecione dois relatórios do histórico para comparar os resumos e indicadores principais.</p>
+          </div>
+        </div>
+        <div class="compare-form-grid">
+          <label>
+            Relatório anterior
+            <select id="iaCompararBase">
+              <option value="">Selecione um relatório</option>
+            </select>
+          </label>
+          <label>
+            Relatório mais recente
+            <select id="iaCompararAtual">
+              <option value="">Selecione um relatório</option>
+            </select>
+          </label>
+          <button id="iaCompararSinteses" type="button" class="primary-action">Comparar sínteses</button>
+        </div>
+        <div id="iaComparacaoResultado" class="comparison-result" aria-live="polite">
+          <p class="empty">Escolha dois relatórios para visualizar a comparação.</p>
+        </div>
+      </article>
     </section>
   </main>
 
