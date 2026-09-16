@@ -21,6 +21,21 @@ test("conteudo pedagogico possui banco ampliado sem duplicidades", () => {
   assert.equal(new Set(conteudo.palavrasDificeis).size, 500);
 });
 
+test("listas de palavras usam vocabulario real em portugues do Brasil", () => {
+  const conteudo = carregarConteudo();
+  const todas = [...conteudo.palavrasConhecidas, ...conteudo.palavrasDificeis];
+  const texto = todas.join(" ");
+
+  assert.match(texto, /família/);
+  assert.match(texto, /calçada/);
+  assert.match(texto, /abóbora/);
+  assert.match(texto, /açúcar/);
+  assert.match(texto, /bússola/);
+  assert.match(texto, /xícara/);
+  assert.doesNotMatch(texto, /babr|brale|brami|babru/i);
+  assert.doesNotMatch(texto, /feijao|macarrao|mamao|\\bpao\\b|leao|algodao|cordao|fogao|hortela|\\bima\\b|trovao/i);
+});
+
 test("conteudo possui 200 narrativas simples com personagem animal", () => {
   const conteudo = carregarConteudo();
   assert.equal(conteudo.textos.length, 200);
