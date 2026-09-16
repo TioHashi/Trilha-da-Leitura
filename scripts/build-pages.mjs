@@ -11,6 +11,7 @@ const arquivosRaiz = [
   "index.html",
   "dashboard.html",
   "analises.html",
+  "imprimir-relatorio.html",
   "trilha-turma.html",
   "login.html",
   "LICENSE.md",

@@ -21,6 +21,7 @@ assert.ok(existsSync(dist), "dist/ nao foi gerado.");
 assert.ok(existsSync(join(dist, "index.html")), "index.html ausente do build.");
 assert.ok(existsSync(join(dist, "dashboard.html")), "dashboard.html ausente do build.");
 assert.ok(existsSync(join(dist, "analises.html")), "analises.html ausente do build.");
+assert.ok(existsSync(join(dist, "imprimir-relatorio.html")), "imprimir-relatorio.html ausente do build.");
 assert.ok(existsSync(join(dist, "trilha-turma.html")), "trilha-turma.html ausente do build.");
 assert.ok(existsSync(join(dist, "login.html")), "login.html ausente do build.");
 assert.ok(existsSync(join(dist, "assets", "js", "firebase-config.js")), "Configuracao publica do Firebase ausente do build.");
@@ -63,7 +64,7 @@ for (const arquivo of listarArquivos(dist)) {
   }
 }
 
-for (const html of ["index.html", "dashboard.html", "analises.html", "trilha-turma.html", "login.html"]) {
+for (const html of ["index.html", "dashboard.html", "analises.html", "imprimir-relatorio.html", "trilha-turma.html", "login.html"]) {
   const texto = readFileSync(join(dist, html), "utf8");
   assert.doesNotMatch(texto, /(?:src|href)="\//, `${html} contem caminho absoluto iniciado por /.`);
 }

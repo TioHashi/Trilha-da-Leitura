@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imprimir Relatório | Trilha da Leitura</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+</head>
+<body>
+  <main id="printReportRoot" class="print-report-target">
+    <p style="font-family:Arial, Helvetica, sans-serif;color:#0f172a;font-weight:700;">Preparando relatório para impressão...</p>
+  </main>
+
+  <script>
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const chave = params.get("relatorio") || "";
+      const raiz = document.getElementById("printReportRoot");
+      let dados = null;
+
+      try{
+        dados = JSON.parse(sessionStorage.getItem(chave) || "null");
+      }catch(error){
+        dados = null;
+      }
+
+      if(!dados || !dados.relatorioHtml){
+        raiz.innerHTML = "<p style=\"font-family:Arial, Helvetica, sans-serif;color:#b91c1c;font-weight:700;\">Não foi possível carregar o relatório para impressão. Feche esta página e tente imprimir novamente.</p>";
+        return;
+      }
+
+      if(dados.cssHref){
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = dados.cssHref;
+        document.head.appendChild(link);
+      }
+
+      raiz.innerHTML = dados.relatorioHtml;
+      sessionStorage.removeItem(chave);
+
+      window.addEventListener("afterprint", function(){
+        window.close();
+      });
+
+      window.setTimeout(function(){
+        window.focus();
+        window.print();
+      }, 550);
+    })();
+  </script>
+</body>
+</html>

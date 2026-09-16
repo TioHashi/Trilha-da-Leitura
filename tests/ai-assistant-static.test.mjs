@@ -82,8 +82,9 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /registro\(s\) mais recente\(s\) dos alunos filtrados/);
   assert.match(fonte, /imprimirRelatorio/);
   assert.match(fonte, /window\.open/);
+  assert.match(fonte, /sessionStorage\.setItem/);
+  assert.match(fonte, /imprimir-relatorio\.html/);
   assert.match(fonte, /relatorio\.outerHTML/);
-  assert.match(fonte, /window\.print/);
   assert.doesNotMatch(fonte, /alunoNome: item\.alunoNome/);
 });
 
@@ -94,4 +95,13 @@ test("relatorio pedagogico possui estilos de impressao", () => {
   assert.match(css, /width:80% !important/);
   assert.match(css, /pedagogical-report/);
   assert.match(css, /@page/);
+});
+
+test("pagina dedicada de impressao carrega somente o relatorio salvo", () => {
+  const html = readFileSync("imprimir-relatorio.html", "utf8");
+  assert.match(html, /printReportRoot/);
+  assert.match(html, /sessionStorage\.getItem/);
+  assert.match(html, /window\.print/);
+  assert.match(html, /window\.close/);
+  assert.doesNotMatch(html, /firebase-app/);
 });
