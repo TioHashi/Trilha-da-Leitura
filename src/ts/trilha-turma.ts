@@ -43,8 +43,28 @@ function embaralhar(lista: string[]): string[] {
   return copia.filter(Boolean);
 }
 
+function sortearSemRepetirPorCiclo(lista: string[], quantidade: number, chaveCiclo: string): string[] {
+  const fonte = lista.filter(Boolean);
+  const chave = `trilha-turma-ciclo-${chaveCiclo}`;
+  let fila: string[] = [];
+  try {
+    fila = JSON.parse(window.localStorage.getItem(chave) || "[]");
+  } catch {
+    fila = [];
+  }
+  fila = fila.filter((item) => fonte.includes(item));
+  const escolhidas: string[] = [];
+  while (escolhidas.length < quantidade && fonte.length) {
+    if (!fila.length) fila = embaralhar(fonte);
+    const item = fila.shift();
+    if (item && !escolhidas.includes(item)) escolhidas.push(item);
+  }
+  window.localStorage.setItem(chave, JSON.stringify(fila));
+  return escolhidas;
+}
+
 function sortearPalavras(tipo: TipoListaTurma): string[] {
-  return embaralhar(palavrasPorTipo(tipo)).slice(0, QUANTIDADE_POR_LISTA[tipo]);
+  return sortearSemRepetirPorCiclo(palavrasPorTipo(tipo), QUANTIDADE_POR_LISTA[tipo], tipo);
 }
 
 function chamadaInicial(tipo: TipoListaTurma): string {

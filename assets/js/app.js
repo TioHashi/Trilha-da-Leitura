@@ -30,14 +30,47 @@ function montarLista(lista, alvo, classeExtra){
   }).join("");
 }
 
-function sortearItens(lista, quantidade){
-  return [...lista].sort(() => Math.random() - 0.5).slice(0, quantidade);
+function embaralharItens(lista){
+  const copia = [...lista];
+  for(let i = copia.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+function chaveItemCiclo(item){
+  if(item && typeof item === "object") return item.id || item.texto || JSON.stringify(item);
+  return String(item);
+}
+
+function sortearItens(lista, quantidade, chaveCiclo){
+  const fonte = Array.isArray(lista) ? lista.filter(Boolean) : [];
+  if(!chaveCiclo) return embaralharItens(fonte).slice(0, quantidade);
+  const chave = `trilha-ciclo-${chaveCiclo}`;
+  const mapa = new Map(fonte.map(item => [chaveItemCiclo(item), item]));
+  let fila = [];
+  try{
+    fila = JSON.parse(localStorage.getItem(chave) || "[]");
+  }catch{
+    fila = [];
+  }
+  fila = fila.filter(item => mapa.has(item));
+  const escolhidos = [];
+  while(escolhidos.length < quantidade && fonte.length){
+    if(!fila.length) fila = embaralharItens([...mapa.keys()]);
+    const id = fila.shift();
+    const item = mapa.get(id);
+    if(item && !escolhidos.some(escolhido => chaveItemCiclo(escolhido) === id)) escolhidos.push(item);
+  }
+  localStorage.setItem(chave, JSON.stringify(fila));
+  return escolhidos;
 }
 
 function prepararConteudoDaTrilha(){
-  palavrasConhecidasAtuais = sortearItens(bancoConteudo.palavrasConhecidas, 60);
-  palavrasDificeisAtuais = sortearItens(bancoConteudo.palavrasDificeis, 40);
-  textoAtual = sortearItens(bancoConteudo.textos, 1)[0] || null;
+  palavrasConhecidasAtuais = sortearItens(bancoConteudo.palavrasConhecidas, 60, "palavras-conhecidas");
+  palavrasDificeisAtuais = sortearItens(bancoConteudo.palavrasDificeis, 40, "palavras-possivelmente-desconhecidas");
+  textoAtual = sortearItens(bancoConteudo.textos, 1, "textos-narrativos")[0] || null;
   montarTextoAtual();
 }
 

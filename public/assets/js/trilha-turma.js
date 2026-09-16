@@ -34,8 +34,30 @@ function embaralhar(lista) {
     }
     return copia.filter(Boolean);
 }
+function sortearSemRepetirPorCiclo(lista, quantidade, chaveCiclo) {
+    const fonte = lista.filter(Boolean);
+    const chave = `trilha-turma-ciclo-${chaveCiclo}`;
+    let fila = [];
+    try {
+        fila = JSON.parse(window.localStorage.getItem(chave) || "[]");
+    }
+    catch {
+        fila = [];
+    }
+    fila = fila.filter((item) => fonte.includes(item));
+    const escolhidas = [];
+    while (escolhidas.length < quantidade && fonte.length) {
+        if (!fila.length)
+            fila = embaralhar(fonte);
+        const item = fila.shift();
+        if (item && !escolhidas.includes(item))
+            escolhidas.push(item);
+    }
+    window.localStorage.setItem(chave, JSON.stringify(fila));
+    return escolhidas;
+}
 function sortearPalavras(tipo) {
-    return embaralhar(palavrasPorTipo(tipo)).slice(0, QUANTIDADE_POR_LISTA[tipo]);
+    return sortearSemRepetirPorCiclo(palavrasPorTipo(tipo), QUANTIDADE_POR_LISTA[tipo], tipo);
 }
 function chamadaInicial(tipo) {
     return tipo === "conhecidas" ? "PALAVRAS" : "PALAVRAS POSSIVELMENTE DESCONHECIDAS";

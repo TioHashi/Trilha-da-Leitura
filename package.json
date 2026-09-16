@@ -12,7 +12,7 @@
     "watch:ts": "tsc --project tsconfig.json --watch",
     "build:css": "tailwindcss -i ./src/styles/input.css -o ./public/assets/css/tailwind.css --minify",
     "watch:css": "tailwindcss -i ./src/styles/input.css -o ./public/assets/css/tailwind.css --watch",
-    "test": "node --test tests/reading-rules.test.mjs tests/no-bootstrap.test.mjs tests/no-secrets.test.mjs tests/auth-static.test.mjs tests/ai-assistant-static.test.mjs tests/pages-build-static.test.mjs tests/emulator-ptbr-static.test.mjs tests/trilha-turma-static.test.mjs tests/favicon-static.test.mjs",
+    "test": "node --test tests/reading-rules.test.mjs tests/no-bootstrap.test.mjs tests/no-secrets.test.mjs tests/auth-static.test.mjs tests/ai-assistant-static.test.mjs tests/pages-build-static.test.mjs tests/emulator-ptbr-static.test.mjs tests/trilha-turma-static.test.mjs tests/favicon-static.test.mjs tests/conteudo-static.test.mjs",
     "test:functions": "npm --prefix functions test",
     "test:rules": "npm run testar:regras",
     "testar:regras": "node scripts/testar-regras-firestore.mjs",

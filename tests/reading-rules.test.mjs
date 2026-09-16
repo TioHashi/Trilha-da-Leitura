@@ -42,6 +42,16 @@ test("soma de conhecidas e dificeis nao define Leitor Fluente sem texto suficien
   assert.equal(result.perfil, "Leitor Iniciante");
 });
 
+test("precisao alta nao altera Pre-leitor sem mais de 65 palavras no texto", () => {
+  const result = classifyReadingProfile(10, 5, 65, 100);
+  assert.equal(result.perfil, "Pre-leitor - Nivel 4");
+});
+
+test("precisao alta nao altera Iniciante sem mais de 65 palavras no texto", () => {
+  const result = classifyReadingProfile(11, 6, 65, 100);
+  assert.equal(result.perfil, "Leitor Iniciante");
+});
+
 test("preserva observacao manual de Pre-leitor quando criterios superiores nao se aplicam", () => {
   const result = classifyReadingProfile(3, 1, 8, 20, "nivel3");
   assert.equal(result.perfil, "Pre-leitor - Nivel 3");
