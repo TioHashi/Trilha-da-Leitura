@@ -86,6 +86,15 @@ function montarTextoAtual(){
   }).join("");
 }
 
+function removerCampoTextoResultado(){
+  const campoTexto = document.getElementById("palavrasTextoCorretas");
+  if(!campoTexto) return;
+  campoTexto.type = "hidden";
+  campoTexto.value = "";
+  const blocoVisivel = campoTexto.closest(".result-grid > div");
+  if(blocoVisivel) blocoVisivel.remove();
+}
+
 function iniciarTrilha(){
   const nome = document.getElementById("nomeAluno").value.trim();
   const escola = escolaMaiuscula(document.getElementById("escolaAluno").value.trim());
@@ -612,6 +621,7 @@ function ajustarGrade(id){
 }
 
 prepararConteudoDaTrilha();
+removerCampoTextoResultado();
 montarLista(palavrasConhecidasAtuais, "listaConhecidas", "");
 montarLista(palavrasDificeisAtuais, "listaDificeis", "dificil");
 atualizarResultado();
