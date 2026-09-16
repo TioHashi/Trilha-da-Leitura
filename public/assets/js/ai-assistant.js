@@ -981,7 +981,7 @@ function imprimirRelatorio() {
     const dadosImpressao = {
         titulo: tituloRelatorioParaImpressao(relatorio),
         relatorioHtml: relatorio.outerHTML,
-        cssHref: document.querySelector('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-13"
+        cssHref: document.querySelector('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-14"
     };
     try {
         localStorage.setItem(chave, JSON.stringify(dadosImpressao));
@@ -995,6 +995,12 @@ function imprimirRelatorio() {
         localStorage.removeItem(chave);
         setEstado("O navegador bloqueou a página de impressão. Permita pop-ups para imprimir o relatório.", "erro");
         return;
+    }
+    try {
+        janelaImpressao.name = JSON.stringify(dadosImpressao);
+    }
+    catch (error) {
+        // A pagina dedicada ainda tenta carregar pelo localStorage quando o nome da janela nao puder ser definido.
     }
     janelaImpressao.focus();
 }

@@ -25,6 +25,15 @@
       }
 
       if(!dados || !dados.relatorioHtml){
+        try{
+          dados = JSON.parse(window.name || "null");
+          window.name = "";
+        }catch(error){
+          dados = null;
+        }
+      }
+
+      if(!dados || !dados.relatorioHtml){
         raiz.innerHTML = "<p style=\"font-family:Arial, Helvetica, sans-serif;color:#b91c1c;font-weight:700;\">Não foi possível carregar o relatório para impressão. Feche esta página e tente imprimir novamente.</p>";
         return;
       }
