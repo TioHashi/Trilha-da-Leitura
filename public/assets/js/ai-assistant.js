@@ -977,37 +977,23 @@ function imprimirRelatorio() {
         setEstado("Gere ou abra um relatório antes de imprimir.", "erro");
         return;
     }
-    const cssDashboard = document.querySelector('link[href*="dashboard.css"]')?.href
-        || "assets/css/dashboard.css?v=2026/09-11";
-    const janelaImpressao = window.open("", "_blank", "noopener,noreferrer,width=960,height=720");
+    const chave = `trilha-relatorio-impressao-${Date.now()}`;
+    const dadosImpressao = {
+        relatorioHtml: relatorio.outerHTML,
+        cssHref: document.querySelector('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-12"
+    };
+    sessionStorage.setItem(chave, JSON.stringify(dadosImpressao));
+    const janelaImpressao = window.open(`imprimir-relatorio.html?relatorio=${encodeURIComponent(chave)}`, "_blank");
     if (!janelaImpressao) {
+        sessionStorage.removeItem(chave);
         setEstado("O navegador bloqueou a página de impressão. Permita pop-ups para imprimir o relatório.", "erro");
         return;
     }
-    const documento = janelaImpressao.document;
-    documento.open();
-    documento.write(`<!doctype html>
-    <html lang="pt-BR">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Relatório Pedagógico</title>
-        <link rel="stylesheet" href="${escapeHtml(cssDashboard)}">
-      </head>
-      <body>
-        <script>
-          window.addEventListener("afterprint", () => window.close());
-          window.addEventListener("load", () => setTimeout(() => window.print(), 300));
-        </script>
-        <main id="printReportRoot" class="print-report-target">${relatorio.outerHTML}</main>
-      </body>
-    </html>`);
-    documento.close();
     janelaImpressao.focus();
 }
 function imprimirRelatorioHistorico(id) {
     abrirRelatorioHistorico(id);
-    window.setTimeout(() => imprimirRelatorio(), 150);
+    imprimirRelatorio();
 }
 function nomeProfessor(nome, email) {
     const nomeLimpo = String(nome || "").trim();
