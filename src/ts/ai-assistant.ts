@@ -415,7 +415,8 @@ function renderizarConteudoAnalise(
   const { analise } = resposta;
   const geradoEm = new Date(resposta.geradoEm).toLocaleString("pt-BR");
   const indicadores = contexto.indicadores || calcularIndicadores([]);
-  const tituloEscopo = resposta.escopo === "aluno" ? "Relatório pedagógico individual" : "Relatório pedagógico da turma";
+  const alunoRelatorio = nomeAlunoRelatorio(contexto.alunoNome);
+  const tituloEscopo = resposta.escopo === "aluno" ? `Análise individual - ${alunoRelatorio}` : "Relatório pedagógico da turma";
   const subtituloEscopo = resposta.escopo === "aluno"
     ? "Leitura, fluência e acompanhamento do estudante"
     : "Leitura, fluência e acompanhamento coletivo";
@@ -424,7 +425,7 @@ function renderizarConteudoAnalise(
     ? `
       <div class="report-id-card">
         <span>Aluno avaliado</span>
-        <strong>${escapeHtml(contexto.alunoNome || "Aluno não informado")}</strong>
+        <strong>${escapeHtml(alunoRelatorio)}</strong>
       </div>
     `
     : "";
@@ -1181,7 +1182,7 @@ function imprimirRelatorio(): void {
   const dadosImpressao = {
     titulo: tituloRelatorioParaImpressao(relatorio),
     relatorioHtml: relatorio.outerHTML,
-    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-14"
+    cssHref: document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href || "assets/css/dashboard.css?v=2026/09-15"
   };
 
   try {

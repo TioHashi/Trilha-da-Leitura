@@ -59,6 +59,7 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /Selecione o nome do aluno/);
   assert.match(fonte, /Nome do aluno não registrado/);
   assert.match(fonte, /Análise individual -/);
+  assert.match(fonte, /alunoRelatorio/);
   assert.doesNotMatch(fonte, /item\.alunoNome \|\| item\.alunoAnonimo/);
   assert.match(fonte, /Abrir relatório/);
   assert.match(fonte, /aria-label="Imprimir relatório"/);
@@ -102,6 +103,7 @@ test("relatorio pedagogico possui estilos de impressao", () => {
 test("pagina dedicada de impressao carrega somente o relatorio salvo", () => {
   const html = readFileSync("imprimir-relatorio.html", "utf8");
   assert.match(html, /printReportRoot/);
+  assert.match(html, /class="auth-ready"/);
   assert.match(html, /localStorage\.getItem/);
   assert.match(html, /window\.name/);
   assert.match(html, /document\.title/);
