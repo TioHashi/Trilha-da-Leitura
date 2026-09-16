@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 test("paginas protegidas carregam Firebase Auth e o guard de autenticacao", () => {
-  for (const filePath of ["index.html", "dashboard.html", "analises.html", "trilha-turma.html"]) {
+  for (const filePath of ["src/pages/index.html", "src/pages/dashboard.html", "src/pages/analises.html", "src/pages/trilha-turma.html"]) {
     const html = readFileSync(filePath, "utf8");
     assert.match(html, /firebase-auth-compat\.js/);
     assert.match(html, /public\/assets\/js\/auth\.js/);
@@ -13,7 +13,7 @@ test("paginas protegidas carregam Firebase Auth e o guard de autenticacao", () =
 });
 
 test("pagina de login usa Firebase Authentication e nao contem segredo", () => {
-  const html = readFileSync("login.html", "utf8");
+  const html = readFileSync("src/pages/login.html", "utf8");
   const css = readFileSync("assets/css/auth.css", "utf8");
   assert.match(html, /firebase-auth-compat\.js/);
   assert.match(html, /initLoginPage/);
@@ -33,7 +33,7 @@ test("login permite solicitar redefinicao de senha pelo Firebase Auth", () => {
 });
 
 test("regras do Firestore exigem autenticacao e nao usam allow aberto", () => {
-  const rules = readFileSync("firestore.rules", "utf8");
+  const rules = readFileSync("firebase/firestore.rules", "utf8");
   assert.match(rules, /request\.auth != null/);
   assert.doesNotMatch(rules, /allow\s+read,\s*write:\s*if\s+true/);
   assert.doesNotMatch(rules, /allow\s+read:\s*if\s+true/);
@@ -41,9 +41,9 @@ test("regras do Firestore exigem autenticacao e nao usam allow aberto", () => {
 });
 
 test("dashboard tem cadastro de alunos vinculado ao professor", () => {
-  const html = readFileSync("dashboard.html", "utf8");
+  const html = readFileSync("src/pages/dashboard.html", "utf8");
   const fonte = readFileSync("assets/js/dashboard.js", "utf8");
-  const rules = readFileSync("firestore.rules", "utf8");
+  const rules = readFileSync("firebase/firestore.rules", "utf8");
 
   assert.match(html, /formCadastroAluno/);
   assert.match(html, /cadastroAlunoNome/);
@@ -66,9 +66,9 @@ test("dashboard tem cadastro de alunos vinculado ao professor", () => {
 });
 
 test("avaliacao individual lista alunos vinculados ao professor", () => {
-  const html = readFileSync("index.html", "utf8");
+  const html = readFileSync("src/pages/index.html", "utf8");
   const fonte = readFileSync("assets/js/app.js", "utf8");
-  const rules = readFileSync("firestore.rules", "utf8");
+  const rules = readFileSync("firebase/firestore.rules", "utf8");
 
   assert.match(html, /<select id="nomeAluno" required>/);
   assert.doesNotMatch(html, /Palavras corretas no texto/);
@@ -82,7 +82,7 @@ test("avaliacao individual lista alunos vinculados ao professor", () => {
 });
 
 test("dashboard junta alunos cadastrados e avaliados na turma", () => {
-  const html = readFileSync("dashboard.html", "utf8");
+  const html = readFileSync("src/pages/dashboard.html", "utf8");
   const fonte = readFileSync("assets/js/dashboard.js", "utf8");
   const css = readFileSync("assets/css/dashboard.css", "utf8");
 
@@ -105,9 +105,9 @@ test("dashboard junta alunos cadastrados e avaliados na turma", () => {
 });
 
 test("dashboard tem cadastro administrativo de acessos apenas para emulador", () => {
-  const html = readFileSync("dashboard.html", "utf8");
+  const html = readFileSync("src/pages/dashboard.html", "utf8");
   const fonte = readFileSync("assets/js/dashboard.js", "utf8");
-  const rules = readFileSync("firestore.rules", "utf8");
+  const rules = readFileSync("firebase/firestore.rules", "utf8");
 
   assert.match(html, /adminCadastroAcessos/);
   assert.match(html, /adminAcessoEmail/);

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 test("pagina Trilha Turma usa palavras existentes e nao salva resultados", () => {
-  const html = readFileSync("trilha-turma.html", "utf8");
+  const html = readFileSync("src/pages/trilha-turma.html", "utf8");
   const fonte = readFileSync("src/ts/trilha-turma.ts", "utf8");
 
   assert.match(html, /Trilha Turma/);
@@ -50,7 +50,7 @@ test("avaliacao individual sorteia palavras e textos por ciclo sem repeticao", (
 });
 
 test("tela inicial mantem Trilha Turma no botao principal e dashboard no topo", () => {
-  const html = readFileSync("index.html", "utf8");
+  const html = readFileSync("src/pages/index.html", "utf8");
   const ocorrenciasTrilhaTurma = html.match(/Iniciar Trilha Turma/g) || [];
   assert.match(html, /Iniciar Trilha Turma/);
   assert.match(html, /trilha-turma\.html/);

@@ -7,16 +7,23 @@ const dist = join(raiz, "dist");
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
-const arquivosRaiz = [
+const paginas = [
   "index.html",
   "dashboard.html",
   "analises.html",
   "imprimir-relatorio.html",
   "trilha-turma.html",
-  "login.html",
+  "login.html"
+];
+
+const arquivosRaiz = [
   "LICENSE.md",
   "NOTICE.md"
 ];
+
+for (const pagina of paginas) {
+  cpSync(join(raiz, "src", "pages", pagina), join(dist, pagina));
+}
 
 for (const arquivo of arquivosRaiz) {
   cpSync(join(raiz, arquivo), join(dist, arquivo));

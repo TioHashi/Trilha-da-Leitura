@@ -14,14 +14,18 @@ A Inteligencia Artificial prevista para fases futuras sera apenas apoio pedagogi
 
 O projeto funciona hoje como frontend estatico:
 
-- `index.html`: aplicacao de avaliacao.
-- `dashboard.html`: painel de resultados.
+- `src/pages/index.html`: aplicacao de avaliacao.
+- `src/pages/dashboard.html`: painel de resultados.
+- `src/pages/analises.html`: historico e Assistente Pedagogico com IA.
+- `src/pages/login.html`: tela de entrada.
+- `src/pages/trilha-turma.html`: atividade coletiva da turma.
+- `src/pages/imprimir-relatorio.html`: pagina dedicada para impressao limpa dos relatorios.
 - `assets/js/conteudo.js`: listas de palavras, textos e perguntas.
 - `assets/js/app.js`: fluxo da avaliacao, cronometros, resultado e classificacao.
 - `assets/js/database.js`: salvamento local, fila offline e sincronizacao com Firestore.
 - `assets/js/dashboard.js`: filtros, indicadores, graficos, tabela, exclusao e CSV.
 - `assets/css/app.css` e `assets/css/dashboard.css`: estilos atuais.
-- `firestore.rules` e `firebase.json`: configuracao atual do Firebase.
+- `firebase/firestore.rules` e `firebase.json`: configuracao atual do Firebase.
 
 ## Funcionalidades Atuais
 
@@ -74,14 +78,14 @@ A primeira fonte TypeScript testavel esta em `src/ts/reading-rules.ts` e replica
 
 ## Fase 2: Autenticacao e Seguranca Local
 
-Esta fase adiciona Firebase Authentication com e-mail e senha e protege o acesso a `index.html`, `dashboard.html` e `analises.html`.
+Esta fase adiciona Firebase Authentication com e-mail e senha e protege o acesso publico gerado como `index.html`, `dashboard.html` e `analises.html`.
 
 Arquivos principais:
 
-- `login.html`: tela de entrada.
+- `src/pages/login.html`: tela de entrada.
 - `src/ts/auth.ts`: inicializacao do Firebase Auth, protecao de paginas, login, logout e conexao automatica com emuladores em `localhost`.
 - `public/assets/js/auth.js`: JavaScript compilado a partir do TypeScript.
-- `firestore.rules`: regras locais corrigidas para exigir `request.auth`.
+- `firebase/firestore.rules`: regras locais corrigidas para exigir `request.auth`.
 
 As regras do Firestore foram preparadas para:
 
@@ -284,7 +288,7 @@ Os comandos e orientacoes completas dos emuladores estao em `docs/firebase-emula
 
 ## Execucao Sem Instalar Dependencias
 
-Como o app atual e estatico, tambem e possivel abrir `index.html` diretamente no navegador para verificar a avaliacao. Para um servidor local simples, use qualquer servidor estatico apontando para a raiz do projeto.
+Como o app atual e estatico, tambem e possivel gerar `dist/` com `npm run build:pages` e abrir `dist/index.html` ou servir `dist/` com um servidor estatico para verificar a avaliacao.
 
 Exemplo com Node.js, sem instalar pacotes:
 
@@ -345,6 +349,7 @@ O diretorio `dist/` deve conter apenas os arquivos publicos do frontend:
 - `index.html`;
 - `dashboard.html`;
 - `analises.html`;
+- `imprimir-relatorio.html`;
 - `trilha-turma.html`;
 - `login.html`;
 - `assets/`;
@@ -364,6 +369,8 @@ Para o sistema completo funcionar online, tambem sera necessario configurar no F
 - `OPENAI_API_KEY` configurada somente como secret das Cloud Functions.
 
 Os arquivos de `public/assets/js` publicados em `dist/` devem ser apenas `.js`. Arquivos `.map` e `.d.ts` sao artefatos de desenvolvimento e nao precisam ser publicados no frontend.
+
+As paginas fonte ficam organizadas em `src/pages/`. O script `scripts/build-pages.mjs` copia essas paginas para a raiz de `dist/` para preservar as URLs publicas esperadas pelo GitHub Pages.
 
 Nao devem ser publicados no GitHub Pages:
 

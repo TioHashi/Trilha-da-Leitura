@@ -175,7 +175,7 @@ test.before(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
     firestore: {
-      rules: readFileSync("firestore.rules", "utf8")
+      rules: readFileSync("firebase/firestore.rules", "utf8")
     }
   });
 });

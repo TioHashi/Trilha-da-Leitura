@@ -12,4 +12,6 @@ functions/**/.secret.local
 dist/
 firebase-debug.log
 firestore-debug.log
-firebase.regras-test.local.json
+logs/
+logs/*.log
+firebase/regras-test.local.json

@@ -23,7 +23,7 @@ A Inteligencia Artificial e apenas apoio pedagogico. Ela nao pode diagnosticar a
 
 O projeto evoluiu de uma aplicacao estatica simples para um sistema web estatico com autenticacao, Firestore, Cloud Functions, IA, testes e preparacao para GitHub Pages.
 
-Paginas principais:
+Paginas principais publicadas no `dist/` e mantidas como fonte em `src/pages/`:
 
 - `login.html`: tela de login com Firebase Authentication, imagem de fundo institucional, recuperacao de senha por e-mail e redirecionamento seguro.
 - `index.html`: avaliacao individual da fluencia leitora. Professor comum entra com escola e turma ja vinculadas ao login; o campo de aluno carrega alunos da colecao `alunos` vinculados ao professor, escola e turma.
@@ -41,7 +41,7 @@ Areas relevantes:
 - `src/ts/ai-assistant.ts`: interface da IA, anonimizacao, historico, renderizacao de relatorios e salvamento automatico.
 - `src/ts/trilha-turma.ts`: atividade coletiva de turma, temporizador, contagem de palavras e fluxo automatico.
 - `functions/src/ai/`: backend da IA com Cloud Functions v2, validacao, prompt, schema, chamada OpenAI e fallback local para emulador.
-- `firestore.rules`: regras de seguranca para `resultadosAlunos`, `alunos`, `usuarios` e `analisesPedagogicas`.
+- `firebase/firestore.rules`: regras de seguranca para `resultadosAlunos`, `alunos`, `usuarios` e `analisesPedagogicas`.
 - `scripts/semear-emuladores.mjs`: cria dados ficticios no Firebase Emulator Suite.
 - `scripts/verificar-dados-emuladores.mjs`: confere a massa local dos emuladores.
 - `scripts/build-pages.mjs` e `scripts/verify-pages-build.mjs`: preparam e validam o frontend para GitHub Pages.
@@ -445,11 +445,6 @@ Estrutura atual aproximada:
 /
 |-- AGENTS.md
 |-- README.md
-|-- index.html
-|-- dashboard.html
-|-- analises.html
-|-- trilha-turma.html
-|-- login.html
 |-- package.json
 |-- tsconfig.json
 |-- tailwind.config.js
@@ -460,6 +455,13 @@ Estrutura atual aproximada:
 |   |-- favicon.png
 |   `-- login-background.png
 |-- src/
+|   |-- pages/
+|   |   |-- index.html
+|   |   |-- dashboard.html
+|   |   |-- analises.html
+|   |   |-- imprimir-relatorio.html
+|   |   |-- trilha-turma.html
+|   |   `-- login.html
 |   |-- styles/
 |   |   `-- input.css
 |   `-- ts/
@@ -483,7 +485,8 @@ Estrutura atual aproximada:
 |-- scripts/
 |-- tests/
 |-- docs/
-|-- firestore.rules
+|-- firebase/
+|   `-- firestore.rules
 |-- firebase.json
 `-- .github/
     `-- workflows/

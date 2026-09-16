@@ -5,7 +5,7 @@ import { join } from "node:path";
 const HOST = "127.0.0.1";
 const PORTA_FIRESTORE_TESTE = 18085;
 const PROJETO_LOCAL = "trilha-leitura-regras-test";
-const CONFIG_TESTE = join("firebase.regras-test.local.json");
+const CONFIG_TESTE = join("firebase", "regras-test.local.json");
 
 function executar(comando, argumentos, env = {}) {
   return new Promise((resolve) => {

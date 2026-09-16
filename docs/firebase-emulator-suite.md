@@ -10,7 +10,7 @@ O projeto usado pelo aplicativo nos emuladores é:
 trilha-leitura
 ```
 
-Esse identificador acompanha o `projectId` do frontend para que `login.html`, `dashboard.html`, Auth Emulator e Firestore Emulator usem o mesmo namespace local.
+Esse identificador acompanha o `projectId` do frontend para que as paginas publicas geradas a partir de `src/pages/`, Auth Emulator e Firestore Emulator usem o mesmo namespace local.
 
 Os testes isolados das regras podem usar o projeto local `demo-trilha-da-leitura`, mas o uso manual do aplicativo deve usar `trilha-leitura`.
 
@@ -96,7 +96,7 @@ Para testar as páginas protegidas localmente:
 2. Abra `http://127.0.0.1:4000`.
 3. Acesse a área de autenticação.
 4. Se necessário, execute `npm run semear:emuladores`.
-5. Abra `login.html` pelo servidor local do projeto.
+5. Abra `login.html` pelo servidor local apontado para `dist/` depois de executar `npm run build:pages`.
 6. Entre usando um professor fictício, por exemplo `professor1@trilhaleitura.local` com senha `123456`.
 
 Para acessar todos os alunos, turmas, resultados e análises salvas automaticamente, entre como administrador:
@@ -107,7 +107,7 @@ admin@trilhaleitura.local / 123456
 
 ## Regras de Segurança
 
-As regras em `firestore.rules` são carregadas pelo emulador durante os testes. Elas exigem usuário autenticado para leitura e escrita em `resultadosAlunos`, restringem exclusão definitiva a usuários com perfil administrativo e protegem `analisesPedagogicas` por professor, escola e turma.
+As regras em `firebase/firestore.rules` são carregadas pelo emulador durante os testes. Elas exigem usuário autenticado para leitura e escrita em `resultadosAlunos`, restringem exclusão definitiva a usuários com perfil administrativo e protegem `analisesPedagogicas` por professor, escola e turma.
 
 Essas regras não são publicadas automaticamente. Para este projeto escolar, qualquer publicação deve ser feita manualmente e somente depois de revisão.
 

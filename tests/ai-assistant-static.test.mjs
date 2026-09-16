@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 test("dashboard possui atalho para historico e IA", () => {
-  const html = readFileSync("dashboard.html", "utf8");
+  const html = readFileSync("src/pages/dashboard.html", "utf8");
   assert.match(html, /Voltar à Avaliação/);
   assert.match(html, /index\.html/);
   assert.match(html, /Histórico e IA/);
@@ -12,7 +12,7 @@ test("dashboard possui atalho para historico e IA", () => {
 });
 
 test("pagina de analises possui Assistente Pedagogico com IA", () => {
-  const html = readFileSync("analises.html", "utf8");
+  const html = readFileSync("src/pages/analises.html", "utf8");
   assert.match(html, /Assistente Pedagógico com IA/);
   assert.match(html, /firebase-functions-compat\.js/);
   assert.match(html, /public\/assets\/js\/ai-assistant\.js/);
@@ -43,7 +43,7 @@ test("payload do cliente usa campos em portugues e anonimizacao", () => {
 });
 
 test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () => {
-  const html = readFileSync("analises.html", "utf8");
+  const html = readFileSync("src/pages/analises.html", "utf8");
   const fonte = readFileSync("src/ts/ai-assistant.ts", "utf8");
   assert.match(html, /iaRelatorioSalvo/);
   assert.match(html, /Comparar sínteses salvas/);
@@ -101,7 +101,7 @@ test("relatorio pedagogico possui estilos de impressao", () => {
 });
 
 test("pagina dedicada de impressao carrega somente o relatorio salvo", () => {
-  const html = readFileSync("imprimir-relatorio.html", "utf8");
+  const html = readFileSync("src/pages/imprimir-relatorio.html", "utf8");
   assert.match(html, /printReportRoot/);
   assert.match(html, /class="auth-ready"/);
   assert.match(html, /localStorage\.getItem/);
