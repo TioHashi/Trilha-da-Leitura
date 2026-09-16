@@ -12,6 +12,7 @@ interface TrilhaIAApi {
   atualizarPainel: () => void;
   gerarAnalise: () => Promise<void>;
   copiarAnalise: () => Promise<void>;
+  imprimirRelatorio: () => void;
   salvarAnalise: () => Promise<void>;
 }
 

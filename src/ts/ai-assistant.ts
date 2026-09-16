@@ -403,6 +403,7 @@ function renderizarAnalise(resposta: RespostaFuncao): void {
   });
   estadoIA.ultimaResposta = resposta;
   elemento<HTMLButtonElement>("iaCopiar").disabled = false;
+  elemento<HTMLButtonElement>("iaImprimir").disabled = false;
   elemento<HTMLButtonElement>("iaGerarNovamente").disabled = false;
 }
 
@@ -583,6 +584,7 @@ async function gerarAnalise(): Promise<void> {
   setEstado("Gerando análise com IA...", "info");
   elemento<HTMLElement>("iaResultado").innerHTML = "";
   elemento<HTMLButtonElement>("iaCopiar").disabled = true;
+  elemento<HTMLButtonElement>("iaImprimir").disabled = true;
 
   try {
     const resposta = await chamarAssistenteIA(payload);
@@ -1158,8 +1160,28 @@ function abrirRelatorioHistorico(id: string, atualizarLista = true): void {
     alunoNome: nomeAlunoRelatorio(item.alunoNome),
     indicadores: item.indicadores
   });
+  elemento<HTMLButtonElement>("iaImprimir").disabled = false;
   alvo.scrollIntoView({ behavior: "smooth", block: "start" });
   if (atualizarLista) renderizarHistorico();
+}
+
+function imprimirRelatorio(): void {
+  const relatorioHistorico = elemento<HTMLElement>("iaRelatorioSalvo");
+  const relatorioAtual = elemento<HTMLElement>("iaResultado");
+  const alvo = relatorioHistorico.querySelector(".pedagogical-report")
+    ? relatorioHistorico
+    : relatorioAtual.querySelector(".pedagogical-report")
+      ? relatorioAtual
+      : null;
+
+  if (!alvo) {
+    setEstado("Gere ou abra um relatório antes de imprimir.", "erro");
+    return;
+  }
+
+  document.querySelectorAll(".print-report-target").forEach((item) => item.classList.remove("print-report-target"));
+  alvo.classList.add("print-report-target");
+  window.setTimeout(() => window.print(), 50);
 }
 
 function nomeProfessor(nome?: string, email?: string): string {
@@ -1252,6 +1274,7 @@ function inicializar(): void {
   elemento<HTMLButtonElement>("iaGerar").addEventListener("click", gerarAnalise);
   elemento<HTMLButtonElement>("iaGerarNovamente").addEventListener("click", gerarAnalise);
   elemento<HTMLButtonElement>("iaCopiar").addEventListener("click", copiarAnalise);
+  elemento<HTMLButtonElement>("iaImprimir").addEventListener("click", imprimirRelatorio);
   elemento<HTMLButtonElement>("iaCompararSinteses").addEventListener("click", () => {
     compararSinteses();
   });
@@ -1277,5 +1300,6 @@ janelaIA.TrilhaIA = {
   atualizarPainel,
   gerarAnalise,
   copiarAnalise,
+  imprimirRelatorio,
   salvarAnalise
 };
