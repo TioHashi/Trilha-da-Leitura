@@ -1177,53 +1177,34 @@ function imprimirRelatorio(): void {
     return;
   }
 
-  document.getElementById("printReportFrame")?.remove();
-
   const cssDashboard = document.querySelector<HTMLLinkElement>('link[href*="dashboard.css"]')?.href
-    || "assets/css/dashboard.css?v=2026/09-10";
-  const frame = document.createElement("iframe");
-  frame.id = "printReportFrame";
-  frame.title = "Impressão do relatório pedagógico";
-  frame.style.position = "fixed";
-  frame.style.right = "0";
-  frame.style.bottom = "0";
-  frame.style.width = "0";
-  frame.style.height = "0";
-  frame.style.border = "0";
-  frame.style.opacity = "0";
-  document.body.appendChild(frame);
-
-  const documento = frame.contentDocument;
-  const janela = frame.contentWindow;
-  if (!documento || !janela) {
-    frame.remove();
-    setEstado("Não foi possível preparar a impressão do relatório.", "erro");
+    || "assets/css/dashboard.css?v=2026/09-11";
+  const janelaImpressao = window.open("", "_blank", "noopener,noreferrer,width=960,height=720");
+  if (!janelaImpressao) {
+    setEstado("O navegador bloqueou a página de impressão. Permita pop-ups para imprimir o relatório.", "erro");
     return;
   }
 
+  const documento = janelaImpressao.document;
   documento.open();
   documento.write(`<!doctype html>
     <html lang="pt-BR">
       <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Relatório Pedagógico</title>
         <link rel="stylesheet" href="${escapeHtml(cssDashboard)}">
       </head>
       <body>
+        <script>
+          window.addEventListener("afterprint", () => window.close());
+          window.addEventListener("load", () => setTimeout(() => window.print(), 300));
+        </script>
         <main id="printReportRoot" class="print-report-target">${relatorio.outerHTML}</main>
       </body>
     </html>`);
   documento.close();
-
-  const limparFrame = () => window.setTimeout(() => frame.remove(), 500);
-  janela.addEventListener("afterprint", limparFrame, { once: true });
-  window.setTimeout(() => {
-    janela.focus();
-    janela.print();
-    window.setTimeout(() => {
-      if (document.body.contains(frame)) frame.remove();
-    }, 1500);
-  }, 350);
+  janelaImpressao.focus();
 }
 
 function imprimirRelatorioHistorico(id: string): void {

@@ -81,9 +81,9 @@ test("historico da IA mostra vinculo pedagogico e permite abrir relatorio", () =
   assert.match(fonte, /registrosMaisRecentesPorAluno/);
   assert.match(fonte, /registro\(s\) mais recente\(s\) dos alunos filtrados/);
   assert.match(fonte, /imprimirRelatorio/);
-  assert.match(fonte, /printReportFrame/);
+  assert.match(fonte, /window\.open/);
   assert.match(fonte, /relatorio\.outerHTML/);
-  assert.match(fonte, /janela\.print\(\)/);
+  assert.match(fonte, /window\.print/);
   assert.doesNotMatch(fonte, /alunoNome: item\.alunoNome/);
 });
 
@@ -91,6 +91,7 @@ test("relatorio pedagogico possui estilos de impressao", () => {
   const css = readFileSync("assets/css/dashboard.css", "utf8");
   assert.match(css, /@media print/);
   assert.match(css, /print-report-target/);
+  assert.match(css, /width:80% !important/);
   assert.match(css, /pedagogical-report/);
   assert.match(css, /@page/);
 });
